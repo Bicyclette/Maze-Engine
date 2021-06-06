@@ -1,3 +1,0 @@
-/home/mathias/Programmation/Games/Maze/build/CMakeFiles/rebuild_cache.dir
-/home/mathias/Programmation/Games/Maze/build/CMakeFiles/edit_cache.dir
-/home/mathias/Programmation/Games/Maze/build/CMakeFiles/Maze.dir

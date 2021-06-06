@@ -1,4 +1,7 @@
 ### C++ ###
+# application dependant
+build/
+
 # Prerequisites
 *.d
 
