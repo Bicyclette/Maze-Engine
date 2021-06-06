@@ -31,13 +31,17 @@ struct Vertex
 		glm::vec3 norm,
 		glm::vec2 tex,
 		glm::vec3 tang = glm::vec3(0.0f),
-		glm::vec3 bTang = glm::vec3(0.0f))
+		glm::vec3 bTang = glm::vec3(0.0f),
+		glm::ivec4 idBones = glm::ivec4(0),
+		glm::vec4 bonesWeights = glm::vec4(0.0f))
 	{
 		position = pos;
 		normal = norm;
 		texCoords = tex;
 		tangent = tang;
 		biTangent = bTang;
+		bonesID = idBones;
+		weights = bonesWeights;
 	}
 };
 

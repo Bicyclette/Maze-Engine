@@ -1,0 +1,459 @@
+#include "animatedObject.hpp"
+
+Animator::Animator() :
+	deltaTime(0.0f),
+	currentTime(0.0f)
+{
+	for(int i{0}; i < 50; ++i)
+		finalJointTransform[i] = glm::mat4(1.0f);
+}
+
+Animator::Animator(std::shared_ptr<Animation> animation) :
+	deltaTime(0.0f),
+	currentTime(0.0f),
+	currentAnimation(animation)
+{
+	for(int i{0}; i < 50; ++i)
+		finalJointTransform[i] = glm::mat4(1.0f);
+}
+
+void Animator::updateAnimation(float delta)
+{
+	deltaTime = delta;
+	if(currentAnimation)
+	{
+		currentTime += currentAnimation->ticksPerSecond * deltaTime;
+		currentTime = fmod(currentTime, currentAnimation->duration);
+		calculateJointTransform(currentAnimation->rootJoint, glm::mat4(1.0f));
+	}
+}
+
+void Animator::playAnimation(std::shared_ptr<Animation> animation)
+{
+	if(currentAnimation != animation)
+	{
+		currentAnimation = animation;
+		currentTime = 0.0f;
+	}
+}
+
+void Animator::stopAnimation()
+{
+	if(currentAnimation)
+	{
+		currentAnimation.reset();
+		deltaTime = 0.0f;
+		currentTime = 0.0f;
+		for(int i{0}; i < 50; ++i)
+			finalJointTransform[i] = glm::mat4(1.0f);
+	}
+}
+
+void Animator::calculateJointTransform(std::shared_ptr<Joint> joint, glm::mat4 parentTransform)
+{
+	glm::mat4 jointTransform;
+	std::shared_ptr<struct JointAnim> jointAnim;
+
+	for(int i{0}; i < currentAnimation->jointAnim.size(); ++i)
+	{
+		if(currentAnimation->jointAnim[i]->joint->getId() == joint->getId())
+		{
+			jointAnim = currentAnimation->jointAnim[i];
+			break;
+		}
+	}
+
+	if(jointAnim)
+	{
+		jointAnim->update(currentTime);
+		jointTransform = jointAnim->localTransform;
+
+		glm::mat4 globalTransformation = parentTransform * jointTransform;
+
+		int index = jointAnim->joint->getId();
+		glm::mat4 offset = jointAnim->joint->getOffsetMatrix();
+		finalJointTransform[index] = currentAnimation->globalInverseTransform * globalTransformation * offset;
+
+		for(int i{0}; i < joint->getChildren().size(); ++i)
+		{
+			calculateJointTransform(joint->getChildren()[i], globalTransformation);
+		}
+	}
+}
+
+std::array<glm::mat4, 50> & Animator::getFinalJointTransform()
+{
+	return finalJointTransform;
+}
+
+std::shared_ptr<Animation> & Animator::getCurrentAnimation()
+{
+	return currentAnimation;
+}
+
+AnimatedObject::AnimatedObject(const std::string & path, glm::mat4 p_model) :
+	Object(p_model)
+{
+	load(path);
+}
+
+AnimatedObject::~AnimatedObject(){}
+
+std::vector<std::shared_ptr<Animation>> & AnimatedObject::getAnimations()
+{
+	return animations;
+}
+
+void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, DRAWING_MODE mode)
+{
+	shader.use();
+	shader.setInt("animated", 1);
+	shader.setMatrix("model", model);
+	if(shader.getType() == SHADER_TYPE::PBR || shader.getType() == SHADER_TYPE::BLINN_PHONG || shader.getType() == SHADER_TYPE::GBUFFER)
+		shader.setMatrix("normalMatrix", glm::transpose(glm::inverse(model)));
+
+	for(int i{0}; i < finalJointTransform.size(); ++i)
+	{
+		std::string boneMatrixStr{"bonesMatrices["};
+		boneMatrixStr += std::to_string(i);
+		boneMatrixStr += std::string("]");
+		//std::cout << boneMatrixStr << " = " << glm::to_string(finalJointTransform[i]) << std::endl;
+		shader.setMatrix(boneMatrixStr, finalJointTransform[i]);
+	}
+	//std::cout << std::endl;
+
+	int meshCount = meshes.size();
+
+	for(int i{0}; i < meshCount; ++i)
+	{
+		meshes.at(i)->draw(shader, instancing, instanceModel.size(), mode);
+	}
+}
+
+void AnimatedObject::load(const std::string & path)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+	if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || ! scene->mRootNode)
+	{
+		std::cerr << importer.GetErrorString() << std::endl;
+		return;
+	}
+
+	directory = path.substr(0, path.find_last_of('/'));
+
+	name = scene->mRootNode->mName.C_Str();
+	int dotIndex = name.find_first_of(".");
+	name = name.substr(0, dotIndex);
+
+	if(scene->HasAnimations())
+	{
+		loadJointHierarchy(scene);
+		loadAnimations(scene->mAnimations, scene->mNumAnimations);
+		for(int i{0}; i < animations.size(); ++i)
+		{
+			animations[i]->globalInverseTransform = assimpMat4_to_glmMat4(scene->mRootNode->mTransformation.Inverse());
+		}
+	}
+
+	exploreNode(scene->mRootNode, scene);
+}
+
+void AnimatedObject::loadJointHierarchy(const aiScene * scene)
+{
+	// compute list of all bones' name
+	std::vector<std::string> bonesName;
+
+	for(int m{0}; m < scene->mNumMeshes; ++m)
+	{
+		aiMesh * currentMesh = scene->mMeshes[m];
+		for(int b{0}; b < currentMesh->mNumBones; ++b)
+		{
+			aiBone* currentBone = currentMesh->mBones[b];
+			std::string bName = currentBone->mName.C_Str();
+			if(std::find(bonesName.begin(), bonesName.end(), bName) == bonesName.end())
+			{
+				bonesName.push_back(bName);
+			}
+		}
+	}
+
+	// get root bone of skeleton
+	aiNode * rootBone = getRootBone(scene->mRootNode, bonesName);
+	rootJoint = std::make_shared<Joint>(1, rootBone->mName.C_Str());
+
+	// compute hierarchy
+	computeHierarchy(rootBone, rootJoint, bonesName);
+	rootJoint->printHierarchy(0);
+
+	// assign offset matrices to each joint
+	for(int m{0}; m < scene->mNumMeshes; ++m)
+	{
+		aiMesh * currentMesh = scene->mMeshes[m];
+		for(int b{0}; b < currentMesh->mNumBones; ++b)
+		{
+			aiBone* currentBone = currentMesh->mBones[b];
+			std::string bName = currentBone->mName.C_Str();
+			if(nameJoint[bName] != nullptr)
+			{
+				aiMatrix4x4 offsetMatrix = currentBone->mOffsetMatrix;
+				nameJoint[bName]->setOffsetMatrix(assimpMat4_to_glmMat4(offsetMatrix));
+			}
+		}
+	}
+}
+
+void AnimatedObject::computeHierarchy(aiNode* node, std::shared_ptr<Joint> joint, std::vector<std::string> & bNames)
+{
+	static int ID{1};
+
+	nameJoint[joint->getName()] = joint;
+	finalJointTransform[joint->getName()] = glm::mat4(1.0f);
+	for(int i{0}; i < node->mNumChildren; ++i)
+	{
+		aiNode* child = node->mChildren[i];
+		if(std::find(bNames.begin(), bNames.end(), child->mName.C_Str()) != bNames.end())
+		{
+			ID++;
+			std::shared_ptr<Joint> j = std::make_shared<Joint>(ID, child->mName.C_Str());
+			joint->addChild(j);
+			computeHierarchy(child, j, bNames);
+		}
+	}
+}
+
+aiNode* AnimatedObject::getRootBone(aiNode * node, std::vector<std::string> & bNames)
+{
+	aiNode* rootBone = nullptr;
+
+	if(std::find(bNames.begin(), bNames.end(), node->mName.C_Str()) != bNames.end())
+	{
+		aiNode* parentNode = node->mParent;
+		if(std::find(bNames.begin(), bNames.end(), parentNode->mName.C_Str()) == bNames.end())
+		{
+			rootBone = node;
+			return rootBone;
+		}
+	}
+
+	for(int i{0}; i < node->mNumChildren; ++i)
+	{
+		rootBone = getRootBone(node->mChildren[i], bNames);
+		if(rootBone != nullptr)
+			break;
+	}
+
+	return rootBone;
+}
+
+void AnimatedObject::loadAnimations(aiAnimation** anims, int animCount)
+{
+	aiString name;
+	double duration;
+	double ticksPerSecond;
+	for(int i{0}; i < animCount; ++i)
+	{
+		aiAnimation* current = anims[i];
+		name = current->mName;
+		duration = current->mDuration;
+		ticksPerSecond = current->mTicksPerSecond;
+
+		std::shared_ptr<Animation> animation = std::make_shared<Animation>();
+		animation->name = name.C_Str();
+		animation->duration = static_cast<float>(duration);
+		animation->ticksPerSecond = static_cast<float>(ticksPerSecond);
+		animation->rootJoint = rootJoint;
+
+		for(int n{0}; n < current->mNumChannels; ++n) // number of bones involved
+		{
+			aiNodeAnim* nodeAnim = current->mChannels[n];
+			std::shared_ptr<struct JointAnim> jointAnim = std::make_shared<struct JointAnim>();
+			jointAnim->joint = nameJoint[nodeAnim->mNodeName.C_Str()];
+			jointAnim->localTransform = glm::mat4(1.0f);
+
+			for(int k{0}; k < nodeAnim->mNumPositionKeys; ++k)
+			{
+				aiVectorKey positionVectorKey = nodeAnim->mPositionKeys[k];
+				aiVector3D position = positionVectorKey.mValue;
+
+				struct PositionKey pKey;
+				pKey.timestamp = static_cast<float>(positionVectorKey.mTime);
+				pKey.position = glm::vec3(position.x, position.y, position.z);
+				
+				jointAnim->pKeys.push_back(pKey);
+			}
+			for(int k{0}; k < nodeAnim->mNumRotationKeys; ++k)
+			{
+				aiQuatKey rotationQuatKey = nodeAnim->mRotationKeys[k];
+				aiQuaternion rotation = rotationQuatKey.mValue;
+
+				struct RotationKey rKey;
+				rKey.timestamp = static_cast<float>(rotationQuatKey.mTime);
+				rKey.rotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
+
+				jointAnim->rKeys.push_back(rKey);
+			}
+			for(int k{0}; k < nodeAnim->mNumScalingKeys; ++k)
+			{
+				aiVectorKey scalingVectorKey = nodeAnim->mScalingKeys[k];
+				aiVector3D scaling = scalingVectorKey.mValue;
+
+				struct ScalingKey sKey;
+				sKey.timestamp = static_cast<float>(scalingVectorKey.mTime);
+				sKey.scale = glm::vec3(scaling.x, scaling.y, scaling.z);
+				
+				jointAnim->sKeys.push_back(sKey);
+			}
+			animation->jointAnim.push_back(jointAnim);
+		}
+
+		animations.push_back(animation);
+	}
+}
+
+std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene)
+{
+	std::vector<Vertex> vertices;
+	std::vector<int> indices;
+	struct Material material;
+	std::string meshName(mesh->mName.C_Str());
+	
+	// vertices
+	int nb_vertices = mesh->mNumVertices;
+	
+	glm::vec3 v_pos;
+	glm::vec3 v_norm;
+	glm::vec2 v_tex_coords;
+	glm::vec3 v_tangent;
+	glm::vec3 v_bTangent;
+	glm::ivec4 v_bonesID = glm::ivec4(0);
+	glm::vec4 v_bonesWeights = glm::vec4(0.0f);
+
+	aiVector3D vertex_pos;
+	aiVector3D vertex_norm;
+	aiVector3D vertex_tangent;
+	aiVector3D vertex_bTangent;
+
+	for(int i{0}; i < nb_vertices; ++i)
+	{
+		vertex_pos = mesh->mVertices[i];
+		vertex_norm = mesh->mNormals[i];
+		if(mesh->HasNormals())
+		{
+			vertex_tangent = mesh->mTangents[i];
+			vertex_bTangent = mesh->mBitangents[i];
+		}
+		else
+		{
+			vertex_tangent = aiVector3D(0.0f, 0.0f, 0.0f);
+			vertex_bTangent = aiVector3D(0.0f, 0.0f, 0.0f);
+		}
+
+		v_pos = glm::vec3(vertex_pos.x, vertex_pos.y, vertex_pos.z);
+		v_norm = glm::vec3(vertex_norm.x, vertex_norm.y, vertex_norm.z);
+		v_tangent = glm::vec3(vertex_tangent.x, vertex_tangent.y, vertex_tangent.z);
+		v_bTangent = glm::vec3(vertex_bTangent.x, vertex_bTangent.y, vertex_bTangent.z);
+		
+		if(mesh->mTextureCoords[0])
+		{
+			v_tex_coords.x = mesh->mTextureCoords[0][i].x;
+			v_tex_coords.y = mesh->mTextureCoords[0][i].y;
+		}
+		else
+			v_tex_coords = glm::vec2(0.0f, 0.0f);
+
+		vertices.push_back(Vertex(v_pos, v_norm, v_tex_coords, v_tangent, v_bTangent));
+	}
+
+	// #################### SET BONE DATA ####################
+	for(int j{0}; j < mesh->mNumBones; ++j)
+	{
+		aiBone * bone = mesh->mBones[j];
+		for(int v{0}; v < bone->mNumWeights; ++v) // vertices influenced by current bone
+		{
+			// get bone ID
+			int bone_ID = nameJoint[bone->mName.C_Str()]->getId();
+
+			// get bone weight on current vertex
+			float weight = bone->mWeights[v].mWeight;
+
+			// end
+			int vertexIndex = bone->mWeights[v].mVertexId;
+			for(int i{0}; i < 4; ++i)
+			{
+				if(vertices[vertexIndex].weights[i] == 0.0f)
+				{
+					vertices[vertexIndex].bonesID[i] = bone_ID;
+					vertices[vertexIndex].weights[i] = weight;
+					break;
+				}
+			}
+		}
+	}
+	// #######################################################
+
+	// indices
+	int nb_faces = mesh->mNumFaces;
+	int nb_indices_face = 0;
+
+	for(int i{0}; i < nb_faces; ++i)
+	{
+		aiFace face = mesh->mFaces[i];
+		nb_indices_face = face.mNumIndices;
+
+		for(int j{0}; j < nb_indices_face; ++j)
+		{
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	// material
+	aiMaterial* mesh_material = scene->mMaterials[mesh->mMaterialIndex];
+    
+	aiColor3D color_diffuse;
+	aiColor3D color_specular;
+	aiColor3D color_ambient;
+	aiColor3D color_emissive{0.0f, 0.0f, 0.0f};
+	float opacity;
+	float shininess;
+	float roughness;
+	float metallic;
+	std::vector<Texture> textures;
+
+	std::vector<Texture> diffuse = loadMaterialTextures(scene, mesh_material, aiTextureType_DIFFUSE, TEXTURE_TYPE::DIFFUSE);
+	textures.insert(textures.end(), diffuse.begin(), diffuse.end());
+	
+	std::vector<Texture> specular = loadMaterialTextures(scene, mesh_material, aiTextureType_SPECULAR, TEXTURE_TYPE::SPECULAR);
+	textures.insert(textures.end(), specular.begin(), specular.end());
+	
+	std::vector<Texture> normal = loadMaterialTextures(scene, mesh_material, aiTextureType_NORMALS, TEXTURE_TYPE::NORMAL);
+	if(normal.size() == 0)
+		normal = loadMaterialTextures(scene, mesh_material, aiTextureType_HEIGHT, TEXTURE_TYPE::NORMAL);
+	textures.insert(textures.end(), normal.begin(), normal.end());
+
+	std::vector<Texture> metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
+	textures.insert(textures.end(), metallicRoughMaps.begin(), metallicRoughMaps.end());
+
+	mesh_material->Get(AI_MATKEY_COLOR_DIFFUSE, color_diffuse);
+	mesh_material->Get(AI_MATKEY_COLOR_SPECULAR, color_specular);
+	mesh_material->Get(AI_MATKEY_COLOR_AMBIENT, color_ambient);
+	mesh_material->Get(AI_MATKEY_COLOR_EMISSIVE, color_emissive);
+	mesh_material->Get(AI_MATKEY_OPACITY, opacity);
+	mesh_material->Get(AI_MATKEY_SHININESS, shininess);
+	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
+	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic);
+
+	material.textures = textures;
+    material.color_diffuse = glm::vec3(color_diffuse.r, color_diffuse.g, color_diffuse.b);
+    material.color_specular = glm::vec3(color_specular.r, color_specular.g, color_specular.b);
+    material.color_ambient = glm::vec3(color_ambient.r, color_ambient.g, color_ambient.b);
+    material.color_emissive = glm::vec3(color_emissive.r, color_emissive.g, color_emissive.b);
+	material.opacity = opacity;
+	material.shininess = shininess;
+	material.roughness = roughness;
+	material.metallic = metallic;
+
+	// pack everything
+    return std::make_shared<Mesh>(vertices, indices, material, meshName);
+}

@@ -2,11 +2,12 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 Game::Game(int clientWidth, int clientHeight) :
+	activeScene(0),
 	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
 {
 	// window aspect ratio
 	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);	
-	
+
 	// instance models
 	std::vector<glm::mat4> instanceModel;
 	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.5f, 2.0f)));
@@ -28,22 +29,22 @@ Game::Game(int clientWidth, int clientHeight) :
 	skyTextures.push_back("../assets/skyboxes/skybox4/nz.png");
 	
 	// create scene
-	scenes.push_back(std::make_shared<Scene>("backpack"));
+	scenes.push_back(std::make_shared<Scene>("my_scene"));
 	scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(0.0f, 3.0f, 4.0f), glm::vec3(0.0f), glm::normalize(glm::vec3(0.0f, 4.0f, -3.0f)), 45.0f, 0.1f, 100.0f );
 	scenes.at(scenes.size()-1)->setActiveCamera(0);
-
-	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
-	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
-	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 3.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
-	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 3.0f, -10.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
-	
-	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(20.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -2.0f, -0.5f));
+/*
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 3.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 3.0f, -10.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+*/	
+	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(0.0f, 5.0f, 2.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -0.75f));
 	//scenes.at(scenes.size()-1)->addSpotLight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.025f), glm::vec3(400.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.3f), 25.0f, 30.0f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(3.0f, 5.0f, -3.0f), glm::vec3(2.5f), glm::vec3(50.0f), glm::vec3(10.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(1.0f, 12.0f, 4.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -1.25f));
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(2.0f, 5.0f, -1.0f), glm::vec3(0.025f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.5f, -0.35f, 0.4f));
 	
-	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 3.5f, 5.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 3.5f, 5.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 2.5f, 7.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 7.5f, 0.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	
@@ -62,16 +63,17 @@ Game::Game(int clientWidth, int clientHeight) :
 	//scenes.at(scenes.size()-1)->addObject("../assets/owl/owl.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/key/key.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/pbr/pbr.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addCharacter("../assets/character/character.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/character_ground.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("/home/bicyclette/M1_IMA/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
+	//scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
-	//scenes.at(scenes.size()-1)->addObject("../assets/walk/walk.glb", glm::mat4(1.0f));
-	
+
 	//scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
 	scenes.at(scenes.size()-1)->setGridAxis(8);
 }
 
-void Game::drawScene(float& delta, int index, int width, int height, DRAWING_MODE mode, bool debug)
+void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug)
 {
 	/*
 	glm::mat4 r = glm::rotate(delta, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -81,7 +83,7 @@ void Game::drawScene(float& delta, int index, int width, int height, DRAWING_MOD
 	//Shader s = graphics->getBlinnPhongShader();
 	Shader s = graphics->getPBRShader();
 
-	if(index < scenes.size())
+	if(activeScene < scenes.size())
 	{
 		if(graphics->getShadowQuality() != SHADOW_QUALITY::OFF)
 		{
@@ -89,17 +91,17 @@ void Game::drawScene(float& delta, int index, int width, int height, DRAWING_MOD
 			s.setInt("shadowOn", 1);
 
 			// SHADOW PASS : directional & spot light sources
-			directionalShadowPass(index, mode);
+			directionalShadowPass(activeScene, delta, mode);
 			
 			// SHADOW PASS : point light sources
-			omnidirectionalShadowPass(index, mode);
+			omnidirectionalShadowPass(activeScene, delta, mode);
 
 			// SSAO PASS
 			if(graphics->ssaoOn())
-				ssaoPass(index, width, height);
+				ssaoPass(activeScene, width, height, delta);
 
 			// COLOR PASS : multisampling
-			colorMultisamplePass(index, width, height, mode, debug);
+			colorMultisamplePass(activeScene, width, height, delta, mode, debug);
 
 			// blit to normal framebuffer (resolve multisampling)
 			glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -140,7 +142,7 @@ void Game::drawScene(float& delta, int index, int width, int height, DRAWING_MOD
 
 			// SSAO PASS
 			if(graphics->ssaoOn())
-				ssaoPass(index, width, height);
+				ssaoPass(activeScene, width, height, delta);
 
 			// render to multisample framebuffer
 			glViewport(0, 0, width, height);
@@ -148,11 +150,11 @@ void Game::drawScene(float& delta, int index, int width, int height, DRAWING_MOD
 
 			// draw scene
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			s.setVec3f("cam.viewPos", scenes.at(index)->getActiveCamera()->getPosition());
-			s.setMatrix("view", scenes.at(index)->getActiveCamera()->getViewMatrix());
-			s.setMatrix("proj", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
-			s.setLighting(scenes.at(index)->getPLights(), scenes.at(index)->getDLights(), scenes.at(index)->getSLights());
-			scenes.at(index)->draw(s, graphics, mode, debug);
+			s.setVec3f("cam.viewPos", scenes.at(activeScene)->getActiveCamera()->getPosition());
+			s.setMatrix("view", scenes.at(activeScene)->getActiveCamera()->getViewMatrix());
+			s.setMatrix("proj", scenes.at(activeScene)->getActiveCamera()->getProjectionMatrix());
+			s.setLighting(scenes.at(activeScene)->getPLights(), scenes.at(activeScene)->getDLights(), scenes.at(activeScene)->getSLights());
+			scenes.at(activeScene)->draw(s, graphics, delta, mode, debug);
 			
 			// blit to normal framebuffer (resolve multisampling)
 			glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -220,7 +222,22 @@ std::unique_ptr<Graphics> & Game::getGraphics()
 	return graphics;
 }
 
-void Game::directionalShadowPass(int index, DRAWING_MODE mode)
+std::vector<std::shared_ptr<Scene>> & Game::getScenes()
+{
+	return scenes;
+}
+
+int Game::getActiveScene()
+{
+	return activeScene;
+}
+
+void Game::setActiveScene(int index)
+{
+	activeScene = index;
+}
+
+void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 {
 	glViewport(0, 0, static_cast<int>(graphics->getShadowQuality()), static_cast<int>(graphics->getShadowQuality()));
 	graphics->getShadowMappingShader().use();
@@ -243,7 +260,7 @@ void Game::directionalShadowPass(int index, DRAWING_MODE mode)
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, mode);
+		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 
 	for(int i{0}; i < scenes.at(index)->getSLights().size(); ++i)
@@ -268,13 +285,13 @@ void Game::directionalShadowPass(int index, DRAWING_MODE mode)
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, mode);
+		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Game::omnidirectionalShadowPass(int index, DRAWING_MODE mode)
+void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 {
 	glViewport(0, 0, static_cast<int>(graphics->getShadowQuality()), static_cast<int>(graphics->getShadowQuality()));
 	graphics->getShadowMappingShader().use();
@@ -304,12 +321,12 @@ void Game::omnidirectionalShadowPass(int index, DRAWING_MODE mode)
 		omnilightViews.clear();
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, mode);
+		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Game::colorMultisamplePass(int index, int width, int height, DRAWING_MODE mode, bool debug)
+void Game::colorMultisamplePass(int index, int width, int height, float delta, DRAWING_MODE mode, bool debug)
 {
 	// render to multisample framebuffer
 	glViewport(0, 0, width, height);
@@ -384,7 +401,7 @@ void Game::colorMultisamplePass(int index, int width, int height, DRAWING_MODE m
 		textureOffset++;
 	}
 
-	scenes.at(index)->draw(s, graphics, mode, debug);
+	scenes.at(index)->draw(s, graphics, delta, mode, debug);
 }
 
 void Game::bloomPass(int width, int height)
@@ -430,7 +447,7 @@ void Game::bloomPass(int width, int height)
 	}
 }
 
-void Game::ssaoPass(int index, int width, int height)
+void Game::ssaoPass(int index, int width, int height, float delta)
 {
 	// Fill G BUFFER
 	graphics->getGBufferFBO()->bind();
@@ -442,7 +459,7 @@ void Game::ssaoPass(int index, int width, int height)
 	graphics->getGBufferShader().use();
 	graphics->getGBufferShader().setMatrix("view", scenes.at(index)->getActiveCamera()->getViewMatrix());
 	graphics->getGBufferShader().setMatrix("proj", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
-	scenes.at(index)->draw(graphics->getGBufferShader(), graphics);
+	scenes.at(index)->draw(graphics->getGBufferShader(), graphics, delta);
 
 	// render ambient occlusion data
 	graphics->getAOFBO(0)->bind();

@@ -20,19 +20,20 @@ class Object
 {
 	public:
 
+		Object(glm::mat4 model = glm::mat4(1.0f));
 		Object(const std::string & path, glm::mat4 model = glm::mat4(1.0f));
-		~Object();
-		void draw(Shader& shader, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		virtual ~Object();
+		virtual void draw(Shader& shader, DRAWING_MODE mode = DRAWING_MODE::SOLID);
         std::vector<std::shared_ptr<Mesh>>& getMeshes();
 		void setInstancing(const std::vector<glm::mat4> & models);
 		void resetInstancing();
 		std::string getName();
 		
-	private:
+	protected:
 
-		void load(const std::string & path);
+		virtual void load(const std::string & path);
 		void exploreNode(aiNode* node, const aiScene* scene);
-		std::shared_ptr<Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
+		virtual std::shared_ptr<Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<struct Texture> loadMaterialTextures(
 						const aiScene* scene,
 						aiMaterial* mat,

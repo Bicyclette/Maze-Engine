@@ -1,6 +1,9 @@
 #include "scene.hpp"
 
-Scene::Scene(std::string pName) : name(pName) {}
+Scene::Scene(std::string pName) :
+	name(pName),
+	animator(std::make_unique<Animator>())
+{}
 
 void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<glm::mat4> & instanceModel)
 {
@@ -10,6 +13,11 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<
 	{
 		objects.at(objects.size() - 1)->setInstancing(instanceModel);
 	}
+}
+
+void Scene::addCharacter(std::string filePath, glm::mat4 aModel)
+{
+	character = std::make_unique<AnimatedObject>(filePath, aModel);
 }
 
 void Scene::addCamera(float aspectRatio, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
@@ -74,7 +82,7 @@ std::string & Scene::getName()
 	return name;
 }
 
-void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAWING_MODE mode, bool debug)
+void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float delta, DRAWING_MODE mode, bool debug)
 {
 	if(debug)
 	{
@@ -108,6 +116,12 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAWING_
 		objects.at(i)->draw(shader, mode);
 	}
 
+	if(character)
+	{
+		animator->updateAnimation(delta);
+		character->draw(shader, animator->getFinalJointTransform(), mode);
+	}
+
 	if(sky)
 	{
 		sky->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
@@ -127,4 +141,14 @@ std::vector<std::shared_ptr<DirectionalLight>> & Scene::getDLights()
 std::vector<std::shared_ptr<SpotLight>> & Scene::getSLights()
 {
 	return sLights;
+}
+
+void Scene::characterDoActionWalk()
+{
+	animator->playAnimation(character->getAnimations()[0]);
+}
+
+void Scene::characterStopAction()
+{
+	animator->stopAnimation();
 }

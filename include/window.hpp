@@ -34,7 +34,7 @@ class WindowManager
 	public:
 
 		/**
- 		* \brief Creates a SDL window, with en OPENGL context, returns a pointer
+ 		* \brief Creates a SDL window, with an OPENGL context, returns a pointer
  		* to the newly allocated window, or nullptr on failure.
  		*/
 		WindowManager(const std::string& title);

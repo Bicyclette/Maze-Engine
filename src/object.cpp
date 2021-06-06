@@ -20,6 +20,8 @@ glm::mat3 assimpMat3_to_glmMat3(aiMatrix3x3 & m)
 	return matrix;
 }
 
+Object::Object(glm::mat4 aModel) : model(aModel), instancing(false) {}
+
 Object::Object(const std::string & path, glm::mat4 aModel) :
 	model(aModel),
 	instancing(false)
@@ -53,6 +55,7 @@ Object::~Object()
 void Object::draw(Shader& shader, DRAWING_MODE mode)
 {
 	shader.use();
+	shader.setInt("animated", 0);
 	shader.setMatrix("model", model);
 	if(shader.getType() == SHADER_TYPE::PBR || shader.getType() == SHADER_TYPE::BLINN_PHONG || shader.getType() == SHADER_TYPE::GBUFFER)
 		shader.setMatrix("normalMatrix", glm::transpose(glm::inverse(model)));
@@ -84,19 +87,19 @@ void Object::setInstancing(const std::vector<glm::mat4> & models)
 		meshes.at(i)->bindVAO();
 
 		std::size_t vec4Size = sizeof(glm::vec4);
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
 		glEnableVertexAttribArray(7);
-		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
 		glEnableVertexAttribArray(8);
-		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
+		glEnableVertexAttribArray(9);
+		glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+		glEnableVertexAttribArray(10);
+		glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
 
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
 		glVertexAttribDivisor(8, 1);
+		glVertexAttribDivisor(9, 1);
+		glVertexAttribDivisor(10, 1);
 
 		glBindVertexArray(0);
 	}
@@ -108,10 +111,10 @@ void Object::resetInstancing()
 	{
 		meshes.at(i)->bindVAO();
 
-		glDisableVertexAttribArray(5);
-		glDisableVertexAttribArray(6);
 		glDisableVertexAttribArray(7);
 		glDisableVertexAttribArray(8);
+		glDisableVertexAttribArray(9);
+		glDisableVertexAttribArray(10);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);

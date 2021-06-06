@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/Maze.dir/src/animatedObject.cpp.o"
   "CMakeFiles/Maze.dir/src/camera.cpp.o"
   "CMakeFiles/Maze.dir/src/framebuffer.cpp.o"
   "CMakeFiles/Maze.dir/src/game.cpp.o"
@@ -11,6 +12,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/Maze.dir/src/imgui_impl_sdl.cpp.o"
   "CMakeFiles/Maze.dir/src/imgui_tables.cpp.o"
   "CMakeFiles/Maze.dir/src/imgui_widgets.cpp.o"
+  "CMakeFiles/Maze.dir/src/joint.cpp.o"
   "CMakeFiles/Maze.dir/src/main.cpp.o"
   "CMakeFiles/Maze.dir/src/mesh.cpp.o"
   "CMakeFiles/Maze.dir/src/object.cpp.o"

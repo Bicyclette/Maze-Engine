@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 project(Maze)
 
@@ -18,6 +18,8 @@ set(SRCS
 	src/framebuffer.cpp
 	src/game.cpp
 	src/graphics.cpp
+	src/animatedObject.cpp
+	src/joint.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -40,6 +42,8 @@ set(HEADERS
 	include/framebuffer.hpp
 	include/game.hpp
 	include/graphics.hpp
+	include/animatedObject.hpp
+	include/joint.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

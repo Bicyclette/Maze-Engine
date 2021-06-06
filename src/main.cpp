@@ -44,9 +44,21 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		{
 			game->resizeScreen(client->getWidth(), client->getHeight());
 		}
+		if(client->getUserInputs().test(6))
+		{
+			int activeScene = game->getActiveScene();
+			std::shared_ptr<Scene> scene = game->getScenes()[activeScene];
+			scene->characterDoActionWalk();
+		}
+		else
+		{
+			int activeScene = game->getActiveScene();
+			std::shared_ptr<Scene> scene = game->getScenes()[activeScene];
+			scene->characterStopAction();
+		}
 		
 		// draw scene
-		game->drawScene(delta, 0, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true);
+		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true);
 
 		client->resetEvents();
 		// >>>>>>>>>> IMGUI
@@ -55,13 +67,14 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		// >>>>>>>>>> IMGUI
 		SDL_GL_SwapWindow(client->getWindowPtr());
 		lastFrame = currentFrame;
-/*
+
 		// SEND DATA FROM IMGUI TO GAMES DATA
+		/*
 		game->getGraphics()->getPBRShader().use();
-		//game->getGraphics()->getBlinnPhongShader().use();
+		game->getGraphics()->getBlinnPhongShader().use();
 		game->getGraphics()->getPBRShader().setFloat("brightnessThreshold", brightnessThreshold);
-		//game->getGraphics()->getBlinnPhongShader().setFloat("brightnessThreshold", brightnessThreshold);
-*/
+		game->getGraphics()->getBlinnPhongShader().setFloat("brightnessThreshold", brightnessThreshold);
+		*/
 	}
 
 }

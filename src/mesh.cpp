@@ -6,6 +6,14 @@ Mesh::Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m,
 	indices(aIndices),
 	material(m)
 {
+	/*
+	for(int i{0}; i < vertices.size(); ++i)
+	{
+		std::cout << "Vertex " << i << " : \n";
+		std::cout << "\tbonesID = " << glm::to_string(vertices[i].bonesID) << std::endl;
+		std::cout << "\tweights = " << glm::to_string(vertices[i].weights) << std::endl;
+	}
+	*/
 	// VAO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -20,12 +28,16 @@ Mesh::Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m,
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, tangent)));
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, biTangent)));
+	glVertexAttribPointer(5, 4, GL_INT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, bonesID)));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, weights)));
 	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
 
 	// EBO
 	glGenBuffers(1, &ebo);
