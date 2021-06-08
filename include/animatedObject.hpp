@@ -29,95 +29,20 @@ struct ScalingKey
 
 struct JointAnim
 {
+	void update(float animationTime);
+	float getScaleFactor(float lastTimestamp, float nextTimestamp, float t);
+	int getPositionIndex(float t);
+	int getRotationIndex(float t);
+	int getScaleIndex(float t);
+	glm::mat4 interpolatePosition(float t);
+	glm::mat4 interpolateRotation(float t);
+	glm::mat4 interpolateScaling(float t);
+
 	std::shared_ptr<Joint> joint;
 	glm::mat4 localTransform;
 	std::vector<PositionKey> pKeys;
 	std::vector<RotationKey> rKeys;
 	std::vector<ScalingKey> sKeys;
-
-	void update(float animationTime)
-	{
-		glm::mat4 position = interpolatePosition(animationTime);
-		glm::mat4 rotation = interpolateRotation(animationTime);
-		glm::mat4 scale = interpolateScaling(animationTime);
-		localTransform = position * rotation * scale;
-	}
-
-	float getScaleFactor(float lastTimestamp, float nextTimestamp, float t)
-	{
-		float midway = t - lastTimestamp;
-		float framesDiff = nextTimestamp - lastTimestamp;
-		return midway / framesDiff;
-	}
-
-	int getPositionIndex(float t)
-	{
-		for(int i{0}; i < pKeys.size() - 1; ++i)
-		{
-			if(t < pKeys[i + 1].timestamp)
-				return i;
-		}
-		return -1;
-	}
-	int getRotationIndex(float t)
-	{
-		for(int i{0}; i < rKeys.size() - 1; ++i)
-		{
-			if(t < rKeys[i + 1].timestamp)
-				return i;
-		}
-		return -1;
-	}
-	int getScaleIndex(float t)
-	{
-		for(int i{0}; i < sKeys.size() - 1; ++i)
-		{
-			if(t < sKeys[i + 1].timestamp)
-				return i;
-		}
-		return -1;
-	}
-
-	glm::mat4 interpolatePosition(float t)
-	{
-		if(pKeys.size() == 1)
-		{
-			return glm::translate(glm::mat4(1.0f), pKeys[0].position);
-		}
-		int index_left = getPositionIndex(t);
-		int index_right = index_left + 1;
-		float scale = getScaleFactor(pKeys[index_left].timestamp, pKeys[index_right].timestamp, t);
-		glm::vec3 finalPos = glm::mix(pKeys[index_left].position, pKeys[index_right].position, scale);
-		return glm::translate(glm::mat4(1.0f), finalPos);
-	}
-
-	glm::mat4 interpolateRotation(float t)
-	{
-		if(rKeys.size() == 1)
-		{
-			auto rotation = glm::normalize(rKeys[0].rotation);
-			return glm::toMat4(rotation);
-		}
-		int index_left = getRotationIndex(t);
-		int index_right = index_left + 1;
-		float scale = getScaleFactor(rKeys[index_left].timestamp, rKeys[index_right].timestamp, t);
-		glm::quat finalRotation = glm::slerp(rKeys[index_left].rotation, rKeys[index_right].rotation, scale);
-		finalRotation = glm::normalize(finalRotation);
-		return glm::toMat4(finalRotation);
-	}
-
-	glm::mat4 interpolateScaling(float t)
-	{
-		if(sKeys.size() == 1)
-		{
-			return glm::scale(glm::mat4(1.0f), sKeys[0].scale);
-		}
-		int index_left = getScaleIndex(t);
-		int index_right = index_left + 1;
-		float scale = getScaleFactor(sKeys[index_left].timestamp, sKeys[index_right].timestamp, t);
-		glm::vec3 finalScale = glm::mix(sKeys[index_left].scale, sKeys[index_right].scale, scale);
-		return glm::scale(glm::mat4(1.0f), finalScale);
-	}
 };
 
 struct Animation
@@ -146,7 +71,6 @@ class Animator
 		std::array<glm::mat4, 50> finalJointTransform;
 		std::shared_ptr<Animation> currentAnimation;
 		float currentTime;
-		float deltaTime;
 };
 
 class AnimatedObject : public Object
