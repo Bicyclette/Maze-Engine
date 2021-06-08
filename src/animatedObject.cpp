@@ -185,7 +185,6 @@ void AnimatedObject::loadJointHierarchy(const aiScene * scene)
 
 	// compute hierarchy
 	computeHierarchy(rootBone, rootJoint, bonesName);
-	rootJoint->printHierarchy(0);
 
 	// assign offset matrices to each joint
 	for(int m{0}; m < scene->mNumMeshes; ++m)

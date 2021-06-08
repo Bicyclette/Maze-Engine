@@ -56,8 +56,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 3.5f, 10.0f), glm::vec3(0.025f), glm::vec3(25.0f), glm::vec3(1.0f), PointLight::attenuation[6][1], PointLight::attenuation[6][2], PointLight::attenuation[6][3]);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 7.5f, 0.0f), glm::vec3(0.025f), glm::vec3(25.0f), glm::vec3(1.0f), PointLight::attenuation[6][1], PointLight::attenuation[6][2], PointLight::attenuation[6][3]);
 	
-	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/flowers.obj", glm::mat4(1.0f));
-	//scenes.at(scenes.size()-1)->addObject("../assets/street_light/street_light.obj", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/lacoons/untitled.obj", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/podracer/podracer.gltf", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/owl/owl.glb", glm::mat4(1.0f));
@@ -65,7 +63,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	//scenes.at(scenes.size()-1)->addObject("../assets/pbr/pbr.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addCharacter("../assets/character/character.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/character_ground.glb", glm::mat4(1.0f));
-	//scenes.at(scenes.size()-1)->addObject("/home/bicyclette/M1_IMA/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
+	//scenes.at(scenes.size()-1)->addObject("/home/mathias/M1_IMA/S2/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
 
@@ -145,6 +143,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 				ssaoPass(activeScene, width, height, delta);
 
 			// render to multisample framebuffer
+			s.use();
 			glViewport(0, 0, width, height);
 			graphics->getMultisampleFBO()->bind();
 

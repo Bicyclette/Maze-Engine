@@ -31,13 +31,11 @@ void main()
 	vec4 position = vec4(aPos, 1.0f);
 	if(animated == 1)
 	{
-		//mat4 boneTransform = bonesMatrices[boneID[0]] * boneWeight[0];
-		mat4 boneTransform = bonesMatrices[3];
-		/*
-		boneTransform += bonesMatrices[boneID[1]] * boneWeight[1];
-		boneTransform += bonesMatrices[boneID[2]] * boneWeight[2];
-		boneTransform += bonesMatrices[boneID[3]] * boneWeight[3];
-		*/
+		mat4 boneTransform = mat4(0.0f);
+		for(int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+		{
+			boneTransform += bonesMatrices[boneID[i]] * boneWeight[i];
+		}
 		position = boneTransform * vec4(aPos, 1.0f);
 	}
 
