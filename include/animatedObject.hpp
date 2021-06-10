@@ -61,7 +61,7 @@ class Animator
 		Animator();
 		Animator(std::shared_ptr<Animation> animation);
 		void updateAnimation(float delta);
-		void playAnimation(std::shared_ptr<Animation> animation);
+		void playAnimation(std::shared_ptr<Animation> & animation);
 		void stopAnimation();
 		void calculateJointTransform(std::shared_ptr<Joint> joint, glm::mat4 parentTransform);
 		std::array<glm::mat4, 50> & getFinalJointTransform();
@@ -79,6 +79,7 @@ class AnimatedObject : public Object
 		AnimatedObject(const std::string & path, glm::mat4 p_model = glm::mat4(1.0f));
 		virtual ~AnimatedObject();
 		std::vector<std::shared_ptr<Animation>> & getAnimations();
+		std::unique_ptr<Animator> & getAnimator();
 		virtual void draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 
 	private:
@@ -93,6 +94,7 @@ class AnimatedObject : public Object
 		std::map<std::string, std::shared_ptr<Joint>> nameJoint; // [joint_name] => [joint_ptr]
 		std::map<std::string, glm::mat4> finalJointTransform; // [joint_name] => [matrix4x4]
 		std::vector<std::shared_ptr<Animation>> animations;
+		std::unique_ptr<Animator> animator;
 };
 
 #endif

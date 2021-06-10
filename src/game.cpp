@@ -38,7 +38,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 3.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 3.0f, -10.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 */	
-	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(0.0f, 5.0f, 2.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -0.75f));
+	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(0.0f, 6.0f, 4.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -0.75f));
 	//scenes.at(scenes.size()-1)->addSpotLight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.025f), glm::vec3(400.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.3f), 25.0f, 30.0f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(3.0f, 5.0f, -3.0f), glm::vec3(2.5f), glm::vec3(50.0f), glm::vec3(10.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(1.0f, 12.0f, 4.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -1.25f));
@@ -61,8 +61,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	//scenes.at(scenes.size()-1)->addObject("../assets/owl/owl.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/key/key.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/pbr/pbr.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addCharacter("../assets/character/character.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/character_ground.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/my_character_ground.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("/home/mathias/M1_IMA/S2/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
@@ -73,12 +72,17 @@ Game::Game(int clientWidth, int clientHeight) :
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug)
 {
-	/*
-	glm::mat4 r = glm::rotate(delta, glm::vec3(0.0f, 1.0f, 0.0f));
-	scenes.at(index)->getSLights().at(0)->setDirection(glm::vec3(r * glm::vec4(scenes.at(index)->getSLights().at(0)->getDirection(), 1.0f)));
-	*/
+	// update main character animation and other characters' animation too
+	if(mainCharacter)
+	{
+		mainCharacter->getAnimator()->updateAnimation(delta);
+	}
+	for(int i{0}; i < characters.size(); ++i)
+	{
+		characters[i]->getAnimator()->updateAnimation(delta);
+	}
+
 	// get shader
-	//Shader s = graphics->getBlinnPhongShader();
 	Shader s = graphics->getPBRShader();
 
 	if(activeScene < scenes.size())
@@ -236,6 +240,77 @@ void Game::setActiveScene(int index)
 	activeScene = index;
 }
 
+void Game::addMainCharacter(std::string filePath, glm::mat4 aModel)
+{
+	mainCharacter = std::make_shared<AnimatedObject>(filePath, aModel);
+	for(int i{0}; i < scenes.size(); ++i)
+	{
+		scenes[i]->addMainCharacter(mainCharacter);
+	}
+}
+
+std::shared_ptr<AnimatedObject> Game::getMainCharacter()
+{
+	return mainCharacter;
+}
+
+void Game::addCharacter(std::string filePath, glm::mat4 aModel)
+{
+	characters.push_back(std::make_shared<AnimatedObject>(filePath, aModel));
+	for(int i{0}; i < scenes.size(); ++i)
+	{
+		scenes[i]->addCharacter(characters[characters.size()-1]);
+	}
+}
+
+void Game::removeCharacter(std::string name)
+{
+	for(int i{0}; i < characters.size(); ++i)
+	{
+		if(characters[i]->getName() == name)
+		{
+			for(int i{0}; i < scenes.size(); ++i)
+			{
+				scenes[i]->removeCharacter(characters[i]);
+			}
+			characters.erase(characters.begin() + i);
+			break;
+		}
+	}
+}
+
+void Game::mainCharacterDoActionWalk()
+{
+	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
+	{
+		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[3]);
+	}
+}
+
+void Game::mainCharacterDoActionRun()
+{
+	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
+	{
+		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[2]);
+	}
+}
+
+void Game::mainCharacterDoActionJump()
+{
+	if(mainCharacter)
+	{
+		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[1]);
+	}
+}
+
+void Game::mainCharacterDoActionIdle()
+{
+	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
+	{
+		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[0]);
+	}
+}
+
 void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 {
 	glViewport(0, 0, static_cast<int>(graphics->getShadowQuality()), static_cast<int>(graphics->getShadowQuality()));
@@ -332,7 +407,6 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	graphics->getMultisampleFBO()->bind();
 
 	// get shader
-	//Shader s = graphics->getBlinnPhongShader();
 	Shader s = graphics->getPBRShader();
 
 	// draw scene

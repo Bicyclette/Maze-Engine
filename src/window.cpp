@@ -200,6 +200,14 @@ void WindowManager::checkEvents()
 		userInputs.set(9);
 	}
 	*/
+	if(event.keyboardState[SDL_SCANCODE_SPACE])
+	{
+		userInputs.set(10);
+	}
+	if(event.keyboardState[SDL_SCANCODE_R])
+	{
+		userInputs.set(11);
+	}
 }
 
 void WindowManager::resetEvents()

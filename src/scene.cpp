@@ -1,9 +1,6 @@
 #include "scene.hpp"
 
-Scene::Scene(std::string pName) :
-	name(pName),
-	animator(std::make_unique<Animator>())
-{}
+Scene::Scene(std::string pName) : name(pName) {}
 
 void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<glm::mat4> & instanceModel)
 {
@@ -15,9 +12,25 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<
 	}
 }
 
-void Scene::addCharacter(std::string filePath, glm::mat4 aModel)
+void Scene::addMainCharacter(std::shared_ptr<AnimatedObject> aMainCharacter)
 {
-	character = std::make_unique<AnimatedObject>(filePath, aModel);
+	mainCharacter = aMainCharacter;
+}
+
+void Scene::addCharacter(std::shared_ptr<AnimatedObject> aCharacter)
+{
+	characters.push_back(aCharacter);
+}
+
+void Scene::removeCharacter(std::shared_ptr<AnimatedObject> & character)
+{
+	for(int i{0}; i < characters.size(); ++i)
+	{
+		if(characters[i] == character)
+		{
+			characters.erase(characters.begin() + i);
+		}
+	}
 }
 
 void Scene::addCamera(float aspectRatio, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
@@ -113,13 +126,23 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 	
 	for(int i{0}; i < objects.size(); ++i)
 	{
-		objects.at(i)->draw(shader, mode);
+		objects[i]->draw(shader, mode);
+	}
+	
+	for(int i{0}; i < characters.size(); ++i)
+	{
+		characters[i]->draw(
+				shader,
+				characters[i]->getAnimator()->getFinalJointTransform(),
+				mode);
 	}
 
-	if(character)
+	if(mainCharacter)
 	{
-		animator->updateAnimation(delta);
-		character->draw(shader, animator->getFinalJointTransform(), mode);
+		mainCharacter->draw(
+				shader,
+				mainCharacter->getAnimator()->getFinalJointTransform(),
+				mode);
 	}
 
 	if(sky)
@@ -141,14 +164,4 @@ std::vector<std::shared_ptr<DirectionalLight>> & Scene::getDLights()
 std::vector<std::shared_ptr<SpotLight>> & Scene::getSLights()
 {
 	return sLights;
-}
-
-void Scene::characterDoActionWalk()
-{
-	animator->playAnimation(character->getAnimations()[0]);
-}
-
-void Scene::characterStopAction()
-{
-	animator->stopAnimation();
 }

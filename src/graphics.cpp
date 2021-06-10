@@ -1,7 +1,7 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
-	bloomEffect{true},
+	bloomEffect{false},
 	ssaoEffect(true),
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{

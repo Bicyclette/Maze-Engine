@@ -46,15 +46,19 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		}
 		if(client->getUserInputs().test(6))
 		{
-			int activeScene = game->getActiveScene();
-			std::shared_ptr<Scene> scene = game->getScenes()[activeScene];
-			scene->characterDoActionWalk();
+			game->mainCharacterDoActionWalk();
+		}
+		else if(client->getUserInputs().test(10))
+		{
+			game->mainCharacterDoActionJump();
+		}
+		else if(client->getUserInputs().test(11))
+		{
+			game->mainCharacterDoActionRun();
 		}
 		else
 		{
-			int activeScene = game->getActiveScene();
-			std::shared_ptr<Scene> scene = game->getScenes()[activeScene];
-			scene->characterStopAction();
+			game->mainCharacterDoActionIdle();
 		}
 		
 		// draw scene
@@ -83,6 +87,7 @@ int main(int argc, char* argv[])
 {
 	std::unique_ptr<WindowManager> client{std::make_unique<WindowManager>("SDL Window")};
 	std::unique_ptr<Game> game{std::make_unique<Game>(client->getWidth(), client->getHeight())};
+	game->addMainCharacter("../assets/character/my_character.glb", glm::mat4(1.0f));
 	render(std::move(client), std::move(game));
 
 	return 0;

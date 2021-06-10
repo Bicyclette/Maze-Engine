@@ -52,6 +52,11 @@ Object::~Object()
 	}
 }
 
+std::string Object::getName()
+{
+	return name;
+}
+
 void Object::draw(Shader& shader, DRAWING_MODE mode)
 {
 	shader.use();

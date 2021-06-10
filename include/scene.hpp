@@ -19,7 +19,9 @@ class Scene
 
 		Scene(std::string pName);
 		void addObject(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f), const std::vector<glm::mat4> & instanceModel = std::vector<glm::mat4>());
-		void addCharacter(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f));
+		void addMainCharacter(std::shared_ptr<AnimatedObject> aMainCharacter);
+		void addCharacter(std::shared_ptr<AnimatedObject> aCharacter);
+		void removeCharacter(std::shared_ptr<AnimatedObject> & character);
 		void addCamera(float aspectRatio, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 target = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float fov = 45.0f, float near = 0.1f, float far = 100.0f);
 		void addPointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq);
 		void addDirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
@@ -36,9 +38,6 @@ class Scene
 		std::vector<std::shared_ptr<DirectionalLight>> & getDLights();
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
 
-		void characterDoActionWalk();
-		void characterStopAction();
-
 	private:
 
 		std::string name;
@@ -47,9 +46,9 @@ class Scene
 		std::vector<std::shared_ptr<Camera>> cameras;
 
 		std::vector<std::shared_ptr<Object>> objects;
-		std::unique_ptr<AnimatedObject> character;
-		std::unique_ptr<Animator> animator;
-		
+		std::shared_ptr<AnimatedObject> mainCharacter;
+		std::vector<std::shared_ptr<AnimatedObject>> characters;
+
 		std::vector<std::shared_ptr<PointLight>> pLights;
 		std::vector<std::shared_ptr<DirectionalLight>> dLights;
 		std::vector<std::shared_ptr<SpotLight>> sLights;

@@ -110,12 +110,20 @@ void Animator::updateAnimation(float delta)
 	if(currentAnimation)
 	{
 		currentTime += currentAnimation->ticksPerSecond * delta;
-		currentTime = fmod(currentTime, currentAnimation->duration);
-		calculateJointTransform(currentAnimation->rootJoint, glm::mat4(1.0f));
+		float moduloCurrentTime = fmod(currentTime, currentAnimation->duration);
+		if(moduloCurrentTime < currentTime && currentAnimation->name == "Jump")
+		{
+			stopAnimation();
+		}
+		else
+		{
+			currentTime = moduloCurrentTime;
+			calculateJointTransform(currentAnimation->rootJoint, glm::mat4(1.0f));
+		}
 	}
 }
 
-void Animator::playAnimation(std::shared_ptr<Animation> animation)
+void Animator::playAnimation(std::shared_ptr<Animation> & animation)
 {
 	if(currentAnimation != animation)
 	{
@@ -130,8 +138,6 @@ void Animator::stopAnimation()
 	{
 		currentAnimation.reset();
 		currentTime = 0.0f;
-		for(int i{0}; i < 50; ++i)
-			finalJointTransform[i] = glm::mat4(1.0f);
 	}
 }
 
@@ -182,7 +188,8 @@ std::shared_ptr<Animation> & Animator::getCurrentAnimation()
 // ############################################################
 
 AnimatedObject::AnimatedObject(const std::string & path, glm::mat4 p_model) :
-	Object(p_model)
+	Object(p_model),
+	animator(std::make_unique<Animator>())
 {
 	load(path);
 }
@@ -192,6 +199,11 @@ AnimatedObject::~AnimatedObject(){}
 std::vector<std::shared_ptr<Animation>> & AnimatedObject::getAnimations()
 {
 	return animations;
+}
+
+std::unique_ptr<Animator> & AnimatedObject::getAnimator()
+{
+	return animator;
 }
 
 void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, DRAWING_MODE mode)
