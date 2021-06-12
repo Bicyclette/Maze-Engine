@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 project(Maze)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+cmake_policy(SET CMP0072 NEW)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SRCS
 	src/stb_image.cpp
@@ -20,6 +23,7 @@ set(SRCS
 	src/graphics.cpp
 	src/animatedObject.cpp
 	src/joint.cpp
+	src/worldPhysics.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -44,6 +48,7 @@ set(HEADERS
 	include/graphics.hpp
 	include/animatedObject.hpp
 	include/joint.hpp
+	include/worldPhysics.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h
@@ -54,13 +59,7 @@ set(HEADERS
 	include/imgui_impl_sdl.h
 	include/imgui_impl_opengl3.h)
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
-
-cmake_policy(SET CMP0072 NEW)
 
 find_package(SDL2 REQUIRED)
 if(SDL2_FOUND)
@@ -120,8 +119,8 @@ endif()
 
 find_package(BULLET REQUIRED)
 if(BULLET_FOUND)
-    target_include_directories(${PROJECT_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
-    target_link_libraries(${PROJECT_NAME} ${BULLET_LIBRARIES})
+	target_include_directories(${PROJECT_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
+	target_link_libraries(${PROJECT_NAME} ${BULLET_LIBRARIES})
 else()
 	message(FATAL_ERROR "Bullet not found")
 endif()

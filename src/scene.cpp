@@ -165,3 +165,18 @@ std::vector<std::shared_ptr<SpotLight>> & Scene::getSLights()
 {
 	return sLights;
 }
+
+std::vector<std::shared_ptr<Object>> Scene::getObjects()
+{
+	return objects;
+}
+
+std::shared_ptr<AnimatedObject> Scene::getMainCharacter()
+{
+	return mainCharacter;
+}
+
+std::vector<std::shared_ptr<AnimatedObject>> Scene::getCharacters()
+{
+	return characters;
+}

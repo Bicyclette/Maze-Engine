@@ -50,7 +50,7 @@ void main()
 	if(instancing)
 	{
 		gl_Position = proj * view * instanceModel * position;
-		vs_out.normal = mat3(transpose(inverse(instanceModel))) * vec3(normal);
+		vs_out.normal = vec3(transpose(inverse(instanceModel)) * normal);
 		vs_out.fragPos = vec3(instanceModel * position);
 	
 		// compute TBN matrix
@@ -65,7 +65,7 @@ void main()
 	else
 	{
 		gl_Position = proj * view * model * position;
-		vs_out.normal = mat3(normalMatrix) * vec3(normal);
+		vs_out.normal = vec3(normalMatrix * normal);
 		vs_out.fragPos = vec3(model * position);
 	
 		// compute TBN matrix

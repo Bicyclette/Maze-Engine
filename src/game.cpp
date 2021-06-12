@@ -3,7 +3,8 @@
 
 Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
-	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
+	graphics(std::make_unique<Graphics>(clientWidth, clientHeight)),
+	worldPhysics(std::make_unique<WorldPhysics>())
 {
 	// window aspect ratio
 	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);	
@@ -62,16 +63,32 @@ Game::Game(int clientWidth, int clientHeight) :
 	//scenes.at(scenes.size()-1)->addObject("../assets/key/key.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/pbr/pbr.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/my_character_ground.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/ball.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("/home/mathias/M1_IMA/S2/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
 
 	//scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
 	scenes.at(scenes.size()-1)->setGridAxis(8);
+
+	// set physics properties for scene
+	std::vector<std::shared_ptr<Object>> scene_objects = scenes[scenes.size()-1]->getObjects();
+	worldPhysics->addRigidBody(scene_objects[0], btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::BOX);
+	worldPhysics->addRigidBody(scene_objects[1], btScalar(1.0), btScalar(0.9), COLLISION_SHAPE::SPHERE);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug)
 {
+	// update physics
+	worldPhysics->stepSimulation();
+	std::vector<std::shared_ptr<Object>> scene_objects = scenes[activeScene]->getObjects();
+
+	glm::vec3 translation = worldPhysics->getObjectPosition(0, 1) - scene_objects[1]->getOrigin();
+	glm::mat4 rotation = worldPhysics->getObjectRotation(0, 1);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+	model = rotation * model;
+	scene_objects[1]->setModel(model);
+
 	// update main character animation and other characters' animation too
 	if(mainCharacter)
 	{

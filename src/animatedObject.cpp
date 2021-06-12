@@ -260,6 +260,7 @@ void AnimatedObject::load(const std::string & path)
 	}
 
 	exploreNode(scene->mRootNode, scene);
+	computeOriginAndAABB();
 }
 
 void AnimatedObject::loadJointHierarchy(const aiScene * scene)

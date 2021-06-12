@@ -37,6 +37,9 @@ class Scene
 		std::vector<std::shared_ptr<PointLight>> & getPLights();
 		std::vector<std::shared_ptr<DirectionalLight>> & getDLights();
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
+		std::vector<std::shared_ptr<Object>> getObjects();
+		std::shared_ptr<AnimatedObject> getMainCharacter();
+		std::vector<std::shared_ptr<AnimatedObject>> getCharacters();
 
 	private:
 

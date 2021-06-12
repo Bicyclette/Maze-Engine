@@ -57,6 +57,21 @@ std::string Object::getName()
 	return name;
 }
 
+void Object::setModel(glm::mat4 & matrix)
+{
+	model = matrix;
+}
+
+glm::vec3 Object::getOrigin()
+{
+	return origin;
+}
+
+struct AABB Object::getAABB()
+{
+	return aabb;
+}
+
 void Object::draw(Shader& shader, DRAWING_MODE mode)
 {
 	shader.use();
@@ -148,6 +163,49 @@ void Object::load(const std::string & path)
 	name = name.substr(0, dotIndex);
 
 	exploreNode(scene->mRootNode, scene);
+	computeOriginAndAABB();
+}
+
+void Object::computeOriginAndAABB()
+{
+	bool first{true};
+	int vertex_count{0};
+	for(int i{0}; i < meshes.size(); ++i)
+	{
+		std::shared_ptr<Mesh> m = meshes[i];
+		std::vector<Vertex> const & vertices = m->getVertices();
+		vertex_count += vertices.size();
+		for(int j{0}; j < vertices.size(); ++j)
+		{
+			if(first)
+			{
+				first = false;
+				aabb.xMax = vertices[j].position.x;
+				aabb.xMin = vertices[j].position.x;
+				aabb.yMax = vertices[j].position.y;
+				aabb.yMin = vertices[j].position.y;
+				aabb.zMax = vertices[j].position.z;
+				aabb.zMin = vertices[j].position.z;
+			}
+			else
+			{
+				if(aabb.xMax < vertices[j].position.x)
+					aabb.xMax = vertices[j].position.x;
+				if(aabb.yMax < vertices[j].position.y)
+					aabb.yMax = vertices[j].position.y;
+				if(aabb.zMax < vertices[j].position.z)
+					aabb.zMax = vertices[j].position.z;
+				if(aabb.xMin > vertices[j].position.x)
+					aabb.xMin = vertices[j].position.x;
+				if(aabb.yMin > vertices[j].position.y)
+					aabb.yMin = vertices[j].position.y;
+				if(aabb.zMin > vertices[j].position.z)
+					aabb.zMin = vertices[j].position.z;
+			}
+			origin += vertices[j].position;
+		}
+	}
+	origin /= static_cast<float>(vertex_count);
 }
 
 void Object::exploreNode(aiNode* node, const aiScene* scene)

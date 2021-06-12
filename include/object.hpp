@@ -16,6 +16,16 @@
 glm::mat4 assimpMat4_to_glmMat4(aiMatrix4x4 & m);
 glm::mat3 assimpMat3_to_glmMat3(aiMatrix3x3 & m);
 
+struct AABB
+{
+	float xMax;
+	float xMin;
+	float yMax;
+	float yMin;
+	float zMax;
+	float zMin;
+};
+
 class Object
 {
 	public:
@@ -28,6 +38,9 @@ class Object
 		void setInstancing(const std::vector<glm::mat4> & models);
 		void resetInstancing();
 		std::string getName();
+		void setModel(glm::mat4 & matrix);
+		glm::vec3 getOrigin();
+		struct AABB getAABB();
 		
 	protected:
 
@@ -39,6 +52,7 @@ class Object
 						aiMaterial* mat,
 						aiTextureType type,
 						TEXTURE_TYPE t);
+		void computeOriginAndAABB();
 		
 		std::string name;
 
@@ -50,6 +64,9 @@ class Object
 		std::vector<glm::mat4> instanceModel;
 		glm::mat4 model;
 		bool instancing;
+
+		glm::vec3 origin;
+		struct AABB aabb;
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include "scene.hpp"
 #include "graphics.hpp"
 #include "color.hpp"
+#include "worldPhysics.hpp"
 
 class Game
 {
@@ -35,6 +36,7 @@ class Game
 		int activeScene;
 		std::vector<std::shared_ptr<Scene>> scenes;
 		std::unique_ptr<Graphics> graphics;
+		std::unique_ptr<WorldPhysics> worldPhysics;
 		std::shared_ptr<AnimatedObject> mainCharacter;
 		std::vector<std::shared_ptr<AnimatedObject>> characters;
 		
