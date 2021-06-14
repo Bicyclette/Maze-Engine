@@ -62,7 +62,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		}
 		
 		// draw scene
-		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true);
+		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true, false);
 
 		client->resetEvents();
 		// >>>>>>>>>> IMGUI

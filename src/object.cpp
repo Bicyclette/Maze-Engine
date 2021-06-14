@@ -62,11 +62,6 @@ void Object::setModel(glm::mat4 & matrix)
 	model = matrix;
 }
 
-glm::vec3 Object::getOrigin()
-{
-	return origin;
-}
-
 struct AABB Object::getAABB()
 {
 	return aabb;
@@ -163,18 +158,16 @@ void Object::load(const std::string & path)
 	name = name.substr(0, dotIndex);
 
 	exploreNode(scene->mRootNode, scene);
-	computeOriginAndAABB();
+	computeAABB();
 }
 
-void Object::computeOriginAndAABB()
+void Object::computeAABB()
 {
 	bool first{true};
-	int vertex_count{0};
 	for(int i{0}; i < meshes.size(); ++i)
 	{
 		std::shared_ptr<Mesh> m = meshes[i];
 		std::vector<Vertex> const & vertices = m->getVertices();
-		vertex_count += vertices.size();
 		for(int j{0}; j < vertices.size(); ++j)
 		{
 			if(first)
@@ -202,10 +195,8 @@ void Object::computeOriginAndAABB()
 				if(aabb.zMin > vertices[j].position.z)
 					aabb.zMin = vertices[j].position.z;
 			}
-			origin += vertices[j].position;
 		}
 	}
-	origin /= static_cast<float>(vertex_count);
 }
 
 void Object::exploreNode(aiNode* node, const aiScene* scene)

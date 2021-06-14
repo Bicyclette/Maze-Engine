@@ -68,7 +68,7 @@ class Mesh
 		std::vector<Vertex> vertices;
 		std::vector<int> indices;
 		Material material;
-		
+
 		void shaderProcessing(Shader & s); // set proper uniforms according to shader type
 };
 

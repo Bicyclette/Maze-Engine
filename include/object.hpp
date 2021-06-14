@@ -39,7 +39,6 @@ class Object
 		void resetInstancing();
 		std::string getName();
 		void setModel(glm::mat4 & matrix);
-		glm::vec3 getOrigin();
 		struct AABB getAABB();
 		
 	protected:
@@ -52,7 +51,7 @@ class Object
 						aiMaterial* mat,
 						aiTextureType type,
 						TEXTURE_TYPE t);
-		void computeOriginAndAABB();
+		void computeAABB();
 		
 		std::string name;
 
@@ -65,7 +64,6 @@ class Object
 		glm::mat4 model;
 		bool instancing;
 
-		glm::vec3 origin;
 		struct AABB aabb;
 };
 
