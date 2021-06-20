@@ -31,8 +31,14 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	// create scene
 	scenes.push_back(std::make_shared<Scene>("my_scene"));
-	//scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(0.0f, 3.0f, 4.0f), glm::vec3(0.0f), glm::normalize(glm::vec3(0.0f, 4.0f, -3.0f)), 45.0f, 0.1f, 100.0f );
-	scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(3.0f, 6.0f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::normalize(glm::vec3(-2.0f, 8.0f, -5.0f)), 45.0f, 0.1f, 100.0f );
+
+	glm::vec3 camPos = glm::vec3(3.0f, 6.0f, 8.0f);
+	glm::vec3 camTarget = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 camDir = glm::normalize(camTarget - camPos);
+	float angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::vec3 camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes.at(scenes.size()-1)->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
 	scenes.at(scenes.size()-1)->setActiveCamera(0);
 /*
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);

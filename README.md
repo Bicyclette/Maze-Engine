@@ -1,9 +1,9 @@
 # Bugs
-* Problem with shadowed areas with SSAO enabled.
 * Enabling skybox prevents any objects of any scene to be visible after draw calls were made.
 
 # To do
 **graphics**
+* Improve Bloom effect
 * IBL (diffuse & specular)
 * OIT
 
