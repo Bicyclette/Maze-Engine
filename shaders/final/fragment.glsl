@@ -35,4 +35,5 @@ void main()
 	// show scene data (if one GBufferFBO's attachment was sent on scene uniform) or AO data
 	//fragColor = texture(scene, texCoords);
 	//fragColor = vec4(vec3(texture(scene, texCoords).r), 1.0f);
+	//fragColor = texture(bloom, texCoords);
 }

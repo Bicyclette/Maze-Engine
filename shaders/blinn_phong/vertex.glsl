@@ -17,7 +17,6 @@ out VS_OUT
 	mat3 TBN;
 } vs_out;
 
-uniform mat4 normalMatrix;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
@@ -65,7 +64,7 @@ void main()
 	else
 	{
 		gl_Position = proj * view * model * position;
-		vs_out.normal = vec3(normalMatrix * normal);
+		vs_out.normal = vec3(transpose(inverse(model)) * normal);
 		vs_out.fragPos = vec3(model * position);
 	
 		// compute TBN matrix

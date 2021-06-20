@@ -211,18 +211,14 @@ void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJoint
 	shader.use();
 	shader.setInt("animated", 1);
 	shader.setMatrix("model", model);
-	if(shader.getType() == SHADER_TYPE::PBR || shader.getType() == SHADER_TYPE::BLINN_PHONG || shader.getType() == SHADER_TYPE::GBUFFER)
-		shader.setMatrix("normalMatrix", glm::transpose(glm::inverse(model)));
 
 	for(int i{0}; i < finalJointTransform.size(); ++i)
 	{
 		std::string boneMatrixStr{"bonesMatrices["};
 		boneMatrixStr += std::to_string(i);
 		boneMatrixStr += std::string("]");
-		//std::cout << boneMatrixStr << " = " << glm::to_string(finalJointTransform[i]) << std::endl;
 		shader.setMatrix(boneMatrixStr, finalJointTransform[i]);
 	}
-	//std::cout << std::endl;
 
 	int meshCount = meshes.size();
 

@@ -32,7 +32,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	// create scene
 	scenes.push_back(std::make_shared<Scene>("my_scene"));
 	//scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(0.0f, 3.0f, 4.0f), glm::vec3(0.0f), glm::normalize(glm::vec3(0.0f, 4.0f, -3.0f)), 45.0f, 0.1f, 100.0f );
-	scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f), glm::normalize(glm::vec3(0.0f, 8.0f, -5.0f)), 45.0f, 0.1f, 100.0f );
+	scenes.at(scenes.size()-1)->addCamera(aspectRatio, glm::vec3(3.0f, 6.0f, 8.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::normalize(glm::vec3(-2.0f, 8.0f, -5.0f)), 45.0f, 0.1f, 100.0f );
 	scenes.at(scenes.size()-1)->setActiveCamera(0);
 /*
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 6.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
@@ -40,13 +40,13 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 3.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 3.0f, -10.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 */	
-	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(5.0f, 20.0f, 8.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -0.75f));
+	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(5.0f, 20.0f, 8.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), glm::vec3(-0.25f, -1.0f, -0.75f));
 	//scenes.at(scenes.size()-1)->addSpotLight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.025f), glm::vec3(400.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.3f), 25.0f, 30.0f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(3.0f, 5.0f, -3.0f), glm::vec3(2.5f), glm::vec3(50.0f), glm::vec3(10.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(1.0f, 12.0f, 4.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -1.25f));
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(2.0f, 5.0f, -1.0f), glm::vec3(0.025f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.5f, -0.35f, 0.4f));
 	
-	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 7.0f, 5.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 7.0f, 5.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 2.5f, 7.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 7.5f, 0.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	
