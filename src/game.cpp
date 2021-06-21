@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include <glm/gtx/rotate_vector.hpp>
 
 Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
@@ -46,13 +45,13 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 3.0f, -10.0f), glm::vec3(0.25f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
 	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(1.5f, 3.0f, -10.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 */	
-	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(5.0f, 20.0f, 8.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), glm::vec3(-0.25f, -1.0f, -0.75f));
+	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(5.0f, 20.0f, 8.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), glm::vec3(-0.25f, -1.0f, -0.75f));
 	//scenes.at(scenes.size()-1)->addSpotLight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.025f), glm::vec3(400.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.3f), 25.0f, 30.0f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(3.0f, 5.0f, -3.0f), glm::vec3(2.5f), glm::vec3(50.0f), glm::vec3(10.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(1.0f, 12.0f, 4.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(-0.5f, -1.0f, -1.25f));
 	//scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(2.0f, 5.0f, -1.0f), glm::vec3(0.025f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.5f, -0.35f, 0.4f));
 	
-	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 7.0f, 5.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(2.0f, 7.0f, 5.0f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 2.5f, 7.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	//scenes.at(scenes.size()-1)->addPointLight(glm::vec3(0.0f, 7.5f, 0.0f), glm::vec3(0.025f), glm::vec3(5.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	
@@ -73,6 +72,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addObject("../assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/table.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/collider.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/wall.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("/home/mathias/M1_IMA/S2/IG3D/second_depth_shadow_mapping/assets/composition/composition.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/shield/shield.glb", glm::mat4(1.0f));
 	//scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
@@ -86,6 +87,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[1], glm::vec3(0.0f, 6.0f, -4.0f), btScalar(1.0), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics->addRigidBody(scene_objects[2], glm::vec3(2.0f, 4.0f, -2.0f), btScalar(1.0), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics->addRigidBody(scene_objects[3], glm::vec3(0.0f), btScalar(1.0), btScalar(0.025), COLLISION_SHAPE::COMPOUND);
+	worldPhysics->addRigidBody(scene_objects[4], glm::vec3(0.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics->addRigidBody(scene_objects[5], glm::vec3(0.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -316,19 +319,23 @@ void Game::removeCharacter(std::string name)
 	}
 }
 
-void Game::mainCharacterDoActionWalk()
+void Game::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction)
 {
 	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
 	{
 		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[3]);
+		glm::mat4 model = worldPhysics->mainCharacterDoActionWalk(direction);
+		mainCharacter->setModel(model);
 	}
 }
 
-void Game::mainCharacterDoActionRun()
+void Game::mainCharacterDoActionRun(CHARACTER_DIRECTION direction)
 {
 	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
 	{
 		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[2]);
+		glm::mat4 model = worldPhysics->mainCharacterDoActionRun(direction);
+		mainCharacter->setModel(model);
 	}
 }
 
@@ -345,6 +352,8 @@ void Game::mainCharacterDoActionIdle()
 	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
 	{
 		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[0]);
+		glm::mat4 model = worldPhysics->mainCharacterDoActionIdle();
+		mainCharacter->setModel(model);
 	}
 }
 

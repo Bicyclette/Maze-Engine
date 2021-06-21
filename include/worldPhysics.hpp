@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include "animatedObject.hpp"
+#include <glm/gtx/rotate_vector.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletSoftBody/btSoftBodyHelpers.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
@@ -22,6 +23,13 @@ enum class COLLISION_SHAPE
 	COMPOUND,
 	TRIANGLE,
 	GIMPACT
+};
+
+enum class CHARACTER_DIRECTION
+{
+	FRONT,
+	RIGHT,
+	LEFT
 };
 
 class btDebugDraw : public btIDebugDraw
@@ -57,6 +65,9 @@ class WorldPhysics
 		glm::mat4 getObjectRotation(int objectIndex);
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);
 		int getNumRigidBody();
+		glm::mat4 mainCharacterDoActionWalk(CHARACTER_DIRECTION direction);
+		glm::mat4 mainCharacterDoActionRun(CHARACTER_DIRECTION direction);
+		glm::mat4 mainCharacterDoActionIdle();
 
 	private:
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);

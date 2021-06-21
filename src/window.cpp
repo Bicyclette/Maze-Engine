@@ -189,7 +189,7 @@ void WindowManager::checkEvents()
 	{
 		userInputs.set(7);
 	}
-	
+	*/
 	if(event.keyboardState[SDL_SCANCODE_RIGHT])
 	{
 		userInputs.set(8);
@@ -199,7 +199,7 @@ void WindowManager::checkEvents()
 	{
 		userInputs.set(9);
 	}
-	*/
+
 	if(event.keyboardState[SDL_SCANCODE_SPACE])
 	{
 		userInputs.set(10);

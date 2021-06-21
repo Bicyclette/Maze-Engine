@@ -46,7 +46,12 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		}
 		if(client->getUserInputs().test(6))
 		{
-			game->mainCharacterDoActionWalk();
+			if(client->getUserInputs().test(8))
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::LEFT);
+			else if(client->getUserInputs().test(9))
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::RIGHT);
+			else
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::FRONT);
 		}
 		else if(client->getUserInputs().test(10))
 		{
@@ -54,7 +59,12 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		}
 		else if(client->getUserInputs().test(11))
 		{
-			game->mainCharacterDoActionRun();
+			if(client->getUserInputs().test(8))
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::LEFT);
+			else if(client->getUserInputs().test(9))
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::RIGHT);
+			else
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::FRONT);
 		}
 		else
 		{

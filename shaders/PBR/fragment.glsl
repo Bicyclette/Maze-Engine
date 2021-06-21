@@ -297,7 +297,7 @@ void main()
         	Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0f - shadow);
     }
 
-    vec3 ambient = albedo * ao * 0.3;
+    vec3 ambient = albedo * ao * 0.1;
     vec3 color = ambient + Lo;
     fragColor = vec4(color, 1.0);
 
