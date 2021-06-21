@@ -7,6 +7,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 cmake_policy(SET CMP0072 NEW)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(SRCS
 	src/stb_image.cpp
 	src/main.cpp

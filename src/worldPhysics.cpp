@@ -132,33 +132,7 @@ btCollisionShape * WorldPhysics::createTriangleShape(std::shared_ptr<Object> & o
 	return shape;
 }
 
-btCollisionShape * WorldPhysics::createGImpactShape(std::shared_ptr<Object> & object)
-{
-	btTriangleMesh * triangleMesh = new btTriangleMesh();
-
-	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
-	for(int i{0}; i < meshes.size(); ++i)
-	{
-		const std::vector<Vertex> & vertices = meshes[i]->getVertices();
-		const std::vector<int> & indices = meshes[i]->getIndices();
-
-		for(int j{0}; j < indices.size(); j+=3)
-		{
-			btVector3 v0(vertices[indices[j]].position.x, vertices[indices[j]].position.y, vertices[indices[j]].position.z);
-			btVector3 v1(vertices[indices[j+1]].position.x, vertices[indices[j+1]].position.y, vertices[indices[j+1]].position.z);
-			btVector3 v2(vertices[indices[j+2]].position.x, vertices[indices[j+2]].position.y, vertices[indices[j+2]].position.z);
-
-			triangleMesh->addTriangle(v0, v1, v2);
-			triangleMesh->addTriangleIndices(j, j+1, j+2);
-		}
-	}
-
-	btGImpactMeshShape * shape = new btGImpactMeshShape(triangleMesh);
-	shape->updateBound();
-	return shape;
-}
-
-void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::vec3 origin, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape)
+void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape)
 {
 	struct AABB aabb = object->getAABB();
 	float xExtent = aabb.xMax - aabb.xMin;
@@ -167,8 +141,7 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::vec3 origin
 	
 	btCollisionShape * shape = nullptr;
 	btTransform transform;
-	transform.setIdentity();
-	transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
+	transform.setFromOpenGLMatrix(glm::value_ptr(position));
 
 	if(collision_shape == COLLISION_SHAPE::BOX)
 		shape = new btBoxShape(btVector3(xExtent/2.0f, yExtent/2.0f, zExtent/2.0f));
@@ -182,8 +155,6 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::vec3 origin
 		shape = createCompoundShape(object);
 	else if(collision_shape == COLLISION_SHAPE::TRIANGLE)
 		shape = createTriangleShape(object);
-	else if(collision_shape == COLLISION_SHAPE::GIMPACT)
-		shape = createGImpactShape(object);
 	else
 	{
 		std::cerr << "Failed to add a rigid body to scene !" << std::endl;
@@ -360,7 +331,13 @@ glm::mat4 WorldPhysics::mainCharacterDoActionRun(CHARACTER_DIRECTION direction)
 
 glm::mat4 WorldPhysics::mainCharacterDoActionIdle()
 {
-	mainCharacter->setVelocityForTimeInterval(btVector3(0, 0, 0), -1);
+	mainCharacter->setWalkDirection(btVector3(0, 0, 0));
+	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
+	
+	btVector3 origin = transform.getOrigin();
+	glm::vec3 pos = glm::vec3(origin.getX(), origin.getY() - 2, origin.getZ());
+	model = glm::translate(glm::mat4(1.0f), pos);
+	model = glm::rotate(model, turn, glm::vec3(0, 1, 0));
 	return model;
 }
 

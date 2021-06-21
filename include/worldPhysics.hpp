@@ -21,8 +21,7 @@ enum class COLLISION_SHAPE
 	CAPSULE,
 	CONVEX_HULL,
 	COMPOUND,
-	TRIANGLE,
-	GIMPACT
+	TRIANGLE
 };
 
 enum class CHARACTER_DIRECTION
@@ -58,7 +57,7 @@ class WorldPhysics
 		WorldPhysics();
 		~WorldPhysics();
 		void addKinematicCharacter(std::shared_ptr<Object> object);
-		void addRigidBody(std::shared_ptr<Object> object, glm::vec3 origin, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
+		void addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
 		void stepSimulation();
 		void stepSimulation(glm::mat4 & view, glm::mat4 & projection);
 		glm::vec3 getObjectPosition(int objectIndex);
@@ -73,7 +72,6 @@ class WorldPhysics
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
 		btCollisionShape * createCompoundShape(std::shared_ptr<Object> & object);
 		btCollisionShape * createTriangleShape(std::shared_ptr<Object> & object);
-		btCollisionShape * createGImpactShape(std::shared_ptr<Object> & object);
 
 		btDebugDraw debugDrawer;
 		btSoftBodyRigidBodyCollisionConfiguration * collisionConfiguration;
