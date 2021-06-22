@@ -26,8 +26,8 @@ class Game
 		std::shared_ptr<AnimatedObject> getMainCharacter();
 		void addCharacter(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f));
 		void removeCharacter(std::string name);
-		void mainCharacterDoActionWalk(CHARACTER_DIRECTION direction);
-		void mainCharacterDoActionRun(CHARACTER_DIRECTION direction);
+		void mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta);
+		void mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta);
 		void mainCharacterDoActionJump();
 		void mainCharacterDoActionIdle();
 

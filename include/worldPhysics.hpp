@@ -64,8 +64,8 @@ class WorldPhysics
 		glm::mat4 getObjectRotation(int objectIndex);
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);
 		int getNumRigidBody();
-		glm::mat4 mainCharacterDoActionWalk(CHARACTER_DIRECTION direction);
-		glm::mat4 mainCharacterDoActionRun(CHARACTER_DIRECTION direction);
+		glm::mat4 mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta);
+		glm::mat4 mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta);
 		glm::mat4 mainCharacterDoActionIdle();
 
 	private:

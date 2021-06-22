@@ -80,13 +80,13 @@ Graphics::Graphics(int width, int height) :
 
 	std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 	std::default_random_engine generator;
-	for(int i{0}; i < 64; ++i)
+	for(int i{0}; i < 32; ++i)
 	{
 		glm::vec3 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator));
 		sample = glm::normalize(sample);
 		sample *= randomFloats(generator);
 
-		float scale = static_cast<float>(i) / 64.0f;
+		float scale = static_cast<float>(i) / 32.0f;
 		scale = lerp(0.1f, 1.0f, scale * scale);
 		sample *= scale;
 		aoKernel.push_back(sample);

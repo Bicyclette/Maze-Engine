@@ -277,9 +277,9 @@ int WorldPhysics::getNumRigidBody()
 static glm::vec3 d = glm::vec3(0, 0, 1);
 static glm::mat4 model;
 static float turn = 0.0f;
-glm::mat4 WorldPhysics::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction)
+glm::mat4 WorldPhysics::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta)
 {
-	static float speed = 0.035f;
+	static float speed = 2.5f;
 	static float turnSpeed = 0.02f;
 
 	if(direction == CHARACTER_DIRECTION::RIGHT)
@@ -293,7 +293,7 @@ glm::mat4 WorldPhysics::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction)
 		d = glm::rotate(d, -turnSpeed, glm::vec3(0, 1, 0));
 	}
 
-	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed);
+	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed * delta);
 	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
 	
 	btVector3 origin = transform.getOrigin();
@@ -303,9 +303,9 @@ glm::mat4 WorldPhysics::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction)
 	return model;
 }
 
-glm::mat4 WorldPhysics::mainCharacterDoActionRun(CHARACTER_DIRECTION direction)
+glm::mat4 WorldPhysics::mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta)
 {
-	static float speed = 0.14f;
+	static float speed = 7.0f;
 	static float turnSpeed = 0.07f;
 
 	if(direction == CHARACTER_DIRECTION::RIGHT)
@@ -319,7 +319,7 @@ glm::mat4 WorldPhysics::mainCharacterDoActionRun(CHARACTER_DIRECTION direction)
 		d = glm::rotate(d, -turnSpeed, glm::vec3(0, 1, 0));
 	}
 
-	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed);
+	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed * delta);
 	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
 	
 	btVector3 origin = transform.getOrigin();

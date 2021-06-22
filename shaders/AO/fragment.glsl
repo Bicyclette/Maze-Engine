@@ -8,7 +8,7 @@ uniform sampler2D noiseTexture;
 
 uniform float radius;
 uniform float bias;
-uniform vec3 samples[64];
+uniform vec3 samples[32];
 uniform mat4 projection;
 
 uniform float screenWidth;
@@ -29,7 +29,7 @@ void main()
 	mat3 TBN = mat3(tangent, bitangent, normal);
 
 	float occlusion = 0.0f;
-	for(int i = 0; i < 64; ++i)
+	for(int i = 0; i < 32; ++i)
 	{
 		// get sample position
 		vec3 samplePos = TBN * samples[i]; // from tangent to view-space
@@ -45,6 +45,6 @@ void main()
 		float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragPos.z - sampleDepth));
 		occlusion += ((sampleDepth >= samplePos.z + bias) ? 1.0f : 0.0f) * rangeCheck;
 	}
-	occlusion = 1.0f - (occlusion / 64.0f);
-	fragColor = pow(occlusion, 1.5f);
+	occlusion = 1.0f - (occlusion / 32.0f);
+	fragColor = pow(occlusion, 2.0f);
 }

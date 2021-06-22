@@ -28,8 +28,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	skyTextures.push_back("../assets/skyboxes/skybox4/pz.png");
 	skyTextures.push_back("../assets/skyboxes/skybox4/nz.png");
 	
-	// create scene
-	scenes.push_back(std::make_shared<Scene>("my_scene"));
+	// create street light scene
+	scenes.push_back(std::make_shared<Scene>("street light"));
 
 	glm::vec3 camPos = glm::vec3(5.0f, 15.0f, 15.0f);
 	glm::vec3 camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
@@ -64,6 +64,24 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
+	
+	// create owl scene
+	scenes.push_back(std::make_shared<Scene>("owl"));
+
+	camPos = glm::vec3(0.0f, 5.0f, 8.0f);
+	camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
+	camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes.at(scenes.size()-1)->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
+	scenes.at(scenes.size()-1)->setActiveCamera(0);
+
+	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.5f));
+
+	scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
+
+	scenes.at(scenes.size()-1)->setGridAxis(8);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -294,22 +312,22 @@ void Game::removeCharacter(std::string name)
 	}
 }
 
-void Game::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction)
+void Game::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta)
 {
 	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
 	{
 		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[3]);
-		glm::mat4 model = worldPhysics->mainCharacterDoActionWalk(direction);
+		glm::mat4 model = worldPhysics->mainCharacterDoActionWalk(direction, delta);
 		mainCharacter->setModel(model);
 	}
 }
 
-void Game::mainCharacterDoActionRun(CHARACTER_DIRECTION direction)
+void Game::mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta)
 {
 	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
 	{
 		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[2]);
-		glm::mat4 model = worldPhysics->mainCharacterDoActionRun(direction);
+		glm::mat4 model = worldPhysics->mainCharacterDoActionRun(direction, delta);
 		mainCharacter->setModel(model);
 	}
 }
@@ -568,9 +586,9 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	glBindTexture(GL_TEXTURE_2D, graphics->getAONoiseTexture()); // noise texture
 	graphics->getAOShader().setInt("noiseTexture", 2);
 	std::vector<glm::vec3> aoKernel{graphics->getAOKernel()};
-	for(int i{0}; i < 64; ++i)
+	for(int i{0}; i < 32; ++i)
 		graphics->getAOShader().setVec3f("samples[" + std::to_string(i) + "]", aoKernel[i]);
-	graphics->getAOShader().setFloat("radius", 1.5f);
+	graphics->getAOShader().setFloat("radius", 1.0f);
 	graphics->getAOShader().setFloat("bias", 0.05f);
 	graphics->getAOShader().setMatrix("projection", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
 	graphics->getAOShader().setFloat("screenWidth", static_cast<float>(width));

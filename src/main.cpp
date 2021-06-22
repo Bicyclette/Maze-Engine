@@ -13,6 +13,8 @@
 
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 {
+	game->setActiveScene(0);
+
 	//float brightnessThreshold{10.0f};
 
 	// delta
@@ -38,7 +40,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		ImGui::End();
 		*/
 		// >>>>>>>>>> IMGUI
-		game->updateSceneActiveCameraView(0, client->getUserInputs(), client->getMouseData(), delta);
+		game->updateSceneActiveCameraView(game->getActiveScene(), client->getUserInputs(), client->getMouseData(), delta);
 
 		if(client->getUserInputs().test(5))
 		{
@@ -47,11 +49,11 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		if(client->getUserInputs().test(6))
 		{
 			if(client->getUserInputs().test(8))
-				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::LEFT);
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::LEFT, delta);
 			else if(client->getUserInputs().test(9))
-				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::RIGHT);
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::RIGHT, delta);
 			else
-				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::FRONT);
+				game->mainCharacterDoActionWalk(CHARACTER_DIRECTION::FRONT, delta);
 		}
 		else if(client->getUserInputs().test(10))
 		{
@@ -60,11 +62,11 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		else if(client->getUserInputs().test(11))
 		{
 			if(client->getUserInputs().test(8))
-				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::LEFT);
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::LEFT, delta);
 			else if(client->getUserInputs().test(9))
-				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::RIGHT);
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::RIGHT, delta);
 			else
-				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::FRONT);
+				game->mainCharacterDoActionRun(CHARACTER_DIRECTION::FRONT, delta);
 		}
 		else
 		{

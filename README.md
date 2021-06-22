@@ -3,17 +3,15 @@
 
 # To do
 **graphics**
-* Improve Bloom effect
+* Improve Bloom effect and set proper brightness threshold for non emissive surfaces
 * IBL (diffuse & specular)
 * OIT
 
 **physics**
 * Character kinematic controller
-* Fix GImpact collision shape
 
 **user interface**
 * OpenGL based user interface (buttons, menus, layout)
-* process for main client, and process for game
 
 **game design**
 * Write precise game specifications, goals, story etc.
