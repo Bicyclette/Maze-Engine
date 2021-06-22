@@ -297,7 +297,7 @@ void main()
         	Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0f - shadow);
     }
 
-    vec3 ambient = albedo * ao * 0.1;
+    vec3 ambient = albedo * ao * 0.02;
     vec3 color = ambient + Lo;
     fragColor = vec4(color, 1.0);
 
@@ -305,17 +305,19 @@ void main()
 	float brightness = (1.0f - roughness) * dot(fragColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
 
 	// bright color
-	if(material.emissiveColor == vec3(1.0f))
+	if(material.emissiveColor != vec3(0.0f))
 	{
 		if(material.hasAlbedo == 1)
 			brightColor = texture(material.albedoMap, fs_in.texCoords);
 		else if(material.hasAlbedo == 0)
-			brightColor = vec4(material.albedo * 75.0f, 1.0f);
+			brightColor = vec4(material.albedo, 1.0f);
 	}
+	/*
 	else if(brightness > 1.0f)
 	{
 		brightColor = vec4(fragColor.rgb, 1.0f);
 	}
+	*/
 	else
 		brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }

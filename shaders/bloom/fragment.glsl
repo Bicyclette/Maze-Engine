@@ -52,5 +52,5 @@ void main()
 		}
 	}
 
-	color = vec4(result * 0.85f, 1.0f);
+	color = vec4(result, 1.0f);
 }

@@ -328,17 +328,19 @@ void main()
 	float brightness = texture(material.specular, fs_in.texCoords).r * dot(fragColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
 
 	// bright color
-	if(material.emissiveColor == vec3(1.0f))
+	if(material.emissiveColor != vec3(0.0f))
 	{
 		if(material.hasDiffuse == 1)
 			brightColor = texture(material.diffuse, fs_in.texCoords);
 		else if(material.hasDiffuse == 0)
-			brightColor = vec4(material.color_diffuse * 75.0f, 1.0f);
+			brightColor = vec4(material.color_diffuse, 1.0f);
 	}
+	/*
 	else if(brightness > 1.0f)
 	{
 		brightColor = vec4(fragColor.rgb, 1.0f);
 	}
+	*/
 	else
 		brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }

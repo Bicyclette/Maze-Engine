@@ -31,8 +31,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	// create scene
 	scenes.push_back(std::make_shared<Scene>("my_scene"));
 
-	glm::vec3 camPos = glm::vec3(0.0f, 8.0f, 15.0f);
-	glm::vec3 camTarget = glm::vec3(0.0f, 4.0f, 0.0f);
+	glm::vec3 camPos = glm::vec3(5.0f, 15.0f, 15.0f);
+	glm::vec3 camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
 	glm::vec3 camDir = glm::normalize(camTarget - camPos);
 	float angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
 	glm::vec3 camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -40,7 +40,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
 	scenes.at(scenes.size()-1)->setActiveCamera(0);
 
-	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(50.0f, 17.0f, 10.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(5.0f, 4.5f, 3.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
 	scenes.at(scenes.size()-1)->addObject("../assets/character/ground.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
@@ -48,6 +48,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/street_light.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/character/street_light_bulb.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/tree1.glb", glm::mat4(1.0f));
 
 	//scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
@@ -61,7 +62,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[3], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
+	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
+	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
