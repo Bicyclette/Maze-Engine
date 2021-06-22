@@ -21,12 +21,12 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	// skybox textures
 	std::vector<std::string> skyTextures;
-	skyTextures.push_back("../assets/skyboxes/skybox4/px.png");
-	skyTextures.push_back("../assets/skyboxes/skybox4/nx.png");
-	skyTextures.push_back("../assets/skyboxes/skybox4/py.png");
-	skyTextures.push_back("../assets/skyboxes/skybox4/ny.png");
-	skyTextures.push_back("../assets/skyboxes/skybox4/pz.png");
-	skyTextures.push_back("../assets/skyboxes/skybox4/nz.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/px.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/nx.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/py.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/ny.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/pz.png");
+	skyTextures.push_back("../assets/skyboxes/skybox5/nz.png");
 	
 	// create street light scene
 	scenes.push_back(std::make_shared<Scene>("street light"));
@@ -51,7 +51,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes.at(scenes.size()-1)->addObject("../assets/character/street_light_bulb.glb", glm::mat4(1.0f));
 	scenes.at(scenes.size()-1)->addObject("../assets/character/tree1.glb", glm::mat4(1.0f));
 
-	//scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
+	scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
 	scenes.at(scenes.size()-1)->setGridAxis(8);
 
 	// set physics properties for scene
@@ -79,8 +79,9 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.5f));
 
-	scenes.at(scenes.size()-1)->addObject("../assets/flowers/scene.glb", glm::mat4(1.0f));
+	scenes.at(scenes.size()-1)->addObject("../assets/outdoor_scene/scene.glb", glm::mat4(1.0f));
 
+	scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
 	scenes.at(scenes.size()-1)->setGridAxis(8);
 }
 
@@ -476,6 +477,13 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 		s.setMatrix("light[" + std::to_string(i) + "].lightSpaceMatrix", glm::mat4(1.0f));
 		textureOffset++;
+	}
+	// "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
+	// "black screen, or your clear color. Also, following draw calls may cause invalid "
+	// "operation. Better to uniform all unused sampler types with some random texture index."
+	for(int i{scenes.at(index)->getPLights().size()}; i < 10; ++i)
+	{
+		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 	}
 
 	int depthMapIndex{0};

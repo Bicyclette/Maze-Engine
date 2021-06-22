@@ -39,7 +39,7 @@ Graphics::Graphics(int width, int height) :
 	},
 	ping{std::make_unique<Framebuffer>(true, false, true)},
 	pong{std::make_unique<Framebuffer>(true, false, true)},
-	shadowQuality(SHADOW_QUALITY::ULTRA),
+	shadowQuality(SHADOW_QUALITY::HIGH),
 	orthoDimension(10.0f),
 	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),

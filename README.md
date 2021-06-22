@@ -1,6 +1,3 @@
-# Bugs
-* Enabling skybox prevents any objects of any scene to be visible after draw calls were made.
-
 # To do
 **graphics**
 * Improve Bloom effect and set proper brightness threshold for non emissive surfaces
