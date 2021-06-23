@@ -2,12 +2,18 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Maze)
 
-set(CMAKE_BUILD_TYPE Debug)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 cmake_policy(SET CMP0072 NEW)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS} "-g")
+set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS} "-O3")
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(SRCS
 	src/stb_image.cpp

@@ -35,7 +35,7 @@ Object::~Object()
 	{
 		for(int i{0}; i < meshes.size(); ++i)
 		{
-			meshes.at(i)->bindVAO();
+			meshes[i]->bindVAO();
 
 			glDisableVertexAttribArray(5);
 			glDisableVertexAttribArray(6);
@@ -77,7 +77,7 @@ void Object::draw(Shader& shader, DRAWING_MODE mode)
 
 	for(int i{0}; i < meshCount; ++i)
 	{
-		meshes.at(i)->draw(shader, instancing, instanceModel.size(), mode);
+		meshes[i]->draw(shader, instancing, instanceModel.size(), mode);
 	}
 }
 
@@ -97,7 +97,7 @@ void Object::setInstancing(const std::vector<glm::mat4> & models)
 
 	for(int i{0}; i < meshes.size(); ++i)
 	{
-		meshes.at(i)->bindVAO();
+		meshes[i]->bindVAO();
 
 		std::size_t vec4Size = sizeof(glm::vec4);
 		glEnableVertexAttribArray(7);
@@ -122,7 +122,7 @@ void Object::resetInstancing()
 {
 	for(int i{0}; i < meshes.size(); ++i)
 	{
-		meshes.at(i)->bindVAO();
+		meshes[i]->bindVAO();
 
 		glDisableVertexAttribArray(7);
 		glDisableVertexAttribArray(8);
@@ -140,6 +140,23 @@ void Object::resetInstancing()
 
 void Object::load(const std::string & path)
 {
+	/*
+	// prepare export to assbin
+	Assimp::Exporter exporter;
+	auto numExtensions = exporter.GetExportFormatCount();
+	int extensionIndex{-1};
+	for(int i{0}; i < numExtensions; ++i)
+	{
+		const aiExportFormatDesc * format = exporter.GetExportFormatDescription(i);
+		if(std::string(format->id) == "assbin")
+		{
+			extensionIndex = i;
+			break;
+		}
+	}
+	const aiExportFormatDesc * format = exporter.GetExportFormatDescription(extensionIndex);
+	*/
+	// regular import
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
@@ -157,6 +174,11 @@ void Object::load(const std::string & path)
 
 	exploreNode(scene->mRootNode, scene);
 	computeAABB();
+	/*
+	// export to assbin
+	std::string fileName{path.substr(0, path.find_last_of('.')) + ".assbin"};
+	exporter.Export(scene, format->id, fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	*/
 }
 
 void Object::computeAABB()
@@ -234,7 +256,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	aiVector3D vertex_norm;
 	aiVector3D vertex_tangent;
 	aiVector3D vertex_bTangent;
-	
+
 	for(int i{0}; i < nb_vertices; ++i)
 	{
 		vertex_pos = mesh->mVertices[i];
@@ -347,9 +369,9 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 		std::string texName = std::string(path.C_Str()).substr(index + 1);
 		std::string texPath = std::string(directory + "/" + texName);
 
-		if(texName.at(0) == '*' && index == -1)
+		if(texName[0] == '*' && index == -1)
 		{
-			int embedded{static_cast<int>(texName.at(1) - '0')};
+			int embedded{static_cast<int>(texName[1] - '0')};
 
 			aiTexture* embTex = scene->mTextures[embedded];
 			aiTexel* texData = embTex->pcData;
@@ -362,9 +384,9 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 			bool skip{false};
 			for(int j{0}; j < texturesLoaded.size(); ++j)
 			{
-				if(std::strcmp(texturesLoaded.at(j).path.c_str(), texPath.c_str()) == 0)
+				if(std::strcmp(texturesLoaded[j].path.c_str(), texPath.c_str()) == 0)
 				{
-					texs.push_back(texturesLoaded.at(j));
+					texs.push_back(texturesLoaded[j]);
 					skip = true;
 					break;
 				}

@@ -224,12 +224,30 @@ void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJoint
 
 	for(int i{0}; i < meshCount; ++i)
 	{
-		meshes.at(i)->draw(shader, instancing, instanceModel.size(), mode);
+		meshes[i]->draw(shader, instancing, instanceModel.size(), mode);
 	}
 }
 
 void AnimatedObject::load(const std::string & path)
 {
+	/*
+	// prepare export to assbin
+	Assimp::Exporter exporter;
+	auto numExtensions = exporter.GetExportFormatCount();
+	int extensionIndex{-1};
+	for(int i{0}; i < numExtensions; ++i)
+	{
+		const aiExportFormatDesc * format = exporter.GetExportFormatDescription(i);
+		if(std::string(format->id) == "assbin")
+		{
+			extensionIndex = i;
+			break;
+		}
+	}
+	const aiExportFormatDesc * format = exporter.GetExportFormatDescription(extensionIndex);
+	*/
+	double start = omp_get_wtime();
+	// regular import
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
@@ -257,6 +275,12 @@ void AnimatedObject::load(const std::string & path)
 
 	exploreNode(scene->mRootNode, scene);
 	computeAABB();
+	std::cout << "time = " << omp_get_wtime() - start << std::endl;
+	/*
+	// export to assbin
+	std::string fileName{path.substr(0, path.find_last_of('.')) + ".assbin"};
+	exporter.Export(scene, format->id, fileName, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	*/
 }
 
 void AnimatedObject::loadJointHierarchy(const aiScene * scene)

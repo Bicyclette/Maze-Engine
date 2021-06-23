@@ -37,22 +37,22 @@ Game::Game(int clientWidth, int clientHeight) :
 	float angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
 	glm::vec3 camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::vec3 camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes.at(scenes.size()-1)->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
-	scenes.at(scenes.size()-1)->setActiveCamera(0);
+	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
+	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes.at(scenes.size()-1)->addPointLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(5.0f, 4.5f, 3.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	scenes[scenes.size()-1]->addPointLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(5.0f, 4.5f, 3.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
-	scenes.at(scenes.size()-1)->addObject("../assets/character/ground.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/street_light.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/street_light_bulb.glb", glm::mat4(1.0f));
-	scenes.at(scenes.size()-1)->addObject("../assets/character/tree1.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/ground.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/ball.assbin", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
+	scenes[scenes.size()-1]->addObject("../assets/character/ball2.assbin", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
+	scenes[scenes.size()-1]->addObject("../assets/character/bench.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/bench.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/street_light.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
 
-	scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
-	scenes.at(scenes.size()-1)->setGridAxis(8);
+	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
+	scenes[scenes.size()-1]->setGridAxis(8);
 
 	// set physics properties for scene
 	std::vector<std::shared_ptr<Object>> scene_objects = scenes[scenes.size()-1]->getObjects();
@@ -65,8 +65,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
 	
-	// create owl scene
-	scenes.push_back(std::make_shared<Scene>("owl"));
+	// create outdoor scene
+	scenes.push_back(std::make_shared<Scene>("outdoor"));
 
 	camPos = glm::vec3(0.0f, 5.0f, 8.0f);
 	camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -74,15 +74,15 @@ Game::Game(int clientWidth, int clientHeight) :
 	angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
 	camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes.at(scenes.size()-1)->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
-	scenes.at(scenes.size()-1)->setActiveCamera(0);
+	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
+	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes.at(scenes.size()-1)->addDirectionalLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.5f));
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(-1.5f, 15.0f, -2.5f), glm::vec3(0.025f), glm::vec3(10.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.5f));
 
-	scenes.at(scenes.size()-1)->addObject("../assets/outdoor_scene/scene.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/outdoor_scene/scene.glb", glm::mat4(1.0f));
 
-	scenes.at(scenes.size()-1)->setSkybox(skyTextures, false);
-	scenes.at(scenes.size()-1)->setGridAxis(8);
+	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
+	scenes[scenes.size()-1]->setGridAxis(8);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -155,12 +155,12 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			// draw final image quad
 			graphics->getFinalShader().use();
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments().at(0).id);
+			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
 			graphics->getFinalShader().setInt("scene", 0);
 			if(graphics->bloomOn())
 			{
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments().at(0).id);
+				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments()[0].id);
 				graphics->getFinalShader().setInt("bloom", 1);
 				graphics->getFinalShader().setInt("bloomEffect", 1);
 			}
@@ -186,11 +186,11 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 
 			// draw scene
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			s.setVec3f("cam.viewPos", scenes.at(activeScene)->getActiveCamera()->getPosition());
-			s.setMatrix("view", scenes.at(activeScene)->getActiveCamera()->getViewMatrix());
-			s.setMatrix("proj", scenes.at(activeScene)->getActiveCamera()->getProjectionMatrix());
-			s.setLighting(scenes.at(activeScene)->getPLights(), scenes.at(activeScene)->getDLights(), scenes.at(activeScene)->getSLights());
-			scenes.at(activeScene)->draw(s, graphics, delta, mode, debug);
+			s.setVec3f("cam.viewPos", scenes[activeScene]->getActiveCamera()->getPosition());
+			s.setMatrix("view", scenes[activeScene]->getActiveCamera()->getViewMatrix());
+			s.setMatrix("proj", scenes[activeScene]->getActiveCamera()->getProjectionMatrix());
+			s.setLighting(scenes[activeScene]->getPLights(), scenes[activeScene]->getDLights(), scenes[activeScene]->getSLights());
+			scenes[activeScene]->draw(s, graphics, delta, mode, debug);
 			
 			// blit to normal framebuffer (resolve multisampling)
 			glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -209,12 +209,12 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			// draw final image quad
 			graphics->getFinalShader().use();
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments().at(0).id);
+			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
 			graphics->getFinalShader().setInt("scene", 0);
 			if(graphics->bloomOn())
 			{
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments().at(0).id);
+				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments()[0].id);
 				graphics->getFinalShader().setInt("bloom", 1);
 				graphics->getFinalShader().setInt("bloomEffect", 1);
 			}
@@ -239,7 +239,7 @@ void Game::resizeScreen(int clientWidth, int clientHeight)
 	#pragma omp for
 	for(int i{0}; i < scenes.size(); ++i)
 	{
-		scenes.at(i)->getActiveCamera()->updateProjectionMatrix(clientWidth, clientHeight);
+		scenes[i]->getActiveCamera()->updateProjectionMatrix(clientWidth, clientHeight);
 	}
 
 	graphics->resizeScreen(clientWidth, clientHeight);
@@ -249,7 +249,7 @@ void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs
 {
 	if(index < scenes.size())
 	{
-		scenes.at(index)->getActiveCamera()->updateViewMatrix(inputs, mouse, delta);
+		scenes[index]->getActiveCamera()->updateViewMatrix(inputs, mouse, delta);
 	}
 }
 
@@ -362,44 +362,44 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 
 	// render directional depth maps
 	int sLightsOffset{0};
-	for(int i{0}; i < scenes.at(index)->getDLights().size(); ++i, ++sLightsOffset)
+	for(int i{0}; i < scenes[index]->getDLights().size(); ++i, ++sLightsOffset)
 	{
 		graphics->getStdDepthFBO(i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 lightPosition = scenes.at(index)->getDLights().at(i)->getPosition();
-		glm::vec3 lightTarget = lightPosition + scenes.at(index)->getDLights().at(i)->getDirection();
+		glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
+		glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
 		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 
-	for(int i{0}; i < scenes.at(index)->getSLights().size(); ++i)
+	for(int i{0}; i < scenes[index]->getSLights().size(); ++i)
 	{
 		graphics->getStdDepthFBO(sLightsOffset + i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 lightPosition = scenes.at(index)->getSLights().at(i)->getPosition();
-		glm::vec3 lightDirection = scenes.at(index)->getSLights().at(i)->getDirection();
+		glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();
+		glm::vec3 lightDirection = scenes[index]->getSLights()[i]->getDirection();
 		glm::vec3 lightTarget = lightPosition + lightDirection;
 		glm::vec3 up = (lightDirection == glm::vec3(0.0f, -1.0f, 0.0f)) ? glm::vec3(1.0f, 0.0f, 0.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
 		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, up);
-		float outerCutOff = scenes.at(index)->getSLights().at(i)->getOuterCutOff();
+		float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
 
 		glm::mat4 spotProj = glm::perspective(
 					outerCutOff * 2.0f, 1.0f,
-					scenes.at(index)->getActiveCamera()->getNearPlane(),
-					scenes.at(index)->getActiveCamera()->getFarPlane()
+					scenes[index]->getActiveCamera()->getNearPlane(),
+					scenes[index]->getActiveCamera()->getFarPlane()
 					);
 
 		graphics->getShadowMappingShader().setMatrix("proj", spotProj);
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -415,13 +415,13 @@ void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 
 	// render omnidirectional depth maps
 	std::vector<glm::mat4> omnilightViews;
-	for(int i{0}; i < scenes.at(index)->getPLights().size(); ++i)
+	for(int i{0}; i < scenes[index]->getPLights().size(); ++i)
 	{
 		graphics->getOmniDepthFBO(i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		// (proj * view)
-		glm::vec3 lightPosition = scenes.at(index)->getPLights().at(i)->getPosition();
+		glm::vec3 lightPosition = scenes[index]->getPLights()[i]->getPosition();
 		omnilightViews.push_back(graphics->getOmniPerspProjection() * glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 		omnilightViews.push_back(graphics->getOmniPerspProjection() * glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 		omnilightViews.push_back(graphics->getOmniPerspProjection() * glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -431,11 +431,11 @@ void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 
 		graphics->getShadowMappingShader().setVec3f("lightPosition", lightPosition);
 		for(int j{0}; j < 6; ++j)
-			graphics->getShadowMappingShader().setMatrix("omnilightViews[" + std::to_string(j) + "]", omnilightViews.at(j));
+			graphics->getShadowMappingShader().setMatrix("omnilightViews[" + std::to_string(j) + "]", omnilightViews[j]);
 		omnilightViews.clear();
 
 		// draw scene
-		scenes.at(index)->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -452,28 +452,28 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	// draw scene
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	s.use();
-	s.setInt("pointLightCount", scenes.at(index)->getPLights().size());
-	s.setVec3f("cam.viewPos", scenes.at(index)->getActiveCamera()->getPosition());
-	s.setMatrix("view", scenes.at(index)->getActiveCamera()->getViewMatrix());
-	s.setMatrix("proj", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
-	s.setLighting(scenes.at(index)->getPLights(), scenes.at(index)->getDLights(), scenes.at(index)->getSLights());
+	s.setInt("pointLightCount", scenes[index]->getPLights().size());
+	s.setVec3f("cam.viewPos", scenes[index]->getActiveCamera()->getPosition());
+	s.setMatrix("view", scenes[index]->getActiveCamera()->getViewMatrix());
+	s.setMatrix("proj", scenes[index]->getActiveCamera()->getProjectionMatrix());
+	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 	s.setInt("hasSSAO", graphics->ssaoOn() ? 1 : 0);
 	glActiveTexture(GL_TEXTURE0 + 13);
-	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(1)->getAttachments().at(0).id);
+	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(1)->getAttachments()[0].id);
 	s.setInt("ssao", 13);
 	s.setVec2f("viewport", glm::vec2(width, height));
 
 	// set shadow maps (point first, dir second and spot last)
-	int nbPLights = scenes.at(index)->getPLights().size();
-	int nbDLights = scenes.at(index)->getDLights().size();
-	int nbSLights = scenes.at(index)->getSLights().size();
+	int nbPLights = scenes[index]->getPLights().size();
+	int nbDLights = scenes[index]->getDLights().size();
+	int nbSLights = scenes[index]->getSLights().size();
 
 	int textureOffset{4};
 
-	for(int i{0}; i < scenes.at(index)->getPLights().size(); ++i)
+	for(int i{0}; i < scenes[index]->getPLights().size(); ++i)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments().at(0).id);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments()[0].id);
 		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 		s.setMatrix("light[" + std::to_string(i) + "].lightSpaceMatrix", glm::mat4(1.0f));
 		textureOffset++;
@@ -481,47 +481,47 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	// "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
 	// "black screen, or your clear color. Also, following draw calls may cause invalid "
 	// "operation. Better to uniform all unused sampler types with some random texture index."
-	for(int i{scenes.at(index)->getPLights().size()}; i < 10; ++i)
+	for(int i{scenes[index]->getPLights().size()}; i < 10; ++i)
 	{
 		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 	}
 
 	int depthMapIndex{0};
-	for(int i{0}; i < scenes.at(index)->getDLights().size(); ++i)
+	for(int i{0}; i < scenes[index]->getDLights().size(); ++i)
 	{
-		glm::vec3 lightPosition = scenes.at(index)->getDLights().at(i)->getPosition();
-		glm::vec3 lightTarget = lightPosition + scenes.at(index)->getDLights().at(i)->getDirection();
+		glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
+		glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
 		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments().at(0).id);
+		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
 		s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
 		s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection() * lightView);
 		depthMapIndex++;
 		textureOffset++;
 	}
 
-	for(int i{0}; i < scenes.at(index)->getSLights().size(); ++i)
+	for(int i{0}; i < scenes[index]->getSLights().size(); ++i)
 	{
-		float outerCutOff = scenes.at(index)->getSLights().at(i)->getOuterCutOff();
-		glm::vec3 lightPosition = scenes.at(index)->getSLights().at(i)->getPosition();
-		glm::vec3 lightTarget = lightPosition + scenes.at(index)->getSLights().at(i)->getDirection();
+		float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
+		glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();
+		glm::vec3 lightTarget = lightPosition + scenes[index]->getSLights()[i]->getDirection();
 		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 spotProj = glm::perspective(
 					outerCutOff * 2.0f, 1.0f,
-					scenes.at(index)->getActiveCamera()->getNearPlane(),
-					scenes.at(index)->getActiveCamera()->getFarPlane()
+					scenes[index]->getActiveCamera()->getNearPlane(),
+					scenes[index]->getActiveCamera()->getFarPlane()
 					);
 
 		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments().at(0).id);
+		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
 		s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
 		s.setMatrix("light[" + std::to_string(i + nbPLights + nbDLights) + "].lightSpaceMatrix", spotProj * lightView);
 		depthMapIndex++;
 		textureOffset++;
 	}
 
-	scenes.at(index)->draw(s, graphics, delta, mode, debug);
+	scenes[index]->draw(s, graphics, delta, mode, debug);
 }
 
 void Game::bloomPass(int width, int height)
@@ -548,10 +548,10 @@ void Game::bloomPass(int width, int height)
 			if(firstIteration)
 			{
 				firstIteration = false;
-				glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(1)->getAttachments().at(0).id);
+				glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(1)->getAttachments()[0].id);
 			}
 			else
-				glBindTexture(GL_TEXTURE_2D, pong->getAttachments().at(0).id);
+				glBindTexture(GL_TEXTURE_2D, pong->getAttachments()[0].id);
 			graphics->getQuadMesh()->draw(bloom);
 		}
 		else
@@ -560,7 +560,7 @@ void Game::bloomPass(int width, int height)
 			glClear(GL_COLOR_BUFFER_BIT);
 			bloom.setInt("horizontal", 0);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, ping->getAttachments().at(0).id);
+			glBindTexture(GL_TEXTURE_2D, ping->getAttachments()[0].id);
 			graphics->getQuadMesh()->draw(bloom);
 		}
 		horizontal = !horizontal;
@@ -577,18 +577,18 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 
 	// render position, normal, and depth data
 	graphics->getGBufferShader().use();
-	graphics->getGBufferShader().setMatrix("view", scenes.at(index)->getActiveCamera()->getViewMatrix());
-	graphics->getGBufferShader().setMatrix("proj", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
-	scenes.at(index)->draw(graphics->getGBufferShader(), graphics, delta);
+	graphics->getGBufferShader().setMatrix("view", scenes[index]->getActiveCamera()->getViewMatrix());
+	graphics->getGBufferShader().setMatrix("proj", scenes[index]->getActiveCamera()->getProjectionMatrix());
+	scenes[index]->draw(graphics->getGBufferShader(), graphics, delta);
 
 	// render ambient occlusion data
 	graphics->getAOFBO(0)->bind();
 	graphics->getAOShader().use();
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments().at(0).id); // position
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position
 	graphics->getAOShader().setInt("positionBuffer", 0);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments().at(1).id); // normal
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[1].id); // normal
 	graphics->getAOShader().setInt("normalBuffer", 1);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, graphics->getAONoiseTexture()); // noise texture
@@ -598,7 +598,7 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 		graphics->getAOShader().setVec3f("samples[" + std::to_string(i) + "]", aoKernel[i]);
 	graphics->getAOShader().setFloat("radius", 1.0f);
 	graphics->getAOShader().setFloat("bias", 0.05f);
-	graphics->getAOShader().setMatrix("projection", scenes.at(index)->getActiveCamera()->getProjectionMatrix());
+	graphics->getAOShader().setMatrix("projection", scenes[index]->getActiveCamera()->getProjectionMatrix());
 	graphics->getAOShader().setFloat("screenWidth", static_cast<float>(width));
 	graphics->getAOShader().setFloat("screenHeight", static_cast<float>(height));
 	graphics->getQuadMesh()->draw(graphics->getAOShader());
@@ -606,7 +606,7 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	graphics->getAOFBO(1)->bind();
 	graphics->getAOBlurShader().use();
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(0)->getAttachments().at(0).id); // raw AO
+	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(0)->getAttachments()[0].id); // raw AO
 	graphics->getAOBlurShader().setInt("aoInput", 0);
 	graphics->getQuadMesh()->draw(graphics->getAOBlurShader());
 

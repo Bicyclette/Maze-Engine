@@ -313,7 +313,7 @@ void main()
 			brightColor = vec4(material.albedo, 1.0f);
 	}
 	/*
-	else if(brightness > 1.0f)
+	else if(brightness > 100000.0f)
 	{
 		brightColor = vec4(fragColor.rgb, 1.0f);
 	}
