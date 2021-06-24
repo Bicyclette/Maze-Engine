@@ -50,6 +50,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/flag.glb", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
 	scenes[scenes.size()-1]->setGridAxis(8);
@@ -61,9 +62,10 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[2], glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)), btScalar(0.25), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics->addRigidBody(scene_objects[3], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::BOX);
+	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
+	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
 	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
+	worldPhysics->addSoftBody(scene_objects[8], btScalar(1.0));
 	
 	// create outdoor scene
 	scenes.push_back(std::make_shared<Scene>("outdoor"));
@@ -99,10 +101,15 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	}
 	worldPhysics->stepSimulation();
 	std::vector<std::shared_ptr<Object>> scene_objects = scenes[activeScene]->getObjects();
-	for(int i{0}; i < worldPhysics->getNumRigidBody(); ++i)
+	int indexPhysics{0};
+	for(;indexPhysics < worldPhysics->getNumRigidBody(); ++indexPhysics)
 	{
-		glm::mat4 model = worldPhysics->getObjectOpenGLMatrix(i);
-		scene_objects[i]->setModel(model);
+		glm::mat4 model = worldPhysics->getObjectOpenGLMatrix(indexPhysics);
+		scene_objects[indexPhysics]->setModel(model);
+	}
+	for(int i{0}; i < worldPhysics->getNumSoftBody(); ++i, ++indexPhysics)
+	{
+		worldPhysics->updateSoftBody(i, scene_objects[indexPhysics]);
 	}
 
 	// update main character animation and other characters' animation too

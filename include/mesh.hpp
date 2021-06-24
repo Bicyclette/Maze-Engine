@@ -26,6 +26,17 @@ struct Vertex
 	glm::ivec4 bonesID;
 	glm::vec4 weights;
 
+	Vertex()
+	{
+		position = glm::vec3(0.0f);
+		normal = glm::vec3(0.0f);
+		texCoords = glm::vec2(0.0f);
+		tangent = glm::vec3(0.0f);
+		biTangent = glm::vec3(0.0f);
+		bonesID = glm::ivec4(0);
+		weights = glm::vec4(0.0f);
+	}
+
 	Vertex(
 		glm::vec3 pos,
 		glm::vec3 norm,
@@ -57,6 +68,9 @@ class Mesh
 		Material & getMaterial();
 		void bindVAO() const;
 		void draw(Shader & s, bool instancing = false, int amount = 1, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		void recreate(std::vector<Vertex> aVertices, std::vector<int> aIndices, bool dynamicDraw);
+		void updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices);
+		bool getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out);
 
 	private:
 

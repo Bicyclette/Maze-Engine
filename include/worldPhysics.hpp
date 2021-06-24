@@ -12,13 +12,13 @@
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
-#include <BulletCollision/Gimpact/btGImpactShape.h>
 
 enum class COLLISION_SHAPE
 {
 	BOX,
 	SPHERE,
 	CAPSULE,
+	CYLINDER,
 	CONVEX_HULL,
 	COMPOUND,
 	TRIANGLE
@@ -58,12 +58,13 @@ class WorldPhysics
 		~WorldPhysics();
 		void addKinematicCharacter(std::shared_ptr<Object> object);
 		void addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
+		void addSoftBody(std::shared_ptr<Object> object, btScalar mass);
+		void updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object);
 		void stepSimulation();
 		void stepSimulation(glm::mat4 & view, glm::mat4 & projection);
-		glm::vec3 getObjectPosition(int objectIndex);
-		glm::mat4 getObjectRotation(int objectIndex);
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);
 		int getNumRigidBody();
+		int getNumSoftBody();
 		glm::mat4 mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta);
 		glm::mat4 mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta);
 		glm::mat4 mainCharacterDoActionIdle();

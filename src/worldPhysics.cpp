@@ -149,6 +149,8 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::mat4 positi
 		shape = new btSphereShape(btScalar(xExtent/2.0f));
 	else if(collision_shape == COLLISION_SHAPE::CAPSULE)
 		shape = new btCapsuleShape(btScalar(xExtent/2.0f), btScalar(yExtent - (xExtent/2.0f)));
+	else if(collision_shape == COLLISION_SHAPE::CYLINDER)
+		shape = new btCylinderShape(btVector3(xExtent/2.0f, yExtent/2.0f, zExtent/2.0f));
 	else if(collision_shape == COLLISION_SHAPE::CONVEX_HULL)
 		shape = createConvexHullShape(object);
 	else if(collision_shape == COLLISION_SHAPE::COMPOUND)
@@ -174,6 +176,190 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::mat4 positi
 	btRigidBody * body = new btRigidBody(rbInfo);
 
 	dynamicsWorld->addRigidBody(body);
+}
+
+void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
+{
+	// ########## LAMBDAS >>>>>>>>>>
+	std::function getVertexDefinedIndex =
+	[] (glm::vec3 pos, int index, const std::vector<std::pair<glm::vec3, int>> & couples){
+		for(auto couple : couples)
+		{
+			glm::vec3 p = couple.first;
+			if(p.x == pos.x && p.y == pos.y && p.z == pos.z)
+				return couple.second;
+		}
+		return -1;
+	};
+	
+	std::function fetchCorrectIndex =
+	[] (glm::vec3 pos, const std::vector<std::pair<glm::vec3, int>> & couples){
+		int index{-1};
+		for(auto couple : couples)
+		{
+			glm::vec3 p = couple.first;
+			if(p.x == pos.x && p.y == pos.y && p.z == pos.z)
+				return couple.second;
+		}
+		return -1;
+	};
+
+	std::function computeInitialVertexSet =
+	[] (std::vector<Vertex> verticesRef, std::vector<glm::vec3> vertices){
+		std::vector<Vertex> res;
+		for(auto v : vertices)
+		{
+			for(auto vref : verticesRef)
+			{
+				glm::vec3 pos = vref.position;
+				if(v.x == pos.x && v.y == pos.y && v.z == pos.z)
+					res.push_back(vref);
+			}
+		}
+		return res;
+	};
+	// ########## LAMBDAS <<<<<<<<<<
+
+	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
+	std::shared_ptr<Mesh> mesh = meshes[0];
+	std::vector<Vertex> const & vertices = mesh->getVertices();
+	std::vector<int> const & indices = mesh->getIndices();
+
+	// get rid of duplicated vertices
+	std::vector<glm::vec3> clean_vertex_list;
+	std::vector<int> clean_index_list;
+	std::vector<std::pair<glm::vec3, int>> couples;
+
+	for(int j{0}; j < indices.size(); ++j)
+	{
+		//get the 3 couples of the current face
+		glm::vec3 pos[3] = {
+			vertices[indices[j]].position,
+			vertices[indices[j+1]].position,
+			vertices[indices[j+2]].position
+		};
+		int index[3] = {
+			indices[j],
+			indices[j+1],
+			indices[j+2]
+		};
+		// check for each couple if its position is already defined
+		// by another couple in the clean array
+		int defined[3];
+		defined[0] = getVertexDefinedIndex(pos[0], index[0], couples);
+		defined[1] = getVertexDefinedIndex(pos[1], index[1], couples);
+		defined[2] = getVertexDefinedIndex(pos[2], index[2], couples);
+
+		for(int k{0}; k < 3; ++k)
+			if(defined[k] == -1) { couples.push_back(std::make_pair(pos[0], index[0])); };
+	}
+
+	for(int j{0}; j < couples.size(); ++j)
+	{
+		int id{couples[j].second};
+		clean_vertex_list.push_back(vertices[id].position);
+	}
+
+	for(int j{0}; j < indices.size(); ++j)
+	{
+		glm::vec3 pos[3] = {
+			vertices[indices[j]].position,
+			vertices[indices[j+1]].position,
+			vertices[indices[j+2]].position
+		};
+		for(int k{0}; k < 3; ++k)
+			clean_index_list.push_back(fetchCorrectIndex(pos[k], couples));
+	}
+
+	// transform mesh's vertex list to a btScalar array with only position info
+	int numTriangles{static_cast<int>(clean_index_list.size()) / 3};
+	std::unique_ptr<btScalar[]> v{std::make_unique<btScalar[]>(clean_vertex_list.size() * 3)};
+
+	for(int j{0}; j < clean_vertex_list.size(); ++j)
+	{
+		glm::vec3 pos = clean_vertex_list[j];
+		v[j*3] = pos.x;
+		v[j*3 + 1] = pos.y;
+		v[j*3 + 2] = pos.z;
+	}
+
+	// create the soft body
+	btSoftBody * softBody = btSoftBodyHelpers::CreateFromTriMesh(
+			*softBodyWorldInfo,
+			v.get(),
+			clean_index_list.data(),
+			numTriangles);
+
+	// define soft body material
+	btSoftBody::Material * material = softBody->appendMaterial();
+	material->m_kLST = 0.75f;
+	material->m_kAST = 0.0f;
+	material->m_kVST = 0.75f;
+
+	//btSoftBody::Config material_cfg;
+	//material_cfg.aeromodel = btSoftBody::eAeroModel::v_Point;
+	//softBody->m_cfg = material_cfg;
+
+	softBody->generateBendingConstraints(2, material);
+	softBody->generateClusters(128);
+
+	//softBody->m_materials[0]->m_kLST = 0.45f;
+	//softBody->m_cfg.kVC = 0.01;
+	softBody->setPose(true, false);
+	softBody->setTotalMass(mass, false);
+	//softBody->generateBendingConstraints(2);
+	//softBody->setTotalMass(mass, true);
+	softBody->m_cfg.piterations = 2;
+	//softBody->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
+	softBody->randomizeConstraints();
+
+	dynamicsWorld->addSoftBody(softBody);
+
+	// create initial set of vertex for the mesh
+	std::vector<Vertex> initialVertices{computeInitialVertexSet(vertices, clean_vertex_list)};
+	mesh->recreate(initialVertices, clean_index_list, true);
+}
+
+void WorldPhysics::updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object)
+{
+	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
+	std::shared_ptr<Mesh> mesh = meshes[0];
+
+	btSoftBodyArray softBodyArray = dynamicsWorld->getSoftBodyArray();
+	btSoftBody * softBody = softBodyArray[softBodyIndex];
+	btSoftBody::tNodeArray nodes = softBody->m_nodes;
+	btSoftBody::tFaceArray faces = softBody->m_faces;
+	std::vector<Vertex> updatedVertices;
+	std::vector<int> updatedIndices;
+
+	for(int i{0}; i < nodes.size(); ++i)
+	{
+		glm::vec3 pos(nodes[i].m_x.x(), nodes[i].m_x.y(), nodes[i].m_x.z());
+		glm::vec3 normal(nodes[i].m_n.x(), nodes[i].m_n.y(), nodes[i].m_n.z());
+		glm::vec3 lastPos(nodes[i].m_q.x(), nodes[i].m_q.y(), nodes[i].m_q.z());
+
+		Vertex v;
+		if(mesh->getVertex(pos, normal, lastPos, v))
+			updatedVertices.push_back(v);
+	}
+	for(int i{0}; i < faces.size(); ++i)
+	{
+		for(int n{0}; n < 3; ++n)
+		{
+			btSoftBody::Node * node = faces[i].m_n[n];
+			glm::vec3 pos(node->m_x.x(), node->m_x.y(), node->m_x.z());
+			for(int id{0}; id < updatedVertices.size(); ++id)
+			{
+				glm::vec3 vertexPos = updatedVertices[id].position;
+				if(pos == vertexPos)
+				{
+					updatedIndices.push_back(id);
+					break;
+				}
+			}
+		}
+	}
+	mesh->updateVBO(updatedVertices, updatedIndices);
 }
 
 void WorldPhysics::addKinematicCharacter(std::shared_ptr<Object> object)
@@ -212,44 +398,6 @@ void WorldPhysics::stepSimulation(glm::mat4 & view, glm::mat4 & projection)
 	dynamicsWorld->debugDrawWorld();
 }
 
-glm::vec3 WorldPhysics::getObjectPosition(int objectIndex)
-{
-	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[objectIndex];
-	btRigidBody * body = btRigidBody::upcast(obj);
-	btTransform transform;
-	if(body && body->getMotionState())
-	{
-		body->getMotionState()->getWorldTransform(transform);
-	}
-	else
-	{
-		transform = obj->getWorldTransform();
-	}
-
-	btVector3 origin = transform.getOrigin();
-	return glm::vec3(origin.getX(), origin.getY(), origin.getZ());
-}
-
-glm::mat4 WorldPhysics::getObjectRotation(int objectIndex)
-{
-	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[objectIndex];
-	btRigidBody * body = btRigidBody::upcast(obj);
-	btTransform transform;
-	if(body && body->getMotionState())
-	{
-		body->getMotionState()->getWorldTransform(transform);
-	}
-	else
-	{
-		transform = obj->getWorldTransform();
-	}
-
-	btQuaternion rotation = transform.getRotation();
-	float angle = rotation.getAngle();
-	btVector3 axis = rotation.getAxis();
-	return glm::rotate(glm::mat4(1.0f), angle, glm::vec3(axis.getX(), axis.getY(), axis.getZ()));
-}
-
 glm::mat4 WorldPhysics::getObjectOpenGLMatrix(int objectIndex)
 {
 	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[objectIndex];
@@ -272,6 +420,11 @@ glm::mat4 WorldPhysics::getObjectOpenGLMatrix(int objectIndex)
 int WorldPhysics::getNumRigidBody()
 {
 	return collisionShapes.size();
+}
+
+int WorldPhysics::getNumSoftBody()
+{
+	return dynamicsWorld->getSoftBodyArray().size();
 }
 
 static glm::vec3 d = glm::vec3(0, 0, 1);

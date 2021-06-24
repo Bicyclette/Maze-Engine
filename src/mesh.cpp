@@ -208,3 +208,89 @@ void Mesh::draw(Shader& s, bool instancing, int amount, DRAWING_MODE mode)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glActiveTexture(GL_TEXTURE0);
 }
+
+void Mesh::recreate(std::vector<Vertex> aVertices, std::vector<int> aIndices, bool dynamicDraw)
+{
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &ebo);
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &vao);
+
+	// VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// VBO
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	if(dynamicDraw)
+		glBufferData(GL_ARRAY_BUFFER, aVertices.size() * sizeof(Vertex), aVertices.data(), GL_DYNAMIC_DRAW);
+	else
+		glBufferData(GL_ARRAY_BUFFER, aVertices.size() * sizeof(Vertex), aVertices.data(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, tangent)));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, biTangent)));
+	glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)(offsetof(Vertex, bonesID)));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, weights)));
+	
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+
+	// EBO
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	if(dynamicDraw)
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, aIndices.size() * sizeof(int), aIndices.data(), GL_DYNAMIC_DRAW);
+	else
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, aIndices.size() * sizeof(int), aIndices.data(), GL_STATIC_DRAW);
+
+	// Unbind VAO
+	glBindVertexArray(0);
+}
+
+void Mesh::updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices)
+{
+	vertices.clear();
+	vertices = aVertices;
+	indices.clear();
+	indices = aIndices;
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+	void * vbo_ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	void * ebo_ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+	memcpy(vbo_ptr, vertices.data(), vertices.size() * sizeof(Vertex));
+	memcpy(ebo_ptr, indices.data(), indices.size() * sizeof(int));
+
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+}
+
+bool Mesh::getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out)
+{
+	for(int i{0}; i < vertices.size(); ++i)
+	{
+		Vertex v{vertices[i]};
+		if(v.position.x == lastPos.x && v.position.y == lastPos.y && v.position.z == lastPos.z)
+		{
+			out = v;
+			out.position = pos;
+			out.normal = normal;
+			return true;
+		}
+	}
+	return false;
+}
