@@ -50,7 +50,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/cube.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/tissu.glb", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
 	scenes[scenes.size()-1]->setGridAxis(8);
@@ -477,7 +477,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 
 	int textureOffset{4};
 
-	for(int i{0}; i < scenes[index]->getPLights().size(); ++i)
+	for(int i{0}; i < nbPLights; ++i)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureOffset);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments()[0].id);
@@ -488,13 +488,13 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	// "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
 	// "black screen, or your clear color. Also, following draw calls may cause invalid "
 	// "operation. Better to uniform all unused sampler types with some random texture index."
-	for(int i{scenes[index]->getPLights().size()}; i < 10; ++i)
+	for(int i{nbPLights}; i < 10; ++i)
 	{
 		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 	}
 
 	int depthMapIndex{0};
-	for(int i{0}; i < scenes[index]->getDLights().size(); ++i)
+	for(int i{0}; i < nbDLights; ++i)
 	{
 		glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
 		glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
@@ -508,7 +508,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 		textureOffset++;
 	}
 
-	for(int i{0}; i < scenes[index]->getSLights().size(); ++i)
+	for(int i{0}; i < nbSLights; ++i)
 	{
 		float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
 		glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();

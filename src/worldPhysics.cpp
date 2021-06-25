@@ -208,7 +208,7 @@ void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
 			if(id == -1)
 			{
 				cleanVertex.push_back(v[j]);
-				cleanIndex.push_back(cleanVertex.size());
+				cleanIndex.push_back(cleanVertex.size() - 1);
 			}
 			else
 			{
@@ -227,23 +227,24 @@ void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
 	}
 	btSoftBody * softBody = btSoftBodyHelpers::CreateFromTriMesh(*softBodyWorldInfo, vertexArray.data(), cleanIndex.data(), cleanIndex.size() / 3);
 
-	for(int i{0}; i < cleanIndex.size(); i+=3)
-	{
-		std::cout << "Indices = (" << cleanIndex[i] << ", " << cleanIndex[i+1] << ", " << cleanIndex[i+2] << ")\n";
-		std::cout << "Face " << (i+1)/3 << " :" << std::endl;
-		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i]].position) << std::endl;
-		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i+1]].position) << std::endl;
-		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i+2]].position) << std::endl;
-	}
 	// define soft body material
-	/*softBody->m_materials[0]->m_kLST = 0.75f;
+	softBody->m_materials[0]->m_kLST = 0.75f;
 	softBody->m_materials[0]->m_kAST = 0.0f;
 	softBody->m_materials[0]->m_kVST = 0.75f;
+	
+	softBody->m_cfg.aeromodel = btSoftBody::eAeroModel::F_TwoSided; // defines what kind of feature is used to compute aerodynamic forces
+	softBody->m_cfg.kMT = 0.0f; // pose matching coefficient [0,1]
+	softBody->m_cfg.kDP = 0.0f; // damping coefficient [0,1]
+	softBody->m_cfg.kDF = 0.5f; // dynamic friction coefficient [0,1]
+	softBody->m_cfg.kPR = 10.0f; // pressure coefficient [-inf,+inf]
+	softBody->m_cfg.kVC = 5.0f; // volume conservation coefficient [0,+inf]
+	softBody->m_cfg.kKHR = 0.5f; // kinetic contacts hardness [0,1]
+	
 	softBody->generateBendingConstraints(2);
-	softBody->generateClusters(128);
+	softBody->generateClusters(0);
 	softBody->setPose(true, false);
 	softBody->setTotalMass(mass, false);
-	*/
+
 	// add soft body to dynamics world
 	dynamicsWorld->addSoftBody(softBody);
 	
