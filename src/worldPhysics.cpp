@@ -180,144 +180,108 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::mat4 positi
 
 void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
 {
-	// ########## LAMBDAS >>>>>>>>>>
-	std::function getVertexDefinedIndex =
-	[] (glm::vec3 pos, int index, const std::vector<std::pair<glm::vec3, int>> & couples){
-		for(auto couple : couples)
-		{
-			glm::vec3 p = couple.first;
-			if(p.x == pos.x && p.y == pos.y && p.z == pos.z)
-				return couple.second;
-		}
-		return -1;
-	};
-	
-	std::function fetchCorrectIndex =
-	[] (glm::vec3 pos, const std::vector<std::pair<glm::vec3, int>> & couples){
-		int index{-1};
-		for(auto couple : couples)
-		{
-			glm::vec3 p = couple.first;
-			if(p.x == pos.x && p.y == pos.y && p.z == pos.z)
-				return couple.second;
-		}
-		return -1;
-	};
-
-	std::function computeInitialVertexSet =
-	[] (std::vector<Vertex> verticesRef, std::vector<glm::vec3> vertices){
-		std::vector<Vertex> res;
+	std::function getVertexIndex = [] (std::vector<Vertex> & vertices, glm::vec3 & pos) -> int {
+		int id{0};
 		for(auto v : vertices)
 		{
-			for(auto vref : verticesRef)
+			if(v.position == pos)
+				return id;
+			id++;
+		}
+		return -1;
+	};
+
+	// remove duplicated vertices
+	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
+	std::vector<Vertex> prevVertex = meshes[0]->getVertices();
+	std::vector<int> prevIndex = meshes[0]->getIndices();
+	std::vector<Vertex> cleanVertex;
+	std::vector<int> cleanIndex;
+	for(int i{0}; i < prevIndex.size(); i+=3)
+	{
+		int idx[3] = {prevIndex[i], prevIndex[i+1], prevIndex[i+2]};
+		Vertex v[3] = {prevVertex[idx[0]], prevVertex[idx[1]], prevVertex[idx[2]]};
+
+		for(int j{0}; j < 3; ++j)
+		{
+			int id = getVertexIndex(cleanVertex, v[j].position);
+			if(id == -1)
 			{
-				glm::vec3 pos = vref.position;
-				if(v.x == pos.x && v.y == pos.y && v.z == pos.z)
-					res.push_back(vref);
+				cleanVertex.push_back(v[j]);
+				cleanIndex.push_back(cleanVertex.size());
+			}
+			else
+			{
+				cleanIndex.push_back(id);
 			}
 		}
-		return res;
-	};
-	// ########## LAMBDAS <<<<<<<<<<
-
-	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
-	std::shared_ptr<Mesh> mesh = meshes[0];
-	std::vector<Vertex> const & vertices = mesh->getVertices();
-	std::vector<int> const & indices = mesh->getIndices();
-
-	// get rid of duplicated vertices
-	std::vector<glm::vec3> clean_vertex_list;
-	std::vector<int> clean_index_list;
-	std::vector<std::pair<glm::vec3, int>> couples;
-
-	for(int j{0}; j < indices.size(); ++j)
-	{
-		//get the 3 couples of the current face
-		glm::vec3 pos[3] = {
-			vertices[indices[j]].position,
-			vertices[indices[j+1]].position,
-			vertices[indices[j+2]].position
-		};
-		int index[3] = {
-			indices[j],
-			indices[j+1],
-			indices[j+2]
-		};
-		// check for each couple if its position is already defined
-		// by another couple in the clean array
-		int defined[3];
-		defined[0] = getVertexDefinedIndex(pos[0], index[0], couples);
-		defined[1] = getVertexDefinedIndex(pos[1], index[1], couples);
-		defined[2] = getVertexDefinedIndex(pos[2], index[2], couples);
-
-		for(int k{0}; k < 3; ++k)
-			if(defined[k] == -1) { couples.push_back(std::make_pair(pos[0], index[0])); };
 	}
 
-	for(int j{0}; j < couples.size(); ++j)
+	// create soft body
+	std::vector<btScalar> vertexArray;
+	for(auto v : cleanVertex)
 	{
-		int id{couples[j].second};
-		clean_vertex_list.push_back(vertices[id].position);
+		vertexArray.push_back(v.position.x);
+		vertexArray.push_back(v.position.y);
+		vertexArray.push_back(v.position.z);
 	}
+	btSoftBody * softBody = btSoftBodyHelpers::CreateFromTriMesh(*softBodyWorldInfo, vertexArray.data(), cleanIndex.data(), cleanIndex.size() / 3);
 
-	for(int j{0}; j < indices.size(); ++j)
+	for(int i{0}; i < cleanIndex.size(); i+=3)
 	{
-		glm::vec3 pos[3] = {
-			vertices[indices[j]].position,
-			vertices[indices[j+1]].position,
-			vertices[indices[j+2]].position
-		};
-		for(int k{0}; k < 3; ++k)
-			clean_index_list.push_back(fetchCorrectIndex(pos[k], couples));
+		std::cout << "Indices = (" << cleanIndex[i] << ", " << cleanIndex[i+1] << ", " << cleanIndex[i+2] << ")\n";
+		std::cout << "Face " << (i+1)/3 << " :" << std::endl;
+		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i]].position) << std::endl;
+		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i+1]].position) << std::endl;
+		std::cout << '\t' << glm::to_string(cleanVertex[cleanIndex[i+2]].position) << std::endl;
 	}
-
-	// transform mesh's vertex list to a btScalar array with only position info
-	int numTriangles{static_cast<int>(clean_index_list.size()) / 3};
-	std::unique_ptr<btScalar[]> v{std::make_unique<btScalar[]>(clean_vertex_list.size() * 3)};
-
-	for(int j{0}; j < clean_vertex_list.size(); ++j)
-	{
-		glm::vec3 pos = clean_vertex_list[j];
-		v[j*3] = pos.x;
-		v[j*3 + 1] = pos.y;
-		v[j*3 + 2] = pos.z;
-	}
-
-	// create the soft body
-	btSoftBody * softBody = btSoftBodyHelpers::CreateFromTriMesh(
-			*softBodyWorldInfo,
-			v.get(),
-			clean_index_list.data(),
-			numTriangles);
-
 	// define soft body material
-	btSoftBody::Material * material = softBody->appendMaterial();
-	material->m_kLST = 0.75f;
-	material->m_kAST = 0.0f;
-	material->m_kVST = 0.75f;
-
-	//btSoftBody::Config material_cfg;
-	//material_cfg.aeromodel = btSoftBody::eAeroModel::v_Point;
-	//softBody->m_cfg = material_cfg;
-
-	softBody->generateBendingConstraints(2, material);
+	/*softBody->m_materials[0]->m_kLST = 0.75f;
+	softBody->m_materials[0]->m_kAST = 0.0f;
+	softBody->m_materials[0]->m_kVST = 0.75f;
+	softBody->generateBendingConstraints(2);
 	softBody->generateClusters(128);
-
-	//softBody->m_materials[0]->m_kLST = 0.45f;
-	//softBody->m_cfg.kVC = 0.01;
 	softBody->setPose(true, false);
 	softBody->setTotalMass(mass, false);
-	//softBody->generateBendingConstraints(2);
-	//softBody->setTotalMass(mass, true);
-	softBody->m_cfg.piterations = 2;
-	//softBody->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
-	softBody->randomizeConstraints();
-
+	*/
+	// add soft body to dynamics world
 	dynamicsWorld->addSoftBody(softBody);
+	
+	// recreate mesh
+	btSoftBody::tNodeArray nodes = softBody->m_nodes;
+	btSoftBody::tFaceArray faces = softBody->m_faces;
+	std::vector<Vertex> updatedVertices;
+	std::vector<int> updatedIndices;
 
-	// create initial set of vertex for the mesh
-	std::vector<Vertex> initialVertices{computeInitialVertexSet(vertices, clean_vertex_list)};
-	mesh->recreate(initialVertices, clean_index_list, true);
+	for(int i{0}; i < nodes.size(); ++i)
+	{
+		glm::vec3 pos(nodes[i].m_x.x(), nodes[i].m_x.y(), nodes[i].m_x.z());
+		glm::vec3 normal(nodes[i].m_n.x(), nodes[i].m_n.y(), nodes[i].m_n.z());
+		glm::vec3 lastPos(nodes[i].m_q.x(), nodes[i].m_q.y(), nodes[i].m_q.z());
+
+		Vertex v;
+		if(meshes[0]->getVertex(pos, normal, lastPos, v))
+			updatedVertices.push_back(v);
+	}
+	for(int i{0}; i < faces.size(); ++i)
+	{
+		for(int n{0}; n < 3; ++n)
+		{
+			btSoftBody::Node * node = faces[i].m_n[n];
+			glm::vec3 pos(node->m_x.x(), node->m_x.y(), node->m_x.z());
+			for(int id{0}; id < updatedVertices.size(); ++id)
+			{
+				glm::vec3 vertexPos = updatedVertices[id].position;
+				if(pos == vertexPos)
+				{
+					updatedIndices.push_back(id);
+					break;
+				}
+			}
+		}
+	}
+
+	meshes[0]->recreate(updatedVertices, updatedIndices, true);
 }
 
 void WorldPhysics::updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object)

@@ -50,7 +50,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/flag.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/cube.glb", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
 	scenes[scenes.size()-1]->setGridAxis(8);
