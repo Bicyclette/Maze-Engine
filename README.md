@@ -1,6 +1,6 @@
 # To do
 **graphics**
-* Improve Bloom effect and set proper brightness threshold for non emissive surfaces
+* Set proper brightness threshold for non emissive surfaces
 * IBL (diffuse & specular)
 * OIT
 

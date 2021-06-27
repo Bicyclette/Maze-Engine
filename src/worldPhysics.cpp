@@ -232,12 +232,12 @@ void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
 	softBody->m_materials[0]->m_kAST = 0.0f;
 	softBody->m_materials[0]->m_kVST = 0.75f;
 	
-	softBody->m_cfg.aeromodel = btSoftBody::eAeroModel::F_TwoSided; // defines what kind of feature is used to compute aerodynamic forces
-	softBody->m_cfg.kMT = 0.0f; // pose matching coefficient [0,1]
-	softBody->m_cfg.kDP = 0.0f; // damping coefficient [0,1]
-	softBody->m_cfg.kDF = 0.5f; // dynamic friction coefficient [0,1]
-	softBody->m_cfg.kPR = 10.0f; // pressure coefficient [-inf,+inf]
-	softBody->m_cfg.kVC = 5.0f; // volume conservation coefficient [0,+inf]
+	softBody->m_cfg.aeromodel = btSoftBody::eAeroModel::V_Point; // defines what kind of feature is used to compute aerodynamic forces
+	//softBody->m_cfg.kMT = 0.0f; // pose matching coefficient [0,1]
+	//softBody->m_cfg.kDP = 0.0f; // damping coefficient [0,1]
+	//softBody->m_cfg.kDF = 0.5f; // dynamic friction coefficient [0,1]
+	//softBody->m_cfg.kPR = 10.0f; // pressure coefficient [-inf,+inf]
+	//softBody->m_cfg.kVC = 5.0f; // volume conservation coefficient [0,+inf]
 	softBody->m_cfg.kKHR = 0.5f; // kinetic contacts hardness [0,1]
 	
 	softBody->generateBendingConstraints(2);
@@ -325,6 +325,22 @@ void WorldPhysics::updateSoftBody(int softBodyIndex, std::shared_ptr<Object> obj
 		}
 	}
 	mesh->updateVBO(updatedVertices, updatedIndices);
+}
+
+void WorldPhysics::setSoftBodyVertexMass(int sbIndex, int vIndex, btScalar mass)
+{
+	btSoftBodyArray softBodyArray = dynamicsWorld->getSoftBodyArray();
+	btSoftBody * softBody = softBodyArray[sbIndex];
+
+	softBody->setMass(vIndex, mass);
+/*
+	btSoftBody::tNodeArray nodes = softBody->m_nodes;
+	for(int i{0}; i < nodes.size(); ++i)
+	{
+		glm::vec3 pos(nodes[i].m_x.x(), nodes[i].m_x.y(), nodes[i].m_x.z());
+		std::cout << "node " << i << " : " << glm::to_string(pos) << std::endl;
+	}
+*/
 }
 
 void WorldPhysics::setKinematicCharacter(std::unique_ptr<AnimatedObject> & object)

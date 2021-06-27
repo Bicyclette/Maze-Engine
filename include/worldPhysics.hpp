@@ -54,6 +54,7 @@ class WorldPhysics
 		void addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
 		void addSoftBody(std::shared_ptr<Object> object, btScalar mass);
 		void updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object);
+		void setSoftBodyVertexMass(int sbIndex, int vIndex, btScalar mass);
 		void stepSimulation();
 		void stepSimulation(glm::mat4 & view, glm::mat4 & projection);
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);

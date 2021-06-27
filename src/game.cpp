@@ -51,7 +51,9 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/stairs.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/tissu.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/flag_bearer.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/metal.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/flag.glb", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
 	scenes[scenes.size()-1]->setGridAxis(8);
@@ -66,8 +68,11 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
 	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
 	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
-	worldPhysics->addRigidBody(scene_objects[8], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics->addSoftBody(scene_objects[9], btScalar(1.0));
+	worldPhysics->addRigidBody(scene_objects[8], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics->addRigidBody(scene_objects[9], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics->addSoftBody(scene_objects[11], btScalar(0.25));
+	worldPhysics->setSoftBodyVertexMass(0, 60, 0.0f);
+	worldPhysics->setSoftBodyVertexMass(0, 62, 0.0f);
 	
 	// create outdoor scene
 	scenes.push_back(std::make_shared<Scene>("outdoor", 1));
@@ -110,6 +115,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 		glm::mat4 model = worldPhysics->getObjectOpenGLMatrix(indexPhysics);
 		scene_objects[indexPhysics]->setModel(model);
 	}
+	indexPhysics++;
 	for(int i{0}; i < worldPhysics->getNumSoftBody(); ++i, ++indexPhysics)
 	{
 		worldPhysics->updateSoftBody(i, scene_objects[indexPhysics]);
