@@ -7,21 +7,21 @@
 #include <memory>
 #include <utility>
 #include "skybox.hpp"
-#include "animatedObject.hpp"
 #include "camera.hpp"
 #include "color.hpp"
 #include "grid_axis.hpp"
 #include "graphics.hpp"
+#include "character.hpp"
 
 class Scene
 {
 	public:
 
-		Scene(std::string pName);
+		Scene(std::string pName, int aId);
+		int getId();
 		void addObject(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f), const std::vector<glm::mat4> & instanceModel = std::vector<glm::mat4>());
-		void addMainCharacter(std::shared_ptr<AnimatedObject> aMainCharacter);
-		void addCharacter(std::shared_ptr<AnimatedObject> aCharacter);
-		void removeCharacter(std::shared_ptr<AnimatedObject> & character);
+		void setCharacter(std::shared_ptr<Character> aCharacter);
+		void removeCharacter();
 		void addCamera(float aspectRatio, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 target = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float fov = 45.0f, float near = 0.1f, float far = 100.0f);
 		void addPointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq);
 		void addDirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
@@ -38,19 +38,18 @@ class Scene
 		std::vector<std::shared_ptr<DirectionalLight>> & getDLights();
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
 		std::vector<std::shared_ptr<Object>> getObjects();
-		std::shared_ptr<AnimatedObject> getMainCharacter();
-		std::vector<std::shared_ptr<AnimatedObject>> getCharacters();
+		std::shared_ptr<Character> getCharacter();
 
 	private:
 
+		int ID;
 		std::string name;
 
 		std::shared_ptr<Camera> activeCamera;
 		std::vector<std::shared_ptr<Camera>> cameras;
 
 		std::vector<std::shared_ptr<Object>> objects;
-		std::shared_ptr<AnimatedObject> mainCharacter;
-		std::vector<std::shared_ptr<AnimatedObject>> characters;
+		std::shared_ptr<Character> character;
 
 		std::vector<std::shared_ptr<PointLight>> pLights;
 		std::vector<std::shared_ptr<DirectionalLight>> dLights;

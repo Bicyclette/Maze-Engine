@@ -1,6 +1,14 @@
 #include "scene.hpp"
 
-Scene::Scene(std::string pName) : name(pName) {}
+Scene::Scene(std::string pName, int aId) :
+	name(pName),
+	ID(aId)
+{}
+
+int Scene::getId()
+{
+	return ID;
+}
 
 void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<glm::mat4> & instanceModel)
 {
@@ -12,25 +20,14 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<
 	}
 }
 
-void Scene::addMainCharacter(std::shared_ptr<AnimatedObject> aMainCharacter)
+void Scene::setCharacter(std::shared_ptr<Character> aCharacter)
 {
-	mainCharacter = aMainCharacter;
+	character = aCharacter;
 }
 
-void Scene::addCharacter(std::shared_ptr<AnimatedObject> aCharacter)
+void Scene::removeCharacter()
 {
-	characters.push_back(aCharacter);
-}
-
-void Scene::removeCharacter(std::shared_ptr<AnimatedObject> & character)
-{
-	for(int i{0}; i < characters.size(); ++i)
-	{
-		if(characters[i] == character)
-		{
-			characters.erase(characters.begin() + i);
-		}
-	}
+	character.reset();
 }
 
 void Scene::addCamera(float aspectRatio, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
@@ -129,20 +126,9 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 		objects[i]->draw(shader, mode);
 	}
 	
-	for(int i{0}; i < characters.size(); ++i)
+	if(character && character->sceneID == ID)
 	{
-		characters[i]->draw(
-				shader,
-				characters[i]->getAnimator()->getFinalJointTransform(),
-				mode);
-	}
-
-	if(mainCharacter)
-	{
-		mainCharacter->draw(
-				shader,
-				mainCharacter->getAnimator()->getFinalJointTransform(),
-				mode);
+		character->draw(shader, mode);
 	}
 
 	if(sky)
@@ -171,12 +157,7 @@ std::vector<std::shared_ptr<Object>> Scene::getObjects()
 	return objects;
 }
 
-std::shared_ptr<AnimatedObject> Scene::getMainCharacter()
+std::shared_ptr<Character> Scene::getCharacter()
 {
-	return mainCharacter;
-}
-
-std::vector<std::shared_ptr<AnimatedObject>> Scene::getCharacters()
-{
-	return characters;
+	return character;
 }

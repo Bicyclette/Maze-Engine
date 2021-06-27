@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
-#include "animatedObject.hpp"
+#include "character.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletSoftBody/btSoftBodyHelpers.h>
@@ -22,13 +22,6 @@ enum class COLLISION_SHAPE
 	CONVEX_HULL,
 	COMPOUND,
 	TRIANGLE
-};
-
-enum class CHARACTER_DIRECTION
-{
-	FRONT,
-	RIGHT,
-	LEFT
 };
 
 class btDebugDraw : public btIDebugDraw
@@ -56,7 +49,8 @@ class WorldPhysics
 	public:
 		WorldPhysics();
 		~WorldPhysics();
-		void addKinematicCharacter(std::shared_ptr<Object> object);
+		void setKinematicCharacter(std::unique_ptr<AnimatedObject> & object);
+		void removeKinematicCharacter();
 		void addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
 		void addSoftBody(std::shared_ptr<Object> object, btScalar mass);
 		void updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object);
@@ -65,9 +59,10 @@ class WorldPhysics
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);
 		int getNumRigidBody();
 		int getNumSoftBody();
-		glm::mat4 mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta);
-		glm::mat4 mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta);
-		glm::mat4 mainCharacterDoActionIdle();
+		void characterDoActionWalk(std::shared_ptr<Character> hero, Character::DIRECTION d, float delta);
+		void characterDoActionRun(std::shared_ptr<Character> hero, Character::DIRECTION d, float delta);
+		void characterDoActionJump(std::shared_ptr<Character> hero, bool forward, float delta);
+		void characterDoActionIdle(std::shared_ptr<Character> hero);
 
 	private:
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
@@ -82,7 +77,7 @@ class WorldPhysics
 		btSoftRigidDynamicsWorld * dynamicsWorld;
 		btSoftBodyWorldInfo * softBodyWorldInfo;
 		btAlignedObjectArray<btCollisionShape*> collisionShapes;
-		btKinematicCharacterController * mainCharacter;
+		btKinematicCharacterController * character;
 };
 
 #endif

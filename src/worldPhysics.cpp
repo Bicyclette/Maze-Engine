@@ -7,7 +7,7 @@ WorldPhysics::WorldPhysics() :
 	solver(new btSequentialImpulseConstraintSolver()),
 	dynamicsWorld(new btSoftRigidDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)),
 	softBodyWorldInfo(new btSoftBodyWorldInfo()),
-	mainCharacter(nullptr)
+	character(nullptr)
 {
 	dynamicsWorld->setGravity(btVector3(0.0, -9.8, 0.0));
 	softBodyWorldInfo->m_broadphase = overlappingPairCache;
@@ -327,7 +327,7 @@ void WorldPhysics::updateSoftBody(int softBodyIndex, std::shared_ptr<Object> obj
 	mesh->updateVBO(updatedVertices, updatedIndices);
 }
 
-void WorldPhysics::addKinematicCharacter(std::shared_ptr<Object> object)
+void WorldPhysics::setKinematicCharacter(std::unique_ptr<AnimatedObject> & object)
 {
 	struct AABB aabb = object->getAABB();
 	float xExtent = aabb.xMax - aabb.xMin;
@@ -341,12 +341,18 @@ void WorldPhysics::addKinematicCharacter(std::shared_ptr<Object> object)
 	dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 	ghostObject->setCollisionShape(convexShape);
 	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	mainCharacter = new btKinematicCharacterController(ghostObject, convexShape, btScalar(0.25));
-	mainCharacter->setUp(btVector3(0,1,0));
+	character = new btKinematicCharacterController(ghostObject, convexShape, btScalar(0.25));
+	character->setUp(btVector3(0,1,0));
 	dynamicsWorld->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	dynamicsWorld->addAction(mainCharacter);
+	dynamicsWorld->addAction(character);
 
-	mainCharacter->debugDraw(&debugDrawer);
+	character->debugDraw(&debugDrawer);
+}
+
+void WorldPhysics::removeKinematicCharacter()
+{
+	dynamicsWorld->removeAction(character);
+	delete(character);
 }
 
 void WorldPhysics::stepSimulation()
@@ -392,71 +398,85 @@ int WorldPhysics::getNumSoftBody()
 	return dynamicsWorld->getSoftBodyArray().size();
 }
 
-static glm::vec3 d = glm::vec3(0, 0, 1);
-static glm::mat4 model;
-static float turn = 0.0f;
-glm::mat4 WorldPhysics::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta)
+void WorldPhysics::characterDoActionWalk(std::shared_ptr<Character> hero, Character::DIRECTION direction, float delta)
 {
-	static float speed = 2.5f;
-	static float turnSpeed = 0.02f;
+	glm::vec3 & d{hero->walkDirection};
 
-	if(direction == CHARACTER_DIRECTION::RIGHT)
+	if(direction == Character::DIRECTION::RIGHT)
 	{
-		turn += turnSpeed;
-		d = glm::rotate(d, turnSpeed, glm::vec3(0, 1, 0));
+		hero->turnAngle += hero->turnSpeed * hero->walkSpeed;
+		hero->walkDirection = glm::rotate(hero->walkDirection, hero->turnSpeed * hero->walkSpeed, glm::vec3(0, 1, 0));
 	}
-	else if(direction == CHARACTER_DIRECTION::LEFT)
+	else if(direction == Character::DIRECTION::LEFT)
 	{
-		turn += -turnSpeed;
-		d = glm::rotate(d, -turnSpeed, glm::vec3(0, 1, 0));
+		hero->turnAngle -= hero->turnSpeed * hero->walkSpeed;
+		hero->walkDirection = glm::rotate(hero->walkDirection, - (hero->turnSpeed * hero->walkSpeed), glm::vec3(0, 1, 0));
 	}
 
-	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed * delta);
-	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
+	character->setWalkDirection(btVector3(d.x, d.y, d.z) * hero->walkSpeed * delta);
+	btTransform transform = character->getGhostObject()->getWorldTransform();
 	
 	btVector3 origin = transform.getOrigin();
 	glm::vec3 pos = glm::vec3(origin.getX(), origin.getY() - 2, origin.getZ());
-	model = glm::translate(glm::mat4(1.0f), pos);
-	model = glm::rotate(model, turn, glm::vec3(0, 1, 0));
-	return model;
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+	model = glm::rotate(model, hero->turnAngle, glm::vec3(0, 1, 0));
+	hero->setModel(model);
 }
 
-glm::mat4 WorldPhysics::mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta)
+void WorldPhysics::characterDoActionRun(std::shared_ptr<Character> hero, Character::DIRECTION direction, float delta)
 {
-	static float speed = 7.0f;
-	static float turnSpeed = 0.07f;
+	glm::vec3 & d{hero->walkDirection};
 
-	if(direction == CHARACTER_DIRECTION::RIGHT)
+	if(direction == Character::DIRECTION::RIGHT)
 	{
-		turn += turnSpeed;
-		d = glm::rotate(d, turnSpeed, glm::vec3(0, 1, 0));
+		hero->turnAngle += hero->turnSpeed * hero->runSpeed;
+		hero->walkDirection = glm::rotate(hero->walkDirection, hero->turnSpeed * hero->runSpeed, glm::vec3(0, 1, 0));
 	}
-	else if(direction == CHARACTER_DIRECTION::LEFT)
+	else if(direction == Character::DIRECTION::LEFT)
 	{
-		turn += -turnSpeed;
-		d = glm::rotate(d, -turnSpeed, glm::vec3(0, 1, 0));
+		hero->turnAngle -= hero->turnSpeed * hero->runSpeed;
+		hero->walkDirection = glm::rotate(hero->walkDirection, - (hero->turnSpeed * hero->runSpeed), glm::vec3(0, 1, 0));
 	}
 
-	mainCharacter->setWalkDirection(btVector3(d.x, d.y, d.z) * speed * delta);
-	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
-	
+	character->setWalkDirection(btVector3(d.x, d.y, d.z) * hero->runSpeed * delta);
+	btTransform transform = character->getGhostObject()->getWorldTransform();
+
 	btVector3 origin = transform.getOrigin();
 	glm::vec3 pos = glm::vec3(origin.getX(), origin.getY() - 2, origin.getZ());
-	model = glm::translate(glm::mat4(1.0f), pos);
-	model = glm::rotate(model, turn, glm::vec3(0, 1, 0));
-	return model;
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+	model = glm::rotate(model, hero->turnAngle, glm::vec3(0, 1, 0));
+	hero->setModel(model);
 }
 
-glm::mat4 WorldPhysics::mainCharacterDoActionIdle()
+void WorldPhysics::characterDoActionJump(std::shared_ptr<Character> hero, bool forward, float delta)
 {
-	mainCharacter->setWalkDirection(btVector3(0, 0, 0));
-	btTransform transform = mainCharacter->getGhostObject()->getWorldTransform();
+	if(forward)
+	{
+		glm::vec3 & d{hero->walkDirection};
+		character->setWalkDirection(btVector3(d.x, d.y, d.z) * hero->runSpeed * delta);
+	}
+	if(character->canJump())
+	{
+		character->jump(btVector3(0.0f, 12.5f, 0.0f));
+	}
+	btTransform transform = character->getGhostObject()->getWorldTransform();
+	btVector3 origin = transform.getOrigin();
+	glm::vec3 pos = glm::vec3(origin.getX(), origin.getY() - 2, origin.getZ());
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+	model = glm::rotate(model, hero->turnAngle, glm::vec3(0, 1, 0));
+	hero->setModel(model);
+}
+
+void WorldPhysics::characterDoActionIdle(std::shared_ptr<Character> hero)
+{
+	character->setWalkDirection(btVector3(0, 0, 0));
+	btTransform transform = character->getGhostObject()->getWorldTransform();
 	
 	btVector3 origin = transform.getOrigin();
 	glm::vec3 pos = glm::vec3(origin.getX(), origin.getY() - 2, origin.getZ());
-	model = glm::translate(glm::mat4(1.0f), pos);
-	model = glm::rotate(model, turn, glm::vec3(0, 1, 0));
-	return model;
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+	model = glm::rotate(model, hero->turnAngle, glm::vec3(0, 1, 0));
+	hero->setModel(model);
 }
 
 // ######################################################################

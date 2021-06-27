@@ -3,22 +3,49 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <array>
 #include <memory>
 #include <utility>
 #include "animatedObject.hpp"
+#include "shader_light.hpp"
 
 class Character
 {
 	public:
-		Character(std::string aPath, std::string aName);
+
+	enum class DIRECTION
+	{
+		FRONT,
+		BACK,
+		RIGHT,
+		LEFT
+	};
+
+	public:
+		Character(
+				std::string aPath,
+				glm::mat4 aModel = glm::mat4(1.0f),
+				std::string aName = "name");
 		void walk();
 		void run();
 		void jump();
+		void idle();
+		glm::mat4 getModel();
+		void setModel(glm::mat4 & m);
+		void draw(Shader& shader, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		std::unique_ptr<AnimatedObject> & get();
 
 	private:
-		std::string name;
 		std::unique_ptr<AnimatedObject> character;
+
+	public:
+		int sceneID;
+		std::string name;
+		glm::vec3 walkDirection;
+		float turnAngle;
+		float turnSpeed;
+		float walkSpeed;
+		float runSpeed;
 };
 
 #endif

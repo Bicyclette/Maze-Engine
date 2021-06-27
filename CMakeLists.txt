@@ -32,6 +32,7 @@ set(SRCS
 	src/animatedObject.cpp
 	src/joint.cpp
 	src/worldPhysics.cpp
+	src/character.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -57,6 +58,7 @@ set(HEADERS
 	include/animatedObject.hpp
 	include/joint.hpp
 	include/worldPhysics.hpp
+	include/character.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

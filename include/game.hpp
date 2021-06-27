@@ -9,6 +9,7 @@
 #include "graphics.hpp"
 #include "color.hpp"
 #include "worldPhysics.hpp"
+#include "character.hpp"
 
 class Game
 {
@@ -22,23 +23,21 @@ class Game
 		std::vector<std::shared_ptr<Scene>> & getScenes();
 		int getActiveScene();
 		void setActiveScene(int index);
-		void addMainCharacter(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f));
-		std::shared_ptr<AnimatedObject> getMainCharacter();
-		void addCharacter(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f));
-		void removeCharacter(std::string name);
-		void mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta);
-		void mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta);
-		void mainCharacterDoActionJump();
-		void mainCharacterDoActionIdle();
+		void setCharacterScene(int index);
+		void setCharacter(std::string filePath, glm::mat4 aModel, std::string aName);
+		void removeCharacter();
+		void characterDoActionWalk(Character::DIRECTION d, float delta);
+		void characterDoActionRun(Character::DIRECTION d, float delta);
+		void characterDoActionJump(bool forward, float delta);
+		void characterDoActionIdle();
 
 	private:
 
 		int activeScene;
 		std::vector<std::shared_ptr<Scene>> scenes;
 		std::unique_ptr<Graphics> graphics;
+		std::shared_ptr<Character> character;
 		std::unique_ptr<WorldPhysics> worldPhysics;
-		std::shared_ptr<AnimatedObject> mainCharacter;
-		std::vector<std::shared_ptr<AnimatedObject>> characters;
 		
 		void directionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);

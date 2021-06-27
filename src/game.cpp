@@ -29,7 +29,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	skyTextures.push_back("../assets/skyboxes/skybox5/nz.png");
 	
 	// create street light scene
-	scenes.push_back(std::make_shared<Scene>("street light"));
+	scenes.push_back(std::make_shared<Scene>("street light", 0));
 
 	glm::vec3 camPos = glm::vec3(5.0f, 15.0f, 15.0f);
 	glm::vec3 camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
@@ -70,7 +70,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics->addSoftBody(scene_objects[9], btScalar(1.0));
 	
 	// create outdoor scene
-	scenes.push_back(std::make_shared<Scene>("outdoor"));
+	scenes.push_back(std::make_shared<Scene>("outdoor", 1));
 
 	camPos = glm::vec3(0.0f, 5.0f, 8.0f);
 	camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -91,10 +91,11 @@ Game::Game(int clientWidth, int clientHeight) :
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	// update physics
 	if(debugPhysics)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		worldPhysics->stepSimulation(
 				scenes[activeScene]->getActiveCamera()->getViewMatrix(),
 				scenes[activeScene]->getActiveCamera()->getProjectionMatrix()
@@ -114,14 +115,10 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 		worldPhysics->updateSoftBody(i, scene_objects[indexPhysics]);
 	}
 
-	// update main character animation and other characters' animation too
-	if(mainCharacter)
+	// update character's current animation
+	if(character)
 	{
-		mainCharacter->getAnimator()->updateAnimation(delta);
-	}
-	for(int i{0}; i < characters.size(); ++i)
-	{
-		characters[i]->getAnimator()->updateAnimation(delta);
+		character->get()->getAnimator()->updateAnimation(delta);
 	}
 
 	// get shader
@@ -282,81 +279,67 @@ void Game::setActiveScene(int index)
 	activeScene = index;
 }
 
-void Game::addMainCharacter(std::string filePath, glm::mat4 aModel)
+void Game::setCharacterScene(int index)
 {
-	mainCharacter = std::make_shared<AnimatedObject>(filePath, aModel);
+	if(character)
+	{
+		character->sceneID = index;
+	}
+}
+
+void Game::setCharacter(std::string filePath, glm::mat4 aModel, std::string aName)
+{
+	character = std::make_shared<Character>(filePath, aModel, aName);
 	for(int i{0}; i < scenes.size(); ++i)
 	{
-		scenes[i]->addMainCharacter(mainCharacter);
+		scenes[i]->setCharacter(character);
 	}
-	worldPhysics->addKinematicCharacter(mainCharacter);
+	worldPhysics->setKinematicCharacter(character->get());
 }
 
-std::shared_ptr<AnimatedObject> Game::getMainCharacter()
+void Game::removeCharacter()
 {
-	return mainCharacter;
-}
-
-void Game::addCharacter(std::string filePath, glm::mat4 aModel)
-{
-	characters.push_back(std::make_shared<AnimatedObject>(filePath, aModel));
 	for(int i{0}; i < scenes.size(); ++i)
 	{
-		scenes[i]->addCharacter(characters[characters.size()-1]);
+		scenes[i]->removeCharacter();
+	}
+	character.reset();
+	worldPhysics->removeKinematicCharacter();
+}
+
+void Game::characterDoActionWalk(Character::DIRECTION d, float delta)
+{
+	if(character)
+	{
+		character->walk();
+		worldPhysics->characterDoActionWalk(character, d, delta);
 	}
 }
 
-void Game::removeCharacter(std::string name)
+void Game::characterDoActionRun(Character::DIRECTION d, float delta)
 {
-	for(int i{0}; i < characters.size(); ++i)
+	if(character)
 	{
-		if(characters[i]->getName() == name)
-		{
-			for(int i{0}; i < scenes.size(); ++i)
-			{
-				scenes[i]->removeCharacter(characters[i]);
-			}
-			characters.erase(characters.begin() + i);
-			break;
-		}
+		character->run();
+		worldPhysics->characterDoActionRun(character, d, delta);
 	}
 }
 
-void Game::mainCharacterDoActionWalk(CHARACTER_DIRECTION direction, float delta)
+void Game::characterDoActionJump(bool forward, float delta)
 {
-	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
+	if(character)
 	{
-		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[3]);
-		glm::mat4 model = worldPhysics->mainCharacterDoActionWalk(direction, delta);
-		mainCharacter->setModel(model);
+		character->jump();
+		worldPhysics->characterDoActionJump(character, forward, delta);
 	}
 }
 
-void Game::mainCharacterDoActionRun(CHARACTER_DIRECTION direction, float delta)
+void Game::characterDoActionIdle()
 {
-	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
+	if(character)
 	{
-		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[2]);
-		glm::mat4 model = worldPhysics->mainCharacterDoActionRun(direction, delta);
-		mainCharacter->setModel(model);
-	}
-}
-
-void Game::mainCharacterDoActionJump()
-{
-	if(mainCharacter)
-	{
-		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[1]);
-	}
-}
-
-void Game::mainCharacterDoActionIdle()
-{
-	if(mainCharacter && mainCharacter->getAnimator()->getCurrentAnimation() != mainCharacter->getAnimations()[1])
-	{
-		mainCharacter->getAnimator()->playAnimation(mainCharacter->getAnimations()[0]);
-		glm::mat4 model = worldPhysics->mainCharacterDoActionIdle();
-		mainCharacter->setModel(model);
+		character->idle();
+		worldPhysics->characterDoActionIdle(character);
 	}
 }
 

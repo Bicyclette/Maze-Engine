@@ -111,7 +111,7 @@ void Animator::updateAnimation(float delta)
 	{
 		currentTime += currentAnimation->ticksPerSecond * delta;
 		float moduloCurrentTime = fmod(currentTime, currentAnimation->duration);
-		if(moduloCurrentTime < currentTime && currentAnimation->name == "Jump")
+		if(moduloCurrentTime < currentTime && currentAnimation->name == "Jump_game")
 		{
 			stopAnimation();
 		}

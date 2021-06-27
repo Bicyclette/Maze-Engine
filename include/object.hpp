@@ -39,6 +39,7 @@ class Object
 		void setInstancing(const std::vector<glm::mat4> & models);
 		void resetInstancing();
 		std::string getName();
+		glm::mat4 getModel();
 		void setModel(glm::mat4 & matrix);
 		struct AABB getAABB();
 		

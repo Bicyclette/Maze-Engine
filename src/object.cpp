@@ -57,6 +57,11 @@ std::string Object::getName()
 	return name;
 }
 
+glm::mat4 Object::getModel()
+{
+	return model;
+}
+
 void Object::setModel(glm::mat4 & matrix)
 {
 	model = matrix;
