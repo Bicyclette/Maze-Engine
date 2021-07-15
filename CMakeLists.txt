@@ -33,6 +33,7 @@ set(SRCS
 	src/joint.cpp
 	src/worldPhysics.cpp
 	src/character.cpp
+	src/IBL.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -59,6 +60,7 @@ set(HEADERS
 	include/joint.hpp
 	include/worldPhysics.hpp
 	include/character.hpp
+	include/IBL.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

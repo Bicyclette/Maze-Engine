@@ -81,7 +81,7 @@ void Mesh::bindVAO() const
 	glBindVertexArray(vao);
 }
 
-void Mesh::shaderProcessing(Shader & s)
+void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 {
 	if(s.getType() == SHADER_TYPE::BLINN_PHONG)
 	{
@@ -114,7 +114,8 @@ void Mesh::shaderProcessing(Shader & s)
 		s.setInt("hasDiffuse", 0);
 	}
 
-	for(int i{0}; i < material.textures.size(); ++i)
+	int diffuse_IBL_index{0};
+	for(int i{0}; i < material.textures.size(); ++i, ++diffuse_IBL_index)
 	{
 		if(material.textures.at(i).type == TEXTURE_TYPE::DIFFUSE)
 		{
@@ -167,16 +168,31 @@ void Mesh::shaderProcessing(Shader & s)
 			}
 		}
 	}
+
+	if(s.getType() == SHADER_TYPE::PBR && iblData)
+	{
+		glActiveTexture(GL_TEXTURE0 + 14);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, iblData->irradiance);
+		s.setInt("irradianceMap", 14);
+
+		glActiveTexture(GL_TEXTURE0 + 15);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, iblData->prefilter);
+		s.setInt("prefilterMap", 15);
+
+		glActiveTexture(GL_TEXTURE0 + 16);
+		glBindTexture(GL_TEXTURE_2D, iblData->brdf);
+		s.setInt("brdfLUT", 16);
+	}
 }
 
-void Mesh::draw(Shader& s, bool instancing, int amount, DRAWING_MODE mode)
+void Mesh::draw(Shader& s, struct IBL_DATA * iblData, bool instancing, int amount, DRAWING_MODE mode)
 {
 	// bind vao
 	glBindVertexArray(vao);
 
 	// use shader and sets its uniforms
 	s.use();
-	shaderProcessing(s);
+	shaderProcessing(s, iblData);
 
 	// draw solid or wireframe
 	if(mode == DRAWING_MODE::SOLID)

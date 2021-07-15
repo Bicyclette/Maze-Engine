@@ -34,7 +34,7 @@ class Object
 		Object(glm::mat4 model = glm::mat4(1.0f));
 		Object(const std::string & path, glm::mat4 model = glm::mat4(1.0f));
 		virtual ~Object();
-		virtual void draw(Shader& shader, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		virtual void draw(Shader& shader, struct IBL_DATA * iblData = nullptr, DRAWING_MODE mode = DRAWING_MODE::SOLID);
         std::vector<std::shared_ptr<Mesh>>& getMeshes();
 		void setInstancing(const std::vector<glm::mat4> & models);
 		void resetInstancing();

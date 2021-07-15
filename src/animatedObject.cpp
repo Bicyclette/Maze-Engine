@@ -206,7 +206,7 @@ std::unique_ptr<Animator> & AnimatedObject::getAnimator()
 	return animator;
 }
 
-void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, DRAWING_MODE mode)
+void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, struct IBL_DATA * iblData, DRAWING_MODE mode)
 {
 	shader.use();
 	shader.setInt("animated", 1);
@@ -224,7 +224,7 @@ void AnimatedObject::draw(Shader& shader, std::array<glm::mat4, 50> & finalJoint
 
 	for(int i{0}; i < meshCount; ++i)
 	{
-		meshes[i]->draw(shader, instancing, instanceModel.size(), mode);
+		meshes[i]->draw(shader, iblData, instancing, instanceModel.size(), mode);
 	}
 }
 

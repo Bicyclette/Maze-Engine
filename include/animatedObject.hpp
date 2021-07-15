@@ -80,7 +80,7 @@ class AnimatedObject : public Object
 		virtual ~AnimatedObject();
 		std::vector<std::shared_ptr<Animation>> & getAnimations();
 		std::unique_ptr<Animator> & getAnimator();
-		virtual void draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		virtual void draw(Shader& shader, std::array<glm::mat4, 50> & finalJointTransform, struct IBL_DATA * iblData = nullptr, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 
 	private:
 		virtual void load(const std::string & path);

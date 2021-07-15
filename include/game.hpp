@@ -24,6 +24,7 @@ class Game
 		int getActiveScene();
 		void setActiveScene(int index);
 		void setCharacterScene(int index);
+		int getCharacterScene();
 		void setCharacter(std::string filePath, glm::mat4 aModel, std::string aName);
 		void removeCharacter();
 		void characterDoActionWalk(Character::DIRECTION d, float delta);
@@ -35,9 +36,9 @@ class Game
 
 		int activeScene;
 		std::vector<std::shared_ptr<Scene>> scenes;
+		std::vector<std::unique_ptr<WorldPhysics>> worldPhysics;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
-		std::unique_ptr<WorldPhysics> worldPhysics;
 		
 		void directionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);

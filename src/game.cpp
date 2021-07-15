@@ -2,8 +2,7 @@
 
 Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
-	graphics(std::make_unique<Graphics>(clientWidth, clientHeight)),
-	worldPhysics(std::make_unique<WorldPhysics>())
+	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
 {
 	// window aspect ratio
 	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);	
@@ -28,15 +27,33 @@ Game::Game(int clientWidth, int clientHeight) :
 	skyTextures.push_back("../assets/skyboxes/skybox5/pz.png");
 	skyTextures.push_back("../assets/skyboxes/skybox5/nz.png");
 	
+	std::vector<std::string> skyTextures2;
+	skyTextures2.push_back("../assets/skyboxes/skybox4/px.png");
+	skyTextures2.push_back("../assets/skyboxes/skybox4/nx.png");
+	skyTextures2.push_back("../assets/skyboxes/skybox4/py.png");
+	skyTextures2.push_back("../assets/skyboxes/skybox4/ny.png");
+	skyTextures2.push_back("../assets/skyboxes/skybox4/pz.png");
+	skyTextures2.push_back("../assets/skyboxes/skybox4/nz.png");
+
+	// scene objects
+	std::vector<std::shared_ptr<Object>> scene_objects;
+
+	glm::vec3 camPos;
+	glm::vec3 camTarget;
+	glm::vec3 camDir;
+	float angle;
+	glm::vec3 camRight;
+	glm::vec3 camUp;
+
 	// create street light scene
 	scenes.push_back(std::make_shared<Scene>("street light", 0));
 
-	glm::vec3 camPos = glm::vec3(5.0f, 15.0f, 15.0f);
-	glm::vec3 camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
-	glm::vec3 camDir = glm::normalize(camTarget - camPos);
-	float angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::vec3 camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::vec3 camUp = glm::normalize(glm::cross(camRight, camDir));
+	camPos = glm::vec3(5.0f, 15.0f, 15.0f);
+	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	angle = glm::dot(glm::vec3(camDir.x, 0.0f, camDir.z), glm::vec3(0.0f, 0.0f, -1.0f));
+	camRight = glm::rotate(glm::vec3(1.0f, 0.0f, 0.0f), acos(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
 	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
@@ -49,30 +66,29 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("../assets/character/bench.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/street_light_bulb.assbin", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/tree1.assbin", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/stairs.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/flag_bearer.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/metal.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/flag.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
+	scenes[scenes.size()-1]->setIBL("../assets/HDRIs/forest.hdr", true);
 	scenes[scenes.size()-1]->setGridAxis(8);
 
 	// set physics properties for scene
-	std::vector<std::shared_ptr<Object>> scene_objects = scenes[scenes.size()-1]->getObjects();
-	worldPhysics->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics->addRigidBody(scene_objects[1], glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)), btScalar(0.35), btScalar(0.7), COLLISION_SHAPE::SPHERE);
-	worldPhysics->addRigidBody(scene_objects[2], glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)), btScalar(0.25), btScalar(0.7), COLLISION_SHAPE::SPHERE);
-	worldPhysics->addRigidBody(scene_objects[3], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
-	worldPhysics->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
-	worldPhysics->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(8.25f, 10.2f, -5.0f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::COMPOUND);
-	worldPhysics->addRigidBody(scene_objects[8], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics->addRigidBody(scene_objects[9], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics->addSoftBody(scene_objects[11], btScalar(0.25));
-	worldPhysics->setSoftBodyVertexMass(0, 60, 0.0f);
-	worldPhysics->setSoftBodyVertexMass(0, 62, 0.0f);
+	worldPhysics.push_back(std::make_unique<WorldPhysics>());
+	scene_objects = scenes[scenes.size()-1]->getObjects();
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[1], glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)), btScalar(0.35), btScalar(0.7), COLLISION_SHAPE::SPHERE);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[2], glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)), btScalar(0.25), btScalar(0.7), COLLISION_SHAPE::SPHERE);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[3], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[5], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 4.5f, -2.5f)), btScalar(0.0), btScalar(0.025), COLLISION_SHAPE::CYLINDER);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[7], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[8], glm::mat4(1.0f), btScalar(0.0), btScalar(0.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[10], btScalar(0.25));
+	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 60, 0.0f);
+	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 62, 0.0f);
 	
 	// create outdoor scene
 	scenes.push_back(std::make_shared<Scene>("outdoor", 1));
@@ -90,8 +106,12 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->addObject("../assets/outdoor_scene/scene.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setSkybox(skyTextures, false);
 	scenes[scenes.size()-1]->setGridAxis(8);
+
+	// set physics properties for scene
+	worldPhysics.push_back(std::make_unique<WorldPhysics>());
+	scene_objects = scenes[scenes.size()-1]->getObjects();
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -101,28 +121,29 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	// update physics
 	if(debugPhysics)
 	{
-		worldPhysics->stepSimulation(
+		worldPhysics[activeScene]->stepSimulation(
 				scenes[activeScene]->getActiveCamera()->getViewMatrix(),
 				scenes[activeScene]->getActiveCamera()->getProjectionMatrix()
 				);
 		return;
 	}
-	worldPhysics->stepSimulation();
+	worldPhysics[activeScene]->stepSimulation();
 	std::vector<std::shared_ptr<Object>> scene_objects = scenes[activeScene]->getObjects();
 	int indexPhysics{0};
-	for(;indexPhysics < worldPhysics->getNumRigidBody(); ++indexPhysics)
+	for(;indexPhysics < worldPhysics[activeScene]->getNumRigidBody(); ++indexPhysics)
 	{
-		glm::mat4 model = worldPhysics->getObjectOpenGLMatrix(indexPhysics);
+		glm::mat4 model = worldPhysics[activeScene]->getObjectOpenGLMatrix(indexPhysics);
 		scene_objects[indexPhysics]->setModel(model);
 	}
-	indexPhysics++;
-	for(int i{0}; i < worldPhysics->getNumSoftBody(); ++i, ++indexPhysics)
+	if(activeScene == 0)
+		indexPhysics++;
+	for(int i{0}; i < worldPhysics[activeScene]->getNumSoftBody(); ++i, ++indexPhysics)
 	{
-		worldPhysics->updateSoftBody(i, scene_objects[indexPhysics]);
+		worldPhysics[activeScene]->updateSoftBody(i, scene_objects[indexPhysics]);
 	}
 
 	// update character's current animation
-	if(character)
+	if(character && character->sceneID == scenes[activeScene]->getId())
 	{
 		character->get()->getAnimator()->updateAnimation(delta);
 	}
@@ -160,11 +181,11 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			if(graphics->bloomOn())
 				bloomPass(width, height);
 
-			// bind to default framebuffer
+			// BIND TO DEFAULT FRAMEBUFFER
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-			// draw final image quad
+			// DRAW FINAL IMAGE QUAD
 			graphics->getFinalShader().use();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
@@ -293,14 +314,23 @@ void Game::setCharacterScene(int index)
 	}
 }
 
+int Game::getCharacterScene()
+{
+	if(character)
+	{
+		return character->sceneID;
+	}
+	return -1;
+}
+
 void Game::setCharacter(std::string filePath, glm::mat4 aModel, std::string aName)
 {
 	character = std::make_shared<Character>(filePath, aModel, aName);
 	for(int i{0}; i < scenes.size(); ++i)
 	{
 		scenes[i]->setCharacter(character);
+		worldPhysics[i]->setKinematicCharacter(character->get());
 	}
-	worldPhysics->setKinematicCharacter(character->get());
 }
 
 void Game::removeCharacter()
@@ -308,9 +338,9 @@ void Game::removeCharacter()
 	for(int i{0}; i < scenes.size(); ++i)
 	{
 		scenes[i]->removeCharacter();
+		worldPhysics[i]->removeKinematicCharacter();
 	}
 	character.reset();
-	worldPhysics->removeKinematicCharacter();
 }
 
 void Game::characterDoActionWalk(Character::DIRECTION d, float delta)
@@ -318,7 +348,7 @@ void Game::characterDoActionWalk(Character::DIRECTION d, float delta)
 	if(character)
 	{
 		character->walk();
-		worldPhysics->characterDoActionWalk(character, d, delta);
+		worldPhysics[activeScene]->characterDoActionWalk(character, d, delta);
 	}
 }
 
@@ -327,7 +357,7 @@ void Game::characterDoActionRun(Character::DIRECTION d, float delta)
 	if(character)
 	{
 		character->run();
-		worldPhysics->characterDoActionRun(character, d, delta);
+		worldPhysics[activeScene]->characterDoActionRun(character, d, delta);
 	}
 }
 
@@ -336,7 +366,7 @@ void Game::characterDoActionJump(bool forward, float delta)
 	if(character)
 	{
 		character->jump();
-		worldPhysics->characterDoActionJump(character, forward, delta);
+		worldPhysics[activeScene]->characterDoActionJump(character, forward, delta);
 	}
 }
 
@@ -345,7 +375,7 @@ void Game::characterDoActionIdle()
 	if(character)
 	{
 		character->idle();
-		worldPhysics->characterDoActionIdle(character);
+		worldPhysics[activeScene]->characterDoActionIdle(character);
 	}
 }
 

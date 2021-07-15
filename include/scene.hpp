@@ -12,6 +12,7 @@
 #include "grid_axis.hpp"
 #include "graphics.hpp"
 #include "character.hpp"
+#include "IBL.hpp"
 
 class Scene
 {
@@ -27,6 +28,7 @@ class Scene
 		void addDirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
 		void addSpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
 		void setSkybox(std::vector<std::string> & textures, bool flip);
+		void setIBL(std::string texture, bool flip);
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
 		void updateCameraPerspective(float aspectRatio);
@@ -56,6 +58,7 @@ class Scene
 		std::vector<std::shared_ptr<SpotLight>> sLights;
 		
 		std::unique_ptr<Skybox> sky;
+		std::unique_ptr<IBL> ibl;
 
 		std::unique_ptr<GridAxis> gridAxis;
 };

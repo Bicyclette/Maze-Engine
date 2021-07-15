@@ -73,7 +73,8 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 			game->resizeScreen(client->getWidth(), client->getHeight());
 		}
 
-		characterMovements(client, game, delta);
+		if(game->getCharacterScene() == game->getActiveScene())
+			characterMovements(client, game, delta);
 
 		// draw scene
 		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true, false);

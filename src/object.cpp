@@ -72,7 +72,7 @@ struct AABB Object::getAABB()
 	return aabb;
 }
 
-void Object::draw(Shader& shader, DRAWING_MODE mode)
+void Object::draw(Shader& shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 {
 	shader.use();
 	shader.setInt("animated", 0);
@@ -82,7 +82,7 @@ void Object::draw(Shader& shader, DRAWING_MODE mode)
 
 	for(int i{0}; i < meshCount; ++i)
 	{
-		meshes[i]->draw(shader, instancing, instanceModel.size(), mode);
+		meshes[i]->draw(shader, iblData, instancing, instanceModel.size(), mode);
 	}
 }
 
@@ -311,11 +311,10 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	// material
 	aiMaterial* mesh_material = scene->mMaterials[mesh->mMaterialIndex];
     
-	aiColor3D color_diffuse;
+	aiColor4D color_diffuse;
 	aiColor3D color_specular;
 	aiColor3D color_ambient;
 	aiColor3D color_emissive{0.0f, 0.0f, 0.0f};
-	float opacity;
 	float shininess;
 	float roughness;
 	float metallic;
@@ -339,7 +338,6 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	mesh_material->Get(AI_MATKEY_COLOR_SPECULAR, color_specular);
 	mesh_material->Get(AI_MATKEY_COLOR_AMBIENT, color_ambient);
 	mesh_material->Get(AI_MATKEY_COLOR_EMISSIVE, color_emissive);
-	mesh_material->Get(AI_MATKEY_OPACITY, opacity);
 	mesh_material->Get(AI_MATKEY_SHININESS, shininess);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic);
@@ -349,7 +347,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
     material.color_specular = glm::vec3(color_specular.r, color_specular.g, color_specular.b);
     material.color_ambient = glm::vec3(color_ambient.r, color_ambient.g, color_ambient.b);
     material.color_emissive = glm::vec3(color_emissive.r, color_emissive.g, color_emissive.b);
-	material.opacity = opacity;
+	material.opacity = color_diffuse.a;
 	material.shininess = shininess;
 	material.roughness = roughness;
 	material.metallic = metallic;

@@ -19,7 +19,7 @@ Skybox::Skybox(std::vector<std::string> & textures, bool flip) :
 	// order: right, left, top, bottom, back, front
 	for(int i{0}; i <  textures.size(); ++i)
 	{
-		unsigned char* data = stbi_load(textures.at(i).c_str(), &width, &height, &channels, 0);
+		unsigned char* data = stbi_load(textures[i].c_str(), &width, &height, &channels, 0);
 		if(data)
 		{
 			if(channels == 3)
@@ -132,6 +132,7 @@ void Skybox::draw(glm::mat4 aView, glm::mat4 aProj)
 
 	// draw skybox
 	glBindVertexArray(vao);
+	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDepthFunc(GL_LESS);

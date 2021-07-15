@@ -32,7 +32,7 @@ class Character
 		void idle();
 		glm::mat4 getModel();
 		void setModel(glm::mat4 & m);
-		void draw(Shader& shader, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		void draw(Shader& shader, struct IBL_DATA * iblData = nullptr, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		std::unique_ptr<AnimatedObject> & get();
 
 	private:

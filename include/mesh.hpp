@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include "shader_light.hpp"
+#include "IBL.hpp"
 
 enum class DRAWING_MODE
 {
@@ -67,7 +68,7 @@ class Mesh
 		std::vector<int> const& getIndices() const;
 		Material & getMaterial();
 		void bindVAO() const;
-		void draw(Shader & s, bool instancing = false, int amount = 1, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+		void draw(Shader & s, struct IBL_DATA * iblData = nullptr, bool instancing = false, int amount = 1, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void recreate(std::vector<Vertex> aVertices, std::vector<int> aIndices, bool dynamicDraw);
 		void updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices);
 		bool getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out);
@@ -83,7 +84,7 @@ class Mesh
 		std::vector<int> indices;
 		Material material;
 
-		void shaderProcessing(Shader & s); // set proper uniforms according to shader type
+		void shaderProcessing(Shader & s, struct IBL_DATA * iblData); // set proper uniforms according to shader type
 };
 
 #endif

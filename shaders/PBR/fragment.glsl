@@ -61,6 +61,11 @@ uniform sampler2D ssao;
 uniform int hasSSAO;
 uniform vec2 viewport;
 
+uniform int IBL;
+uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
+
 const float PI = 3.14159265359;
 mat3 TBN;
 // ----------------------------------------------------------------------------
@@ -119,6 +124,11 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}
+// ----------------------------------------------------------------------------
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 // ----------------------------------------------------------------------------
 float calculateShadow(vec4 fragPosLightSpace, vec3 lightDir, int l)
@@ -297,7 +307,29 @@ void main()
         	Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0f - shadow);
     }
 
-    vec3 ambient = albedo * ao * 0.3;
+	vec3 ambient;
+	if(IBL == 1)
+	{
+		vec3 R = reflect(-V, N);
+		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+		vec3 kS = F;
+		vec3 kD = 1.0 - kS;
+		kD *= 1.0 - metallic;
+		vec3 irradiance = texture(irradianceMap, N).rgb;
+		vec3 diffuse = irradiance * albedo;
+
+		const float MAX_REFLECTION_LOD = 4.0;
+		vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+		vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+		vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+		ambient = (kD * diffuse + specular) * ao;
+	}
+	else if(IBL == 0)
+	{
+		ambient = albedo * ao * 0.3;
+	}
     vec3 color = ambient + Lo;
     fragColor = vec4(color, 1.0);
 

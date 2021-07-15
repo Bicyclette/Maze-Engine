@@ -2,7 +2,7 @@
 
 Graphics::Graphics(int width, int height) :
 	bloomEffect{true},
-	ssaoEffect(true),
+	ssaoEffect{true},
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -43,7 +43,7 @@ Graphics::Graphics(int width, int height) :
 	orthoDimension(10.0f),
 	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),
-	blinnPhong("../shaders/blinn_phong/vertex.glsl", "../shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
+	blinnPhong("../shaders/blinn_phong/opaque/vertex.glsl", "../shaders/blinn_phong/transparent/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("../shaders/PBR/vertex.glsl", "../shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
 	shadowMapping("../shaders/shadowMapping/vertex.glsl", "../shaders/shadowMapping/geometry.glsl", "../shaders/shadowMapping/fragment.glsl", SHADER_TYPE::SHADOWS),
 	gBuffer("../shaders/GBuffer/vertex.glsl", "../shaders/GBuffer/fragment.glsl", SHADER_TYPE::GBUFFER),
@@ -52,6 +52,7 @@ Graphics::Graphics(int width, int height) :
 	bloom("../shaders/bloom/vertex.glsl", "../shaders/bloom/fragment.glsl", SHADER_TYPE::BLOOM),
 	end("../shaders/final/vertex.glsl", "../shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
+	// Generic Multisample FBO
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
@@ -125,6 +126,7 @@ Graphics::Graphics(int width, int height) :
 		0, 2, 3
 	}};
 
+	quadMaterial.opacity = 1.0f;
 	quad = std::make_unique<Mesh>(vertices, indices, quadMaterial, "final image");
 }
 
@@ -274,17 +276,6 @@ std::unique_ptr<Mesh> & Graphics::getQuadMesh()
 
 void Graphics::resizeScreen(int width, int height)
 {
-	/*
-	multisample->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	multisample->updateAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
-	for(int i{0}; i < 2; ++i)
-		normal.at(i)->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	ping->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	pong->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	GBuffer->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	GBuffer->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, width, height);
-	*/
-
 	multisample = std::make_unique<Framebuffer>(true, true, true);
 	normal = std::array<std::unique_ptr<Framebuffer>, 2>{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -302,7 +293,7 @@ void Graphics::resizeScreen(int width, int height)
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
 
-	for(int i{0}; i < 2; ++i)
+	for(int i{0}; i < 4; ++i)
 		normal.at(i)->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// SSAO G-BUFFER FBO

@@ -58,6 +58,11 @@ void Scene::setSkybox(std::vector<std::string> & textures, bool flip)
 	sky = std::make_unique<Skybox>(textures, flip);
 }
 
+void Scene::setIBL(std::string texture, bool flip)
+{
+	ibl = std::make_unique<IBL>(texture, flip);
+}
+
 void Scene::setGridAxis(int gridDim)
 {
 	gridAxis = std::make_unique<GridAxis>(8);
@@ -120,15 +125,29 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 			sLights.at(i)->draw();
 		}
 	}
-	
+
+	struct IBL_DATA iblData;
+	if(ibl && shader.getType() == SHADER_TYPE::PBR)
+	{
+		shader.use();
+		shader.setInt("IBL", 1);
+		iblData = ibl->get_IBL_data();
+		ibl->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+	}
+	else if(!ibl && shader.getType() == SHADER_TYPE::PBR)
+	{
+		shader.use();
+		shader.setInt("IBL", 0);
+	}
+
 	for(int i{0}; i < objects.size(); ++i)
 	{
-		objects[i]->draw(shader, mode);
+		objects[i]->draw(shader, &iblData, mode);
 	}
 	
 	if(character && character->sceneID == ID)
 	{
-		character->draw(shader, mode);
+		character->draw(shader, &iblData, mode);
 	}
 
 	if(sky)

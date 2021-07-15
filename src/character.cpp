@@ -53,9 +53,9 @@ glm::mat4 Character::getModel()
 	return character->getModel();
 }
 
-void Character::draw(Shader & shader, DRAWING_MODE mode)
+void Character::draw(Shader & shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 {
-	character->draw(shader, character->getAnimator()->getFinalJointTransform(), mode);
+	character->draw(shader, character->getAnimator()->getFinalJointTransform(), iblData, mode);
 }
 
 std::unique_ptr<AnimatedObject> & Character::get()
