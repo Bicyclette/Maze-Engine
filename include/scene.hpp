@@ -13,6 +13,7 @@
 #include "graphics.hpp"
 #include "character.hpp"
 #include "IBL.hpp"
+#include "particle.hpp"
 
 class Scene
 {
@@ -29,6 +30,7 @@ class Scene
 		void addSpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
 		void setSkybox(std::vector<std::string> & textures, bool flip);
 		void setIBL(std::string texture, bool flip);
+		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime);
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
 		void updateCameraPerspective(float aspectRatio);
@@ -59,6 +61,8 @@ class Scene
 		
 		std::unique_ptr<Skybox> sky;
 		std::unique_ptr<IBL> ibl;
+
+		std::vector<std::unique_ptr<ParticleEmitter>> particlesEmitter;
 
 		std::unique_ptr<GridAxis> gridAxis;
 };

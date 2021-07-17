@@ -154,6 +154,16 @@ glm::vec3 Camera::getPosition()
 	return position;
 }
 
+glm::vec3 Camera::getRight()
+{
+	return right;
+}
+
+glm::vec3 Camera::getUp()
+{
+	return up;
+}
+
 void Camera::setProjection(float aspectRatio, float near, float far)
 {
 	nearPlane = near;

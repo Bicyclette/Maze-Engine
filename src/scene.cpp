@@ -63,6 +63,11 @@ void Scene::setIBL(std::string texture, bool flip)
 	ibl = std::make_unique<IBL>(texture, flip);
 }
 
+void Scene::addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime)
+{
+	particlesEmitter.push_back(std::make_unique<ParticleEmitter>(pos, emitRate, maxLifetime));
+}
+
 void Scene::setGridAxis(int gridDim)
 {
 	gridAxis = std::make_unique<GridAxis>(8);
@@ -148,6 +153,13 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 	if(character && character->sceneID == ID)
 	{
 		character->draw(shader, &iblData, mode);
+	}
+
+	for(int i{0}; i < particlesEmitter.size(); ++i)
+	{
+		particlesEmitter[i]->emit(activeCamera->getPosition(), delta);
+		particlesEmitter[i]->drawEmitter(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+		particlesEmitter[i]->drawParticles(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), activeCamera->getRight(), activeCamera->getUp());
 	}
 
 	if(sky)

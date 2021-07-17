@@ -25,6 +25,8 @@ class Camera
 		float getFarPlane();
 		float getFov();
 		glm::vec3 getPosition();
+		glm::vec3 getRight();
+		glm::vec3 getUp();
 		void setProjection(float aspectRatio, float near, float far);
 
 	private:
