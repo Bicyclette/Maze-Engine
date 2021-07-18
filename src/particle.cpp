@@ -160,7 +160,7 @@ void ParticleEmitter::emit(glm::vec3 camPos, float delta)
 		}
 		else
 		{
-			particles[i].position += particles[i].velocity * expf(particles[i].lifetime - maxLifetime - 0.5f);
+			particles[i].position += particles[i].velocity * expf(particles[i].lifetime - maxLifetime - 0.5f) * delta;
 		}
 	}
 
@@ -169,7 +169,7 @@ void ParticleEmitter::emit(glm::vec3 camPos, float delta)
 		float px = distribution(mt);
 		float py = distribution(mt);
 		float pz = distribution(mt);
-		struct Particle p(position + glm::vec3(px, py, pz), glm::vec3(0.0f, 1.0f, 0.0f) * 0.15f);
+		struct Particle p(position + glm::vec3(px, py, pz), glm::vec3(0.0f, 1.0f, 0.0f) * 5.0f);
 		particles.push_back(p);
 	}
 

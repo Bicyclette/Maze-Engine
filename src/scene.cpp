@@ -158,7 +158,8 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 	for(int i{0}; i < particlesEmitter.size(); ++i)
 	{
 		particlesEmitter[i]->emit(activeCamera->getPosition(), delta);
-		particlesEmitter[i]->drawEmitter(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+		if(debug)
+			particlesEmitter[i]->drawEmitter(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
 		particlesEmitter[i]->drawParticles(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), activeCamera->getRight(), activeCamera->getUp());
 	}
 
