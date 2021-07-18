@@ -4,7 +4,6 @@
 
 **graphics**
 * Fix brightness threshold for non emissive surfaces
-* particle system (campfire)
 
 **user interface**
 * OpenGL based user interface (buttons, menus, layout)

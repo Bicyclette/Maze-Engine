@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(Maze)
+project(Maze VERSION 0.8)
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -11,6 +11,7 @@ cmake_policy(SET CMP0072 NEW)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS} "-g")
 set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS} "-O3")
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -35,6 +36,7 @@ set(SRCS
 	src/character.cpp
 	src/IBL.cpp
 	src/particle.cpp
+	src/audio.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -63,6 +65,7 @@ set(HEADERS
 	include/character.hpp
 	include/IBL.hpp
 	include/particle.hpp
+	include/audio.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

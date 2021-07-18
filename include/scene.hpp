@@ -14,6 +14,7 @@
 #include "character.hpp"
 #include "IBL.hpp"
 #include "particle.hpp"
+#include "audio.hpp"
 
 class Scene
 {
