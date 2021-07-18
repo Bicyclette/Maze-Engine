@@ -15,3 +15,4 @@
 
 # Screenshot
 ![Maze-Engine](maze_engine.png)
+![Maze-Engine video](maze_engine.gif)
