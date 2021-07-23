@@ -31,7 +31,7 @@ class Scene
 		void addSpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
 		void setSkybox(std::vector<std::string> & textures, bool flip);
 		void setIBL(std::string texture, bool flip);
-		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime);
+		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector = glm::vec3(0.0f));
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
 		void updateCameraPerspective(float aspectRatio);

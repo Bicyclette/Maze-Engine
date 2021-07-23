@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include <cmath>
+#include <thread>
 #include "scene.hpp"
 #include "graphics.hpp"
 #include "color.hpp"
@@ -39,7 +40,9 @@ class Game
 		std::vector<std::unique_ptr<WorldPhysics>> worldPhysics;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
-		
+
+	private: // render passes
+
 		void directionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void bloomPass(int width, int height);

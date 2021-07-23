@@ -32,6 +32,7 @@ struct Particle
 	}
 };
 
+// [-0.5:0.5] particle generation range around position
 class ParticleEmitter
 {
 	public:
@@ -43,7 +44,7 @@ class ParticleEmitter
 
 	public:
 
-		ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime);
+		ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime, ParticleEmitter::DIRECTION aDirectionType, float aSpeed, glm::vec3 aDirectionVector = glm::vec3(0.0f));
 		~ParticleEmitter();
 		glm::vec3 getPosition();
 		void setPosition(glm::vec3 pos);
@@ -61,6 +62,9 @@ class ParticleEmitter
 		int emissionRate; // number of particles per sec
 		float emitDelta;
 		float maxLifetime;
+		DIRECTION direction_type;
+		glm::vec3 direction_vector;
+		float speed;
 		std::random_device rd;
 		std::mt19937 mt;
 		std::uniform_real_distribution<float> distribution;

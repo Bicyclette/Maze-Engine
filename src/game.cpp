@@ -59,7 +59,7 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
-	scenes[scenes.size()-1]->addObject("../assets/character/ground.assbin", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("../assets/character/ground.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/campfire.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("../assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
 	scenes[scenes.size()-1]->addObject("../assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
@@ -73,7 +73,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("../assets/HDRIs/sky_night_red.hdr", true);
 	scenes[scenes.size()-1]->setGridAxis(8);
 
-	scenes[scenes.size()-1]->addParticlesEmitter(glm::vec3(-3.5f, 0.5f, -5.75f), 20, 5.0f);
+	scenes[scenes.size()-1]->addParticlesEmitter(glm::vec3(-3.5f, 0.5f, -5.75f), 20, 5.0f, ParticleEmitter::DIRECTION::VECTOR, 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	// set physics properties for scene
 	worldPhysics.push_back(std::make_unique<WorldPhysics>());

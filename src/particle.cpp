@@ -1,11 +1,14 @@
 #include "particle.hpp"
 #include "stb_image.h"
 
-ParticleEmitter::ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime) :
+ParticleEmitter::ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime, DIRECTION aDirectionType, float aSpeed, glm::vec3 aDirectionVector) :
 	position{pos},
 	emissionRate{emitRate},
 	emitDelta{1.0f / static_cast<float>(emissionRate)},
 	maxLifetime{aMaxLifetime},
+	direction_type(aDirectionType),
+	direction_vector(glm::normalize(aDirectionVector)),
+	speed(aSpeed),
 	mt(rd()),
 	distribution(-0.5f, 0.5f),
 	emitter_shader("../shaders/particles/emitter/vertex.glsl", "../shaders/particles/emitter/geometry.glsl", "../shaders/particles/emitter/fragment.glsl"),
@@ -169,7 +172,9 @@ void ParticleEmitter::emit(glm::vec3 camPos, float delta)
 		float px = distribution(mt);
 		float py = distribution(mt);
 		float pz = distribution(mt);
-		struct Particle p(position + glm::vec3(px, py, pz), glm::vec3(0.0f, 1.0f, 0.0f) * 5.0f);
+		glm::vec3 particle_pos = (direction_type == ParticleEmitter::DIRECTION::VECTOR) ? position + glm::vec3(px, py, pz) : position;
+		glm::vec3 particle_velocity = (direction_type == ParticleEmitter::DIRECTION::VECTOR) ? direction_vector * speed : glm::vec3(px, py, pz) * speed;
+		struct Particle p(particle_pos, particle_velocity);
 		particles.push_back(p);
 	}
 

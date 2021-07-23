@@ -63,9 +63,9 @@ void Scene::setIBL(std::string texture, bool flip)
 	ibl = std::make_unique<IBL>(texture, flip);
 }
 
-void Scene::addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime)
+void Scene::addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector)
 {
-	particlesEmitter.push_back(std::make_unique<ParticleEmitter>(pos, emitRate, maxLifetime));
+	particlesEmitter.push_back(std::make_unique<ParticleEmitter>(pos, emitRate, maxLifetime, direction_type, speed, direction_vector));
 }
 
 void Scene::setGridAxis(int gridDim)
