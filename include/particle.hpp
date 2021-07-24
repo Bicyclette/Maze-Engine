@@ -4,6 +4,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <vector>
+#include <functional>
 #include <memory>
 #include <utility>
 #include <algorithm>

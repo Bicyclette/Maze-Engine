@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <functional>
 #include "character.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <btBulletDynamicsCommon.h>
