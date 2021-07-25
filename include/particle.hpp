@@ -1,7 +1,6 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include <iostream>
 #include <GL/glew.h>
 #include <vector>
 #include <functional>

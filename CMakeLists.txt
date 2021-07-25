@@ -88,7 +88,7 @@ set(HEADERS
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-find_package(OpenMP REQUIRED)
+find_package(OPENMP REQUIRED)
 if(OPENMP_FOUND)
 	target_link_libraries(${PROJECT_NAME} ${OpenMP_LD_FLAGS})
 else()
