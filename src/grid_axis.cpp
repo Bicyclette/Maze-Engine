@@ -4,8 +4,8 @@ GridAxis::GridAxis(int gridDim) :
 	dim(gridDim),
 	nbPoints((dim+1)*(dim+1)),
 	nbIndices(2*(dim+1)*(2*dim)),
-	gridShader("../shaders/grid/vertex.glsl", "../shaders/grid/fragment.glsl"),
-	axisShader("../shaders/axis/vertex.glsl", "../shaders/axis/fragment.glsl")
+	gridShader("shaders/grid/vertex.glsl", "shaders/grid/fragment.glsl"),
+	axisShader("shaders/axis/vertex.glsl", "shaders/axis/fragment.glsl")
 {
 	grid = new float[nbPoints * 3];
 	indices = new int[nbIndices];

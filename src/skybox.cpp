@@ -2,7 +2,7 @@
 #include "stb_image.h"
 
 Skybox::Skybox(std::vector<std::string> & textures, bool flip) :
-	shader("../shaders/skybox/vertex.glsl", "../shaders/skybox/fragment.glsl")
+	shader("shaders/skybox/vertex.glsl", "shaders/skybox/fragment.glsl")
 {
 	// create cube map
 	glGenTextures(1, &cubeMap);

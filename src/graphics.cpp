@@ -43,14 +43,14 @@ Graphics::Graphics(int width, int height) :
 	orthoDimension(10.0f),
 	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),
-	blinnPhong("../shaders/blinn_phong/opaque/vertex.glsl", "../shaders/blinn_phong/transparent/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
-	pbr("../shaders/PBR/vertex.glsl", "../shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
-	shadowMapping("../shaders/shadowMapping/vertex.glsl", "../shaders/shadowMapping/geometry.glsl", "../shaders/shadowMapping/fragment.glsl", SHADER_TYPE::SHADOWS),
-	gBuffer("../shaders/GBuffer/vertex.glsl", "../shaders/GBuffer/fragment.glsl", SHADER_TYPE::GBUFFER),
-	ao("../shaders/AO/vertex.glsl", "../shaders/AO/fragment.glsl", SHADER_TYPE::AO),
-	aoBlur("../shaders/AO/blur/vertex.glsl", "../shaders/AO/blur/fragment.glsl", SHADER_TYPE::AO),
-	bloom("../shaders/bloom/vertex.glsl", "../shaders/bloom/fragment.glsl", SHADER_TYPE::BLOOM),
-	end("../shaders/final/vertex.glsl", "../shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
+	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
+	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
+	shadowMapping("shaders/shadowMapping/vertex.glsl", "shaders/shadowMapping/geometry.glsl", "shaders/shadowMapping/fragment.glsl", SHADER_TYPE::SHADOWS),
+	gBuffer("shaders/GBuffer/vertex.glsl", "shaders/GBuffer/fragment.glsl", SHADER_TYPE::GBUFFER),
+	ao("shaders/AO/vertex.glsl", "shaders/AO/fragment.glsl", SHADER_TYPE::AO),
+	aoBlur("shaders/AO/blur/vertex.glsl", "shaders/AO/blur/fragment.glsl", SHADER_TYPE::AO),
+	bloom("shaders/bloom/vertex.glsl", "shaders/bloom/fragment.glsl", SHADER_TYPE::BLOOM),
+	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
 	// Generic Multisample FBO
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);

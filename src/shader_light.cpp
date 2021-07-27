@@ -485,7 +485,7 @@ PointLight::PointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 s
 	kc(aKc),
 	kl(aKl),
 	kq(aKq),
-	shader("../shaders/light/point/vertex.glsl", "../shaders/light/point/geometry.glsl", "../shaders/light/point/fragment.glsl")
+	shader("shaders/light/point/vertex.glsl", "shaders/light/point/geometry.glsl", "shaders/light/point/fragment.glsl")
 {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -503,7 +503,7 @@ PointLight::PointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 s
 	shader.use();
 	shader.setInt("icon", 0);
 	
-	icon = createTexture("../assets/light_icons/point.png", TEXTURE_TYPE::DIFFUSE, true);
+	icon = createTexture("assets/light_icons/point.png", TEXTURE_TYPE::DIFFUSE, true);
 }
 
 void PointLight::draw()
@@ -542,8 +542,8 @@ float PointLight::getKq()
 DirectionalLight::DirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir) :
 	Light(pos, amb, diff, spec),
 	direction(glm::normalize(dir)),
-	shaderIcon("../shaders/light/directional/vertex.glsl", "../shaders/light/directional/geometry.glsl", "../shaders/light/directional/fragment.glsl"),
-	shaderDirection("../shaders/light/directional/vertex_direction.glsl", "../shaders/light/directional/geometry_direction.glsl", "../shaders/light/directional/fragment_direction.glsl")
+	shaderIcon("shaders/light/directional/vertex.glsl", "shaders/light/directional/geometry.glsl", "shaders/light/directional/fragment.glsl"),
+	shaderDirection("shaders/light/directional/vertex_direction.glsl", "shaders/light/directional/geometry_direction.glsl", "shaders/light/directional/fragment_direction.glsl")
 {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -563,7 +563,7 @@ DirectionalLight::DirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff,
 	shaderDirection.use();
 	shaderDirection.setVec3f("direction", direction);
 	
-	icon = createTexture("../assets/light_icons/directional.png", TEXTURE_TYPE::DIFFUSE, true);
+	icon = createTexture("assets/light_icons/directional.png", TEXTURE_TYPE::DIFFUSE, true);
 }
 
 void DirectionalLight::draw()
@@ -644,8 +644,8 @@ SpotLight::SpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spe
 	direction(dir),
 	cutOff(glm::radians(innerAngle)),
 	outerCutOff(glm::radians(outerAngle)),
-	shaderIcon("../shaders/light/spot/vertex.glsl", "../shaders/light/spot/geometry.glsl", "../shaders/light/spot/fragment.glsl"),
-	shaderCutOff("../shaders/light/spot/vertex_cutoff.glsl", "../shaders/light/spot/geometry_cutoff.glsl", "../shaders/light/spot/fragment_cutoff.glsl")
+	shaderIcon("shaders/light/spot/vertex.glsl", "shaders/light/spot/geometry.glsl", "shaders/light/spot/fragment.glsl"),
+	shaderCutOff("shaders/light/spot/vertex_cutoff.glsl", "shaders/light/spot/geometry_cutoff.glsl", "shaders/light/spot/fragment_cutoff.glsl")
 {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -666,7 +666,7 @@ SpotLight::SpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spe
 	shaderCutOff.setVec3f("direction", direction);
 	shaderCutOff.setFloat("cutOff", cutOff);
 	
-	icon = createTexture("../assets/light_icons/spot.png", TEXTURE_TYPE::DIFFUSE, true);
+	icon = createTexture("assets/light_icons/spot.png", TEXTURE_TYPE::DIFFUSE, true);
 }
 
 void SpotLight::draw()

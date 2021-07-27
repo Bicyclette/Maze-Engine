@@ -2,11 +2,11 @@
 #include "stb_image.h"
 
 IBL::IBL(std::string env_map, bool flip) :
-	equirectangular_to_cubemap_shader("../shaders/HDRI/equirec_to_cubemap/vertex.glsl", "../shaders/HDRI/equirec_to_cubemap/fragment.glsl"),
-	irradiance_shader("../shaders/HDRI/diffuse_irradiance/vertex.glsl", "../shaders/HDRI/diffuse_irradiance/fragment.glsl"),
-	prefilter_shader("../shaders/HDRI/prefilter/vertex.glsl", "../shaders/HDRI/prefilter/fragment.glsl"),
-	brdf_shader("../shaders/HDRI/brdf/vertex.glsl", "../shaders/HDRI/brdf/fragment.glsl"),
-	skybox_shader("../shaders/skybox/vertex.glsl", "../shaders/skybox/fragment.glsl")
+	equirectangular_to_cubemap_shader("shaders/HDRI/equirec_to_cubemap/vertex.glsl", "shaders/HDRI/equirec_to_cubemap/fragment.glsl"),
+	irradiance_shader("shaders/HDRI/diffuse_irradiance/vertex.glsl", "shaders/HDRI/diffuse_irradiance/fragment.glsl"),
+	prefilter_shader("shaders/HDRI/prefilter/vertex.glsl", "shaders/HDRI/prefilter/fragment.glsl"),
+	brdf_shader("shaders/HDRI/brdf/vertex.glsl", "shaders/HDRI/brdf/fragment.glsl"),
+	skybox_shader("shaders/skybox/vertex.glsl", "shaders/skybox/fragment.glsl")
 {
 	create_geometry();
 	create_cubemaps();

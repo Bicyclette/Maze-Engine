@@ -500,7 +500,7 @@ void WorldPhysics::characterDoActionIdle(std::shared_ptr<Character> hero)
 // ######################################################################
 
 btDebugDraw::btDebugDraw() :
-	shader("../shaders/axis/vertex.glsl", "../shaders/axis/fragment.glsl")
+	shader("shaders/axis/vertex.glsl", "shaders/axis/fragment.glsl")
 {}
 
 void btDebugDraw::drawLine(const btVector3 & from, const btVector3 & to, const btVector3 & color)

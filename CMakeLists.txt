@@ -17,8 +17,7 @@ include_directories(include
 	${LIBSNDFILE_INCLUDE_DIR}
 	)
 
-include_directories(include
-	${SDL2_LIB_DIR}
+link_directories(${SDL2_LIB_DIR}
 	${GLEW_LIB_DIR}
 	${ASSIMP_LIB_DIR}
 	${BULLET_LIB_DIR}
@@ -111,3 +110,6 @@ target_link_libraries(${PROJECT_NAME}
 	${OPENAL_LIBS}
 	${LIBSNDFILE_LIBS}
 	)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -11,8 +11,8 @@ ParticleEmitter::ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime
 	speed(aSpeed),
 	mt(rd()),
 	distribution(-0.5f, 0.5f),
-	emitter_shader("../shaders/particles/emitter/vertex.glsl", "../shaders/particles/emitter/geometry.glsl", "../shaders/particles/emitter/fragment.glsl"),
-	particles_shader("../shaders/particles/vertex.glsl", "../shaders/particles/geometry.glsl", "../shaders/particles/fragment.glsl")
+	emitter_shader("shaders/particles/emitter/vertex.glsl", "shaders/particles/emitter/geometry.glsl", "shaders/particles/emitter/fragment.glsl"),
+	particles_shader("shaders/particles/vertex.glsl", "shaders/particles/geometry.glsl", "shaders/particles/fragment.glsl")
 {
 	// emitter VAO
 	glGenVertexArrays(1, &emitter_vao);
@@ -50,7 +50,7 @@ ParticleEmitter::ParticleEmitter(glm::vec3 pos, int emitRate, float aMaxLifetime
 	stbi_set_flip_vertically_on_load(true);
 
 	int width, height, channels;
-	unsigned char * data = stbi_load("../assets/particles_atlas/fire/fire2.png", &width, &height, &channels, 0);
+	unsigned char * data = stbi_load("assets/particles_atlas/fire/fire2.png", &width, &height, &channels, 0);
 
 	glGenTextures(1, &fireAtlas);
 	glBindTexture(GL_TEXTURE_2D, fireAtlas);

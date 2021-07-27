@@ -20,20 +20,20 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	// skybox textures
 	std::vector<std::string> skyTextures;
-	skyTextures.push_back("../assets/skyboxes/skybox5/px.png");
-	skyTextures.push_back("../assets/skyboxes/skybox5/nx.png");
-	skyTextures.push_back("../assets/skyboxes/skybox5/py.png");
-	skyTextures.push_back("../assets/skyboxes/skybox5/ny.png");
-	skyTextures.push_back("../assets/skyboxes/skybox5/pz.png");
-	skyTextures.push_back("../assets/skyboxes/skybox5/nz.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/px.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/nx.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/py.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/ny.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/pz.png");
+	skyTextures.push_back("assets/skyboxes/skybox5/nz.png");
 	
 	std::vector<std::string> skyTextures2;
-	skyTextures2.push_back("../assets/skyboxes/skybox4/px.png");
-	skyTextures2.push_back("../assets/skyboxes/skybox4/nx.png");
-	skyTextures2.push_back("../assets/skyboxes/skybox4/py.png");
-	skyTextures2.push_back("../assets/skyboxes/skybox4/ny.png");
-	skyTextures2.push_back("../assets/skyboxes/skybox4/pz.png");
-	skyTextures2.push_back("../assets/skyboxes/skybox4/nz.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/px.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/nx.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/py.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/ny.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/pz.png");
+	skyTextures2.push_back("assets/skyboxes/skybox4/nz.png");
 
 	// scene objects
 	std::vector<std::shared_ptr<Object>> scene_objects;
@@ -59,18 +59,18 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
-	scenes[scenes.size()-1]->addObject("../assets/character/ground.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/campfire.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
-	scenes[scenes.size()-1]->addObject("../assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
-	scenes[scenes.size()-1]->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/bench.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/pillar.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/pillar.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/flag.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("../assets/character/flag_bearer.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/ground.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/campfire.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/ball.glb", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)));
+	scenes[scenes.size()-1]->addObject("assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
+	scenes[scenes.size()-1]->addObject("assets/character/bench.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/bench.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/pillar.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/pillar.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/flag.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/flag_bearer.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setIBL("../assets/HDRIs/sky_night_red.hdr", true);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky_night_red.hdr", true);
 	scenes[scenes.size()-1]->setGridAxis(8);
 
 	scenes[scenes.size()-1]->addParticlesEmitter(glm::vec3(-3.5f, 0.5f, -5.75f), 20, 5.0f, ParticleEmitter::DIRECTION::VECTOR, 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -104,9 +104,9 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 20.0f, 15.5f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, -1.5f));
 
-	scenes[scenes.size()-1]->addObject("../assets/balls/balls.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/balls/balls.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setIBL("../assets/HDRIs/stadium.hdr", true);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/stadium.hdr", true);
 	scenes[scenes.size()-1]->setGridAxis(8);
 
 	// set physics properties for scene

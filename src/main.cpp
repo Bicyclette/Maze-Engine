@@ -51,7 +51,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 {
 
 	// >>>>>>>>>>>>>>>>>>>> create collection of characters
-	game->setCharacter("../assets/character/matahy.glb", glm::mat4(1.0f), "Matahy");
+	game->setCharacter("assets/character/matahy.glb", glm::mat4(1.0f), "Matahy");
 	game->setActiveScene(0);
 	game->setCharacterScene(0);
 	// <<<<<<<<<<<<<<<<<<<< create collection of characters
@@ -88,7 +88,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 
 int main(int argc, char* argv[])
 {
-	std::unique_ptr<WindowManager> client{std::make_unique<WindowManager>("SDL Window")};
+	std::unique_ptr<WindowManager> client{std::make_unique<WindowManager>("Maze-Engine")};
 	std::unique_ptr<Game> game{std::make_unique<Game>(client->getWidth(), client->getHeight())};
 	render(std::move(client), std::move(game));
 
