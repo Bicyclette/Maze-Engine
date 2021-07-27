@@ -89,6 +89,28 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[8], btScalar(0.25));
 	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 60, 0.0f);
 	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 62, 0.0f);
+
+	// create balls scene
+	scenes.push_back(std::make_shared<Scene>("balls scene", 1));
+
+	camPos = glm::vec3(0.0f, 10.0f, 10.0f);
+	camTarget = glm::vec3(0.0f, 10.0f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 20.0f, 15.5f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, -1.5f));
+
+	scenes[scenes.size()-1]->addObject("../assets/balls/balls.glb", glm::mat4(1.0f));
+
+	scenes[scenes.size()-1]->setIBL("../assets/HDRIs/stadium.hdr", true);
+	scenes[scenes.size()-1]->setGridAxis(8);
+
+	// set physics properties for scene
+	worldPhysics.push_back(std::make_unique<WorldPhysics>());
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)

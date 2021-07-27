@@ -1,7 +1,3 @@
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-	message(FATAL_ERROR "In-source build detected !")
-endif()
-
 cmake_minimum_required(VERSION 3.16)
 
 project(Maze)
@@ -11,6 +7,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules ${CMAKE_MODULE_PATH})
 cmake_policy(SET CMP0072 NEW)
+
+include_directories(include
+	${SDL2_INCLUDE_DIR}
+	${GLEW_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIR}
+	${BULLET_INCLUDE_DIR}
+	${OPENAL_INCLUDE_DIR}
+	${LIBSNDFILE_INCLUDE_DIR}
+	)
+
+include_directories(include
+	${SDL2_LIB_DIR}
+	${GLEW_LIB_DIR}
+	${ASSIMP_LIB_DIR}
+	${BULLET_LIB_DIR}
+	${OPENAL_LIB_DIR}
+	${LIBSNDFILE_LIB_DIR}
+	)
 
 set(SRCS
 	src/stb_image.cpp
@@ -74,21 +88,11 @@ set(HEADERS
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-include_directories(include "external/BULLET/src/")
-
 find_package(OPENMP REQUIRED)
 if(OPENMP_FOUND)
 	target_link_libraries(${PROJECT_NAME} ${OpenMP_LD_FLAGS})
 else()
 	message(FATAL_ERROR "OpenMP not found.")
-endif()
-
-find_package(GLEW REQUIRED)
-if(GLEW_FOUND)
-    target_include_directories(${PROJECT_NAME} PUBLIC ${GLEW_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
-else()
-	message(FATAL_ERROR "glew not found")
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -99,22 +103,11 @@ else()
 	message(FATAL_ERROR "OpenGL not found.")
 endif()
 
-find_package(OpenAL REQUIRED)
-if(OPENAL_FOUND)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${OPENAL_INCLUDE_DIR})
-	target_link_libraries(${PROJECT_NAME} ${OPENAL_LIBRARY})
-else()
-	message(FATAL_ERROR "OpenAL not found")
-endif()
-
-find_package(LIBSNDFILE REQUIRED)
-if(LIBSNDFILE_FOUND)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${LIBSNDFILE_INCLUDE_DIRS})
-	target_link_libraries(${PROJECT_NAME} ${LIBSNDFILE_LIBRARIES})
-else()
-	message(FATAL_ERROR "libSndFile not found")
-endif()
-
-add_subdirectory(external)
-
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIB} SDL2 assimp BulletSoftBody BulletDynamics BulletCollision LinearMath)
+target_link_libraries(${PROJECT_NAME}
+	${SDL2_LIBS}
+	${GLEW_LIBS}
+	${ASSIMP_LIBS}
+	${BULLET_LIBS}
+	${OPENAL_LIBS}
+	${LIBSNDFILE_LIBS}
+	)
