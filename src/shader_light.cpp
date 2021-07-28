@@ -10,9 +10,9 @@ Shader::Shader(const std::string & vertex_shader_file, const std::string & fragm
 	char* vShaderCode;
 	char* fShaderCode;
 
-	std::fstream v_shader_stream, f_shader_stream;
-	v_shader_stream.open(vertex_shader_file, std::fstream::in);
-	f_shader_stream.open(fragment_shader_file, std::fstream::in);
+	std::ifstream v_shader_stream, f_shader_stream;
+	v_shader_stream.open(vertex_shader_file, std::ifstream::binary);
+	f_shader_stream.open(fragment_shader_file, std::ifstream::binary);
 
 	// compute code lengths
 	v_shader_stream.seekg(0, v_shader_stream.end);
@@ -24,8 +24,8 @@ Shader::Shader(const std::string & vertex_shader_file, const std::string & fragm
 	f_shader_stream.seekg(0, f_shader_stream.beg);
 
 	// create arrays
-	vShaderCode = new char[vShader_codeLength+1];
-	fShaderCode = new char[fShader_codeLength+1];
+	vShaderCode = new char[vShader_codeLength + 1];
+	fShaderCode = new char[fShader_codeLength + 1];
 
 	vShaderCode[vShader_codeLength] = '\0';
 	fShaderCode[fShader_codeLength] = '\0';
@@ -59,10 +59,10 @@ Shader::Shader(const std::string & vertex_shader_file, const std::string & geome
 	char* gShaderCode;
 	char* fShaderCode;
 
-	std::fstream v_shader_stream, g_shader_stream, f_shader_stream;
-	v_shader_stream.open(vertex_shader_file, std::fstream::in);
-	g_shader_stream.open(geometry_shader_file, std::fstream::in);
-	f_shader_stream.open(fragment_shader_file, std::fstream::in);
+	std::ifstream v_shader_stream, g_shader_stream, f_shader_stream;
+	v_shader_stream.open(vertex_shader_file, std::ifstream::binary);
+	g_shader_stream.open(geometry_shader_file, std::ifstream::binary);
+	f_shader_stream.open(fragment_shader_file, std::ifstream::binary);
 
 	// compute code lengths
 	v_shader_stream.seekg(0, v_shader_stream.end);
@@ -78,9 +78,9 @@ Shader::Shader(const std::string & vertex_shader_file, const std::string & geome
 	f_shader_stream.seekg(0, f_shader_stream.beg);
 
 	// create arrays
-	vShaderCode = new char[vShader_codeLength+1];
-	gShaderCode = new char[gShader_codeLength+1];
-	fShaderCode = new char[fShader_codeLength+1];
+	vShaderCode = new char[vShader_codeLength + 1];
+	gShaderCode = new char[gShader_codeLength + 1];
+	fShaderCode = new char[fShader_codeLength + 1];
 
 	vShaderCode[vShader_codeLength] = '\0';
 	gShaderCode[gShader_codeLength] = '\0';
