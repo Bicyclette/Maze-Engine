@@ -1,6 +1,5 @@
-![logo](logo.png)
-
-Simple game engine.
+# Simple game engine
+(description)
 
 # TO DO
 **graphics**
