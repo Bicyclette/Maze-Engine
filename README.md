@@ -1,7 +1,8 @@
-# TO DO
-**distribution**
-* proper cmake file
+![Maze-Engine logo](logo.png =400x400)
 
+Simple game engine.
+
+# TO DO
 **graphics**
 * Fix brightness threshold for non emissive surfaces
 
