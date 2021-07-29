@@ -1,4 +1,4 @@
-![Maze-Engine logo](logo.png =400x400)
+![logo](logo.png)
 
 Simple game engine.
 
