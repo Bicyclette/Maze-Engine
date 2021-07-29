@@ -377,7 +377,11 @@ void AnimatedObject::loadAnimations(aiAnimation** anims, int animCount)
 		aiAnimation* current = anims[i];
 		name = current->mName;
 		duration = current->mDuration;
+#ifdef __unix__
 		ticksPerSecond = current->mTicksPerSecond;
+#elif defined(_WIN32) || defined(WIN32)
+		ticksPerSecond = 1000.0f;
+#endif
 
 		std::shared_ptr<Animation> animation = std::make_shared<Animation>();
 		animation->name = name.C_Str();
