@@ -28,7 +28,13 @@ void main()
 
 	// reinhard tone mapping
 	vec3 mapped = color / (color + vec3(1.0));
-	
+
+	// vignette effect
+	vec3 vignette = vec3(1.0f);
+	float dist = distance(texCoords, vec2(0.5, 0.5));
+	vignette = vec3(1.0f) - (vignette / (1.0f / dist));
+	mapped *= vignette;
+
 	// gamma correction
 	fragColor = gammaCorrection(vec4(mapped, 1.0));
 
