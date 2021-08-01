@@ -10,3 +10,4 @@
 
 # DEMO
 ![Maze-Engine](maze_engine.gif)
+![Maze-Engine (third person camera)](third_person_camera.gif)
