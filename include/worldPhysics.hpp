@@ -7,6 +7,7 @@
 #include <functional>
 #include "character.hpp"
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <btBulletDynamicsCommon.h>
 #include <BulletSoftBody/btSoftBodyHelpers.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
@@ -50,12 +51,13 @@ class WorldPhysics
 	public:
 		WorldPhysics();
 		~WorldPhysics();
-		void setKinematicCharacter(std::unique_ptr<AnimatedObject> & object);
+		void setKinematicCharacter(std::unique_ptr<AnimatedObject> & object, glm::mat4 model = glm::mat4(1.0f));
 		void removeKinematicCharacter();
 		void addRigidBody(std::shared_ptr<Object> object, glm::mat4 position, btScalar mass, btScalar restitution, COLLISION_SHAPE collision_shape);
 		void addSoftBody(std::shared_ptr<Object> object, btScalar mass);
 		void updateSoftBody(int softBodyIndex, std::shared_ptr<Object> object);
 		void setSoftBodyVertexMass(int sbIndex, int vIndex, btScalar mass);
+		void attachVertexSoftBody(int sbIndex, int rbIndex, int vIndex, bool disableCollision = false);
 		void stepSimulation();
 		void stepSimulation(glm::mat4 & view, glm::mat4 & projection);
 		glm::mat4 getObjectOpenGLMatrix(int objectIndex);

@@ -4,9 +4,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
 	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
 {
-	// window aspect ratio
-	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);	
-
 	// instance models
 	std::vector<glm::mat4> instanceModel;
 	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.5f, 2.0f)));
@@ -41,7 +38,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camPos;
 	glm::vec3 camTarget;
 	glm::vec3 camDir;
-	float angle;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
 
@@ -54,7 +50,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f);
+	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
 	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
@@ -87,30 +84,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 0.0f, -5.6927f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(-5.7904f, 0.0f, -10.304f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
 	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[8], btScalar(0.25));
-	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 60, 0.0f);
-	worldPhysics[worldPhysics.size() - 1]->setSoftBodyVertexMass(0, 62, 0.0f);
-
-	// create balls scene
-	scenes.push_back(std::make_shared<Scene>("balls scene", 1));
-
-	camPos = glm::vec3(0.0f, 10.0f, 10.0f);
-	camTarget = glm::vec3(0.0f, 10.0f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(aspectRatio, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f );
-	scenes[scenes.size()-1]->setActiveCamera(0);
-
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 20.0f, 15.5f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, -1.5f));
-
-	scenes[scenes.size()-1]->addObject("assets/balls/balls.glb", glm::mat4(1.0f));
-
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/stadium.hdr", true);
-	scenes[scenes.size()-1]->setGridAxis(8);
-
-	// set physics properties for scene
-	worldPhysics.push_back(std::make_unique<WorldPhysics>());
+	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 6, 60);
+	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 7, 62);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -263,13 +238,10 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 
 void Game::resizeScreen(int clientWidth, int clientHeight)
 {
-	// window aspect ratio
-	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);	
-
-	#pragma omp for
+	#pragma omp parallel for
 	for(int i{0}; i < scenes.size(); ++i)
 	{
-		scenes[i]->getActiveCamera()->updateProjectionMatrix(clientWidth, clientHeight);
+		scenes[i]->updateCameraPerspective(glm::ivec2(clientWidth, clientHeight));
 	}
 
 	graphics->resizeScreen(clientWidth, clientHeight);
@@ -279,7 +251,11 @@ void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs
 {
 	if(index < scenes.size())
 	{
-		scenes[index]->getActiveCamera()->updateViewMatrix(inputs, mouse, delta);
+		CAM_TYPE type = scenes[index]->getActiveCamera()->getType();
+		if(type == CAM_TYPE::REGULAR)
+			scenes[index]->getActiveCamera()->updateViewMatrix(inputs, mouse, delta);
+		else if(type == CAM_TYPE::THIRD_PERSON)
+			scenes[index]->getActiveCamera()->updateViewMatrix(character->getPosition(), character->getDirection(), inputs, mouse, delta);
 	}
 }
 
@@ -320,13 +296,30 @@ int Game::getCharacterScene()
 	return -1;
 }
 
-void Game::setCharacter(std::string filePath, glm::mat4 aModel, std::string aName)
+void Game::setCharacter(std::string filePath, glm::mat4 aModel, std::string aName, int index, glm::ivec2 scrDim)
 {
+	glm::vec3 camPos;
+	glm::vec3 camTarget;
+	glm::vec3 camDir;
+	glm::vec3 camRight;
+	glm::vec3 camUp;
+
 	character = std::make_shared<Character>(filePath, aModel, aName);
+	setCharacterScene(index);
+
+	camTarget = character->getPosition();
+	camDir = glm::normalize(character->getDirection());
+	camPos = camTarget - (camDir * 7.0f) + glm::vec3(0.0f, 3.0f, 0.0f);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[character->sceneID]->addCamera(CAM_TYPE::THIRD_PERSON, scrDim, camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f);
+	scenes[character->sceneID]->setActiveCamera(scenes[character->sceneID]->getCameras().size() - 1);
+
 	for(int i{0}; i < scenes.size(); ++i)
 	{
 		scenes[i]->setCharacter(character);
-		worldPhysics[i]->setKinematicCharacter(character->get());
+		worldPhysics[i]->setKinematicCharacter(character->get(), character->getModel());
 	}
 }
 

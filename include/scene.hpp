@@ -25,7 +25,7 @@ class Scene
 		void addObject(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f), const std::vector<glm::mat4> & instanceModel = std::vector<glm::mat4>());
 		void setCharacter(std::shared_ptr<Character> aCharacter);
 		void removeCharacter();
-		void addCamera(float aspectRatio, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 target = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float fov = 45.0f, float near = 0.1f, float far = 100.0f);
+		void addCamera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 target = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float fov = 45.0f, float near = 0.1f, float far = 100.0f);
 		void addPointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq);
 		void addDirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
 		void addSpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
@@ -34,7 +34,7 @@ class Scene
 		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector = glm::vec3(0.0f));
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
-		void updateCameraPerspective(float aspectRatio);
+		void updateCameraPerspective(glm::ivec2 scrDim);
 		std::vector<std::shared_ptr<Camera>> & getCameras();
 		std::shared_ptr<Camera> & getActiveCamera();
 		std::string & getName();

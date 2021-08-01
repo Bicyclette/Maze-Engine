@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <utility>
+#include "camera.hpp"
 #include "animatedObject.hpp"
 #include "shader_light.hpp"
 
@@ -34,9 +35,13 @@ class Character
 		void setModel(glm::mat4 & m);
 		void draw(Shader& shader, struct IBL_DATA * iblData = nullptr, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		std::unique_ptr<AnimatedObject> & get();
+		std::shared_ptr<Camera> & getCamera();
+		glm::vec3 getPosition();
+		glm::vec3 getDirection();
 
 	private:
 		std::unique_ptr<AnimatedObject> character;
+		std::shared_ptr<Camera> camera;
 
 	public:
 		int sceneID;

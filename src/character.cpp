@@ -62,3 +62,25 @@ std::unique_ptr<AnimatedObject> & Character::get()
 {
 	return character;
 }
+
+std::shared_ptr<Camera> & Character::getCamera()
+{
+	return camera;
+}
+
+glm::vec3 Character::getPosition()
+{
+	glm::mat4 model = character->getModel();
+	glm::vec3 scale;
+	glm::quat rot;
+	glm::vec3 tr;
+	glm::vec3 skew;
+	glm::vec4 persp;
+	glm::decompose(model, scale, rot, tr, skew, persp);
+	return tr;
+}
+
+glm::vec3 Character::getDirection()
+{
+	return walkDirection;
+}

@@ -26,7 +26,7 @@ class Game
 		void setActiveScene(int index);
 		void setCharacterScene(int index);
 		int getCharacterScene();
-		void setCharacter(std::string filePath, glm::mat4 aModel, std::string aName);
+		void setCharacter(std::string filePath, glm::mat4 aModel, std::string aName, int index, glm::ivec2 scrDim);
 		void removeCharacter();
 		void characterDoActionWalk(Character::DIRECTION d, float delta);
 		void characterDoActionRun(Character::DIRECTION d, float delta);

@@ -1,15 +1,21 @@
 #include "camera.hpp"
 
-Camera::Camera(float aspectRatio, glm::vec3 camPos, glm::vec3 camTarget, glm::vec3 camUp, float camFov, float near, float far)
+Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 camTarget, glm::vec3 camUp, float camFov, float near, float far) :
+	minDistanceFromCharacter(7.0f),
+	maxDistanceFromCharacter(20.0f),
+	distanceFromCharacter(minDistanceFromCharacter),
+	recenterTarget(glm::vec3(0.0f, 2.5f, 0.0f)),
+	lookAbove(glm::vec3(0.0f, 3.0f, 0.0f))
 {
+	float aspectRatio = static_cast<float>(scrDim.x) / static_cast<float>(scrDim.y);
+	camType = type;
+	screenDim = scrDim;
 	fov = camFov;
 	speed = 6.0f;
-	yaw = 0.0f;
-	pitch = 0.0f;
-	roll = 0.0f;
-	distanceFromTarget = sqrt(camPos.x * camPos.x + camPos.y * camPos.y + camPos.z * camPos.z);
 	position = camPos;
 	target = camTarget;
+	glm::vec3 dist = target - position;
+	distanceFromTarget = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z);
 	up = glm::normalize(camUp);
 	right = glm::normalize(glm::cross(target - position, up));
 	upShift = glm::vec3(0.0f);
@@ -20,14 +26,24 @@ Camera::Camera(float aspectRatio, glm::vec3 camPos, glm::vec3 camTarget, glm::ve
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 }
 
-void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
+void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
 {
+	target = characterPos + recenterTarget;
+	position = target - (glm::normalize(characterDirection) * distanceFromCharacter) + lookAbove * (distanceFromCharacter / minDistanceFromCharacter);
+	up = glm::vec3(0.0f, 1.0f, 0.0f);
+	right = glm::normalize(glm::cross(glm::normalize(target - position), up));
+	up = glm::normalize(glm::cross(right, glm::normalize(target - position)));
 
-	if(inputs.test(0)) // right mouse button
+	if(inputs.test(3)) // mouse scroll
 	{
-		
+		zoom(mouse, delta);
 	}
 
+	view = glm::lookAt(position, target, up);
+}
+
+void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
+{
 	if(inputs.test(1) && !inputs.test(4)) // middle mouse button
 	{
 		tumble(mouse);
@@ -36,11 +52,6 @@ void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3>
 	if(inputs.test(1) && inputs.test(4)) // middle mouse button and shift key
 	{
 		track(mouse, delta);
-	}
-
-	if(inputs.test(2)) // left mouse button
-	{
-		
 	}
 
 	if(inputs.test(3)) // mouse scroll
@@ -53,6 +64,8 @@ void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3>
 
 void Camera::updateProjectionMatrix(int w, int h)
 {
+	screenDim.x = w;
+	screenDim.y = h;
 	float aspectRatio = static_cast<float>(w) / static_cast<float>(h);
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 }
@@ -76,17 +89,6 @@ glm::quat Camera::getRotationQuaternion(int x, int y)
 
 void Camera::tumble(const std::array<int, 3> & m)
 {
-	yaw += m[0];
-	pitch += m[1];
-	if(yaw >= 360.0f)
-		yaw = 360.0f - yaw;
-	if(pitch >= 360.0f)
-		pitch = 360.0f - pitch;
-	if(yaw <= -360.0f)
-		yaw = 360.0f + yaw;
-	if(pitch <= -360.0f)
-		pitch = 360.0f + pitch;
-
 	glm::quat rotQuat = getRotationQuaternion(m[0], m[1]);
 	glm::quat rotQuatConj = glm::conjugate(rotQuat);
 
@@ -105,11 +107,18 @@ void Camera::tumble(const std::array<int, 3> & m)
 
 void Camera::zoom(const std::array<int, 3> & m, float delta)
 {
-	if(distanceFromTarget > 0.1f || m[2] < 0)
+	if(camType == CAM_TYPE::REGULAR && (distanceFromTarget > 0.1f || m[2] < 0))
 	{
 		position += glm::normalize(target - position) * (m[2] * delta * (speed * 10.0f));
 		glm::vec3 front = target - position;
 		distanceFromTarget = sqrt(front.x * front.x + front.y * front.y + front.z * front.z);
+	}
+	else if(camType == CAM_TYPE::THIRD_PERSON)
+	{
+		float factor = m[2] * delta * (speed * 10.0f);
+		distanceFromCharacter -= factor;
+		distanceFromCharacter = (distanceFromCharacter < minDistanceFromCharacter) ? minDistanceFromCharacter : distanceFromCharacter;
+		distanceFromCharacter = (distanceFromCharacter > maxDistanceFromCharacter) ? maxDistanceFromCharacter : distanceFromCharacter;
 	}
 }
 
@@ -164,9 +173,16 @@ glm::vec3 Camera::getUp()
 	return up;
 }
 
-void Camera::setProjection(float aspectRatio, float near, float far)
+void Camera::setProjection(glm::ivec2 scrDim, float near, float far)
 {
+	screenDim = scrDim;
+	float aspectRatio = static_cast<float>(screenDim.x) / static_cast<float>(screenDim.y);
 	nearPlane = near;
 	farPlane = far;
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
+}
+
+CAM_TYPE Camera::getType()
+{
+	return camType;
 }

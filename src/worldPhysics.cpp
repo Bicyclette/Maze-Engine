@@ -343,17 +343,30 @@ void WorldPhysics::setSoftBodyVertexMass(int sbIndex, int vIndex, btScalar mass)
 */
 }
 
-void WorldPhysics::setKinematicCharacter(std::unique_ptr<AnimatedObject> & object)
+void WorldPhysics::attachVertexSoftBody(int sbIndex, int rbIndex, int vIndex, bool disableCollision)
+{
+	btSoftBodyArray softBodyArray = dynamicsWorld->getSoftBodyArray();
+	btSoftBody * softBody = softBodyArray[sbIndex];
+
+	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[rbIndex];
+	btRigidBody * rigidBody = btRigidBody::upcast(obj);
+
+	softBody->appendAnchor(vIndex, rigidBody, disableCollision);
+}
+
+void WorldPhysics::setKinematicCharacter(std::unique_ptr<AnimatedObject> & object, glm::mat4 model)
 {
 	struct AABB aabb = object->getAABB();
 	float xExtent = aabb.xMax - aabb.xMin;
 	float yExtent = aabb.yMax - aabb.yMin;
 	float zExtent = aabb.zMax - aabb.zMin;
-	
+
 	// main character
 	btCapsuleShape * convexShape = new btCapsuleShapeZ(1, 2);
 	btPairCachingGhostObject * ghostObject = new btPairCachingGhostObject();
-	ghostObject->setWorldTransform(btTransform(btQuaternion(0,0,0,1), btVector3(0, 5, 0)));
+	btTransform ghostObjectTransform;
+	ghostObjectTransform.setFromOpenGLMatrix(glm::value_ptr(model));
+	ghostObject->setWorldTransform(ghostObjectTransform);
 	dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 	ghostObject->setCollisionShape(convexShape);
 	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);

@@ -30,9 +30,9 @@ void Scene::removeCharacter()
 	character.reset();
 }
 
-void Scene::addCamera(float aspectRatio, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
+void Scene::addCamera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
 {
-	cameras.push_back(std::make_shared<Camera>(aspectRatio, pos, target, up, fov, near, far));
+	cameras.push_back(std::make_shared<Camera>(type, scrDim, pos, target, up, fov, near, far));
 }
 
 void Scene::addPointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq)
@@ -75,15 +75,15 @@ void Scene::setGridAxis(int gridDim)
 
 void Scene::setActiveCamera(int index)
 {
-	activeCamera = cameras.at(index);
+	activeCamera = cameras[index];
 }
 
-void Scene::updateCameraPerspective(float aspectRatio)
+void Scene::updateCameraPerspective(glm::ivec2 scrDim)
 {
 	for(int i{0}; i < cameras.size(); ++i)
 	{
-		std::shared_ptr<Camera> cam = cameras.at(i);
-		cameras.at(i)->setProjection(aspectRatio, cam->getNearPlane(), cam->getFarPlane());
+		std::shared_ptr<Camera> cam = cameras[i];
+		cameras[i]->setProjection(scrDim, cam->getNearPlane(), cam->getFarPlane());
 	}
 }
 

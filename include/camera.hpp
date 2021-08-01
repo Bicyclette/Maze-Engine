@@ -10,14 +10,22 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
+
+enum class CAM_TYPE
+{
+	REGULAR,
+	THIRD_PERSON
+};
 
 class Camera
 {
 	public:
 
-		Camera(float aspectRatio, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f), float camFov = 45.0f, float near = 0.1f, float far = 100.0f);
+		Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f), float camFov = 45.0f, float near = 0.1f, float far = 100.0f);
 		void updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
+		void updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
 		void updateProjectionMatrix(int w, int h);
 		glm::mat4 & getViewMatrix();
 		glm::mat4 & getProjectionMatrix();
@@ -27,7 +35,8 @@ class Camera
 		glm::vec3 getPosition();
 		glm::vec3 getRight();
 		glm::vec3 getUp();
-		void setProjection(float aspectRatio, float near, float far);
+		void setProjection(glm::ivec2 scrDim, float near, float far);
+		CAM_TYPE getType();
 
 	private:
 
@@ -36,13 +45,12 @@ class Camera
 		void zoom(const std::array<int, 3> & m, float delta);
 		void track(const std::array<int, 3> & m, float delta);
 
+		CAM_TYPE camType;
+
 		float fov;
 		float speed;
-		float yaw;
-		float pitch;
-		float roll;
 		float distanceFromTarget;
-		
+
 		glm::vec3 position;
 		glm::vec3 target;
 		glm::vec3 up;
@@ -51,10 +59,19 @@ class Camera
 		glm::vec3 upShift;
 		glm::vec3 rightShift;
 
+		glm::ivec2 screenDim;
 		glm::mat4 view;
 		glm::mat4 projection;
 		float nearPlane;
 		float farPlane;
+
+	private: // variables for third person camera
+
+		const float maxDistanceFromCharacter;
+		const float minDistanceFromCharacter;
+		float distanceFromCharacter;
+		glm::vec3 recenterTarget;
+		glm::vec3 lookAbove;
 };
 
 #endif
