@@ -1,6 +1,8 @@
 # MAZE-engine
 A simple 3D game engine, written in C++17.
 
+The name is because I felt like I was searching my way through a maze when a bug occurred and needed to be fixed.
+
 **features**
 * scene explorer camera and third person camera
 * blinn phong and PBR materials
