@@ -18,28 +18,29 @@ A simple 3D game engine, written in C++17.
 * audio management with the OPENAL library
 
 **CMAKE**
+
 The following variables must be defined :
 
-${SDL2\_INCLUDE\_DIR}
-${GLEW\_INCLUDE\_DIR}
-${ASSIMP\_INCLUDE\_DIR}
-${BULLET\_INCLUDE\_DIR}
-${OPENAL\_INCLUDE\_DIR}
-${LIBSNDFILE\_INCLUDE\_DIR}
+* ${SDL2\_INCLUDE\_DIR}
+* ${GLEW\_INCLUDE\_DIR}
+* ${ASSIMP\_INCLUDE\_DIR}
+* ${BULLET\_INCLUDE\_DIR}
+* ${OPENAL\_INCLUDE\_DIR}
+* ${LIBSNDFILE\_INCLUDE\_DIR}
 
-${SDL2\_LIB\_DIR}
-${GLEW\_LIB\_DIR}
-${ASSIMP\_LIB\_DIR}
-${BULLET\_LIB\_DIR}
-${OPENAL\_LIB\_DIR}
-${LIBSNDFILE\_LIB\_DIR}
+* ${SDL2\_LIB\_DIR}
+* ${GLEW\_LIB\_DIR}
+* ${ASSIMP\_LIB\_DIR}
+* ${BULLET\_LIB\_DIR}
+* ${OPENAL\_LIB\_DIR}
+* ${LIBSNDFILE\_LIB\_DIR}
 
-${SDL2\_LIBS}
-${GLEW\_LIBS}
-${ASSIMP\_LIBS}
-${BULLET\_LIBS}
-${OPENAL\_LIBS}
-${LIBSNDFILE\_LIBS}
+* ${SDL2\_LIBS}
+* ${GLEW\_LIBS}
+* ${ASSIMP\_LIBS}
+* ${BULLET\_LIBS}
+* ${OPENAL\_LIBS}
+* ${LIBSNDFILE\_LIBS}
 
 On Windows, a good way to acquire those libraries is to use vcpkg with git bash,
 and store them in a short path location like "C:\dev".
