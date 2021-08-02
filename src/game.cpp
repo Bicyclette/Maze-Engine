@@ -24,14 +24,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	skyTextures.push_back("assets/skyboxes/skybox5/pz.png");
 	skyTextures.push_back("assets/skyboxes/skybox5/nz.png");
 	
-	std::vector<std::string> skyTextures2;
-	skyTextures2.push_back("assets/skyboxes/skybox4/px.png");
-	skyTextures2.push_back("assets/skyboxes/skybox4/nx.png");
-	skyTextures2.push_back("assets/skyboxes/skybox4/py.png");
-	skyTextures2.push_back("assets/skyboxes/skybox4/ny.png");
-	skyTextures2.push_back("assets/skyboxes/skybox4/pz.png");
-	skyTextures2.push_back("assets/skyboxes/skybox4/nz.png");
-
 	// scene objects
 	std::vector<std::shared_ptr<Object>> scene_objects;
 
@@ -67,7 +59,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("assets/character/flag.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("assets/character/flag_bearer.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky_night_red.hdr", true);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky_night_red.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 
 	scenes[scenes.size()-1]->addParticlesEmitter(glm::vec3(-3.5f, 0.5f, -5.75f), 20, 5.0f, ParticleEmitter::DIRECTION::VECTOR, 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -76,13 +68,13 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics.push_back(std::make_unique<WorldPhysics>());
 	scene_objects = scenes[scenes.size()-1]->getObjects();
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[1], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[1], glm::translate(glm::mat4(1.0f), glm::vec3(-3.5f, 0.0f, -5.75f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::BOX);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[2], glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 6.0f, -4.0f)), btScalar(0.35), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[3], glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)), btScalar(0.25), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[5], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 0.0f, -5.6927f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
-	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(-5.7904f, 0.0f, -10.304f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 4.0f, -5.6927f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(-5.7904f, 4.0f, -10.304f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
 	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[8], btScalar(0.25));
 	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 6, 60);
 	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 7, 62);
@@ -101,6 +93,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 				);
 		return;
 	}
+
 	worldPhysics[activeScene]->stepSimulation();
 	std::vector<std::shared_ptr<Object>> scene_objects = scenes[activeScene]->getObjects();
 	int indexPhysics{0};

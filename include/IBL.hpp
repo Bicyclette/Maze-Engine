@@ -21,7 +21,7 @@ struct IBL_DATA
 class IBL
 {
 	public:
-		IBL(std::string env_map, bool flip);
+		IBL(std::string env_map, bool flip, int clientWidth, int clientHeight);
 		~IBL();
 		struct IBL_DATA get_IBL_data();
 		void draw(glm::mat4 aView, glm::mat4 aProj);

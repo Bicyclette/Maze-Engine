@@ -58,9 +58,9 @@ void Scene::setSkybox(std::vector<std::string> & textures, bool flip)
 	sky = std::make_unique<Skybox>(textures, flip);
 }
 
-void Scene::setIBL(std::string texture, bool flip)
+void Scene::setIBL(std::string texture, bool flip, int clientWidth, int clientHeight)
 {
-	ibl = std::make_unique<IBL>(texture, flip);
+	ibl = std::make_unique<IBL>(texture, flip, clientWidth, clientHeight);
 }
 
 void Scene::addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector)

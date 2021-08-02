@@ -1,7 +1,7 @@
 #include "IBL.hpp"
 #include "stb_image.h"
 
-IBL::IBL(std::string env_map, bool flip) :
+IBL::IBL(std::string env_map, bool flip, int clientWidth, int clientHeight) :
 	equirectangular_to_cubemap_shader("shaders/HDRI/equirec_to_cubemap/vertex.glsl", "shaders/HDRI/equirec_to_cubemap/fragment.glsl"),
 	irradiance_shader("shaders/HDRI/diffuse_irradiance/vertex.glsl", "shaders/HDRI/diffuse_irradiance/fragment.glsl"),
 	prefilter_shader("shaders/HDRI/prefilter/vertex.glsl", "shaders/HDRI/prefilter/fragment.glsl"),
@@ -133,6 +133,11 @@ IBL::IBL(std::string env_map, bool flip) :
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindVertexArray(0);
+	
+	// #################### BIND TO DEFAULT FRAMEBUFFER
+	// ################################################
+	glViewport(0, 0, clientWidth, clientHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 }
 
 void IBL::create_geometry()
