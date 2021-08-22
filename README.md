@@ -3,7 +3,7 @@ A simple 3D game engine, written in C++17.
 
 **Features**
 * scene explorer camera and third person camera
-* blinn phong and PBR materials
+* blinn phong and PBR materials (PBR is only supported with glTF/glb format at the moment)
 * image based lighting
 * point, spot and directional light sources (max 10 light sources per scene)
 * skybox
@@ -43,6 +43,10 @@ The following variables must be defined :
 
 On Windows, a good way to acquire those libraries is to use vcpkg with git bash,\
 and store them in a short path location like "C:\dev".
+
+
+About Bullet, the following linking order must be respected when setting the value\
+for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMath.
 
 ## DEMO
 ### scene explorer camera
