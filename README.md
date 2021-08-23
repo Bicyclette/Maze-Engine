@@ -17,6 +17,8 @@ A simple 3D game engine, written in C++17.
 * debug draw for the BULLET engine
 * fire particle system
 * audio management with the OPENAL library
+* DDS textures for fast scene loading and efficient VRAM usage (tested with fbx files : approximately 7 to 8 times faster than glb files which have png/jpg textures)
+* custom collision shapes for rigid bodies
 
 **CMAKE build system**
 
@@ -59,10 +61,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ## TO DO
 **Graphics**
 * Fix brightness threshold for non emissive surfaces.
-
-**Physics**
-* Set collision geometry as a member variable of an object\
-to ease the creation of a btCompoundShape.
 
 **Audio**
 * Add collection of audio elements for the scene class.

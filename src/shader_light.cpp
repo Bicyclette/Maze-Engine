@@ -396,7 +396,117 @@ struct Texture createTexture(const std::string & texPath, TEXTURE_TYPE t, bool f
 	}
 	else
 	{
-		std::cerr << "Error while trying to load texture : " << texPath << " !\n";
+		FILE * file = fopen(texPath.c_str(), "rb");
+
+		if(file)
+		{
+			size_t num;
+
+			// COMPUTE FILE SIZE
+			fseek(file, 0, SEEK_END);
+			long file_size = ftell(file);
+			fseek(file, 0, SEEK_SET);
+
+			// HEADER
+			unsigned char header[128];
+			unsigned int width;
+			unsigned int height;
+			unsigned int mipmapCount;
+			unsigned int blockSize;
+			unsigned int format;
+			unsigned int w;
+			unsigned int h;
+			std::unique_ptr<unsigned char[]> buffer;
+			
+			// START
+			num = fread(header, 1, 128, file);
+
+			if(memcmp(header, "DDS ", 4) == 0)
+			{
+				// extract height, width and number of mipmaps
+				height = (header[12]) | (header[13] << 8) | (header[14] << 16) | (header[15] << 24);
+				width = (header[16]) | (header[17] << 8) | (header[18] << 16) | (header[19] << 24);
+				mipmapCount = (header[28]) | (header[29] << 8) | (header[30] << 16) | (header[31] << 24);
+				if(header[84] == 'D')
+				{
+					switch(header[87])
+					{
+						case '1' :
+							format = GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+							blockSize = 8;
+							break;
+						case '3' :
+							format = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+							blockSize = 16;
+							break;
+						case '5' :
+							format = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+							blockSize = 16;
+							break;
+						case '0' :
+						default:
+							std::exit(-1);
+							break;
+					}
+				}
+				else
+				{
+					std::cerr << "Error : unsupported DDS file format !" << std::endl;
+					std::exit(-1);
+				}
+
+				buffer = std::make_unique<unsigned char[]>(file_size - 128);
+				if(buffer)
+				{
+					num = fread(buffer.get(), 1, file_size, file);
+
+					glGenTextures(1, &texId);
+					glBindTexture(GL_TEXTURE_2D, texId);
+					
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount - 1);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					
+					unsigned int offset{0};
+					unsigned int size{0};
+					w = width;
+					h = height;
+
+					for(int i{0}; i < mipmapCount; ++i)
+					{
+						if(w == 0 || h == 0)
+						{
+							mipmapCount--;
+							continue;
+						}
+						size = ((w+3)/4) * ((h+3)/4) * blockSize;
+						glCompressedTexImage2D(GL_TEXTURE_2D, i, format, w, h, 0, size, buffer.get() + offset);
+						offset += size;
+						w /= 2;
+						h /= 2;
+					}
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount - 1);
+					glBindTexture(GL_TEXTURE_2D, 0);
+					fclose(file);
+				}
+				else
+				{
+					std::cerr << "Error : memory allocation failed." << std::endl;
+					std::exit(-1);
+				}
+			}
+			else
+			{
+				std::cerr << "Error while trying to load texture : " << texPath << " : Not a DDS file !" << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "Error while trying to load texture : " << texPath << " !\n";
+		}
 	}
 
 	stbi_image_free(data);

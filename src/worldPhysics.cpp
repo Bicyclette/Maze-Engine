@@ -55,7 +55,8 @@ btCollisionShape * WorldPhysics::createConvexHullShape(std::shared_ptr<Object> &
 {
 	btConvexHullShape * shape = new btConvexHullShape();
 
-	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
+	std::vector<std::shared_ptr<Mesh>> meshes = (object->getCollisionShape()) ?
+		object->getCollisionShape()->getMeshes() : object->getMeshes();
 	for(int i{0}; i < meshes.size(); ++i)
 	{
 		const std::vector<Vertex> & vertices = meshes[i]->getVertices();
@@ -79,29 +80,68 @@ btCollisionShape * WorldPhysics::createConvexHullShape(std::shared_ptr<Object> &
 btCollisionShape * WorldPhysics::createCompoundShape(std::shared_ptr<Object> & object)
 {
 	btCompoundShape * shape = new btCompoundShape();
-	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
-	for(int i{0}; i < meshes.size(); ++i)
+	std::vector<std::shared_ptr<Mesh>> meshes = (object->getCollisionShape()) ?
+		object->getCollisionShape()->getMeshes() : object->getMeshes();
+	std::vector<glm::mat4> instances = object->getInstanceModel();
+	if(instances.size() == 0)
 	{
-		const std::vector<Vertex> & vertices = meshes[i]->getVertices();
-		const std::vector<int> & indices = meshes[i]->getIndices();
-
-		btConvexHullShape * childShape = new btConvexHullShape();
-		for(int j{0}; j < indices.size(); j+=3)
+		for(int i{0}; i < meshes.size(); ++i)
 		{
-			btVector3 v0(vertices[indices[j]].position.x, vertices[indices[j]].position.y, vertices[indices[j]].position.z);
-			btVector3 v1(vertices[indices[j+1]].position.x, vertices[indices[j+1]].position.y, vertices[indices[j+1]].position.z);
-			btVector3 v2(vertices[indices[j+2]].position.x, vertices[indices[j+2]].position.y, vertices[indices[j+2]].position.z);
+			const std::vector<Vertex> & vertices = meshes[i]->getVertices();
+			const std::vector<int> & indices = meshes[i]->getIndices();
 
-			childShape->addPoint(v0);
-			childShape->addPoint(v1);
-			childShape->addPoint(v2);
+			btConvexHullShape * childShape = new btConvexHullShape();
+			for(int j{0}; j < indices.size(); j+=3)
+			{
+				btVector3 v0(vertices[indices[j]].position.x, vertices[indices[j]].position.y, vertices[indices[j]].position.z);
+				btVector3 v1(vertices[indices[j+1]].position.x, vertices[indices[j+1]].position.y, vertices[indices[j+1]].position.z);
+				btVector3 v2(vertices[indices[j+2]].position.x, vertices[indices[j+2]].position.y, vertices[indices[j+2]].position.z);
+
+				childShape->addPoint(v0);
+				childShape->addPoint(v1);
+				childShape->addPoint(v2);
+			}
+
+			btTransform childTransform;
+			childTransform.setIdentity();
+			childTransform.setOrigin(btVector3(0, 0, 0));
+
+			shape->addChildShape(childTransform, childShape);
 		}
+	}
+	else
+	{
+		for(int i{0}; i < instances.size(); ++i)
+		{
+			glm::mat4 model = instances[i];
+			for(int j{0}; j < meshes.size(); ++j)
+			{
+				const std::vector<Vertex> & vertices = meshes[j]->getVertices();
+				const std::vector<int> & indices = meshes[j]->getIndices();
 
-		btTransform childTransform;
-		childTransform.setIdentity();
-		childTransform.setOrigin(btVector3(0, 0, 0));
+				btConvexHullShape * childShape = new btConvexHullShape();
+				for(int k{0}; k < indices.size(); k+=3)
+				{
+					glm::vec4 vertex0 = model * glm::vec4(vertices[indices[k]].position.x, vertices[indices[k]].position.y, vertices[indices[k]].position.z, 1.0f);
+					glm::vec4 vertex1 = model * glm::vec4(vertices[indices[k+1]].position.x, vertices[indices[k+1]].position.y, vertices[indices[k+1]].position.z, 1.0f);
+					glm::vec4 vertex2 = model * glm::vec4(vertices[indices[k+2]].position.x, vertices[indices[k+2]].position.y, vertices[indices[k+2]].position.z, 1.0f);
+					
+					btVector3 v0(vertex0.x, vertex0.y, vertex0.z);
+					btVector3 v1(vertex1.x, vertex1.y, vertex1.z);
+					btVector3 v2(vertex2.x, vertex2.y, vertex2.z);
 
-		shape->addChildShape(childTransform, childShape);
+					childShape->addPoint(v0);
+					childShape->addPoint(v1);
+					childShape->addPoint(v2);
+				}
+
+				btTransform childTransform;
+				childTransform.setIdentity();
+				childTransform.setOrigin(btVector3(0, 0, 0));
+
+				shape->addChildShape(childTransform, childShape);
+			}
+		}
 	}
 
 	return shape;
@@ -111,20 +151,52 @@ btCollisionShape * WorldPhysics::createTriangleShape(std::shared_ptr<Object> & o
 {
 	btTriangleMesh * triangleMesh = new btTriangleMesh();
 
-	std::vector<std::shared_ptr<Mesh>> meshes = object->getMeshes();
-	for(int i{0}; i < meshes.size(); ++i)
+	std::vector<std::shared_ptr<Mesh>> meshes = (object->getCollisionShape()) ?
+		object->getCollisionShape()->getMeshes() : object->getMeshes();
+
+	std::vector<glm::mat4> instances = object->getInstanceModel();
+	if(instances.size() == 0)
 	{
-		const std::vector<Vertex> & vertices = meshes[i]->getVertices();
-		const std::vector<int> & indices = meshes[i]->getIndices();
-
-		for(int j{0}; j < indices.size(); j+=3)
+		for(int i{0}; i < meshes.size(); ++i)
 		{
-			btVector3 v0(vertices[indices[j]].position.x, vertices[indices[j]].position.y, vertices[indices[j]].position.z);
-			btVector3 v1(vertices[indices[j+1]].position.x, vertices[indices[j+1]].position.y, vertices[indices[j+1]].position.z);
-			btVector3 v2(vertices[indices[j+2]].position.x, vertices[indices[j+2]].position.y, vertices[indices[j+2]].position.z);
+			const std::vector<Vertex> & vertices = meshes[i]->getVertices();
+			const std::vector<int> & indices = meshes[i]->getIndices();
 
-			triangleMesh->addTriangle(v0, v1, v2);
-			triangleMesh->addTriangleIndices(j, j+1, j+2);
+			for(int j{0}; j < indices.size(); j+=3)
+			{
+				btVector3 v0(vertices[indices[j]].position.x, vertices[indices[j]].position.y, vertices[indices[j]].position.z);
+				btVector3 v1(vertices[indices[j+1]].position.x, vertices[indices[j+1]].position.y, vertices[indices[j+1]].position.z);
+				btVector3 v2(vertices[indices[j+2]].position.x, vertices[indices[j+2]].position.y, vertices[indices[j+2]].position.z);
+
+				triangleMesh->addTriangle(v0, v1, v2);
+				triangleMesh->addTriangleIndices(j, j+1, j+2);
+			}
+		}
+	}
+	else
+	{
+		for(int i{0}; i < instances.size(); ++i)
+		{
+			glm::mat4 model = instances[i];
+			for(int j{0}; j < meshes.size(); ++j)
+			{
+				const std::vector<Vertex> & vertices = meshes[j]->getVertices();
+				const std::vector<int> & indices = meshes[j]->getIndices();
+
+				for(int k{0}; k < indices.size(); k+=3)
+				{
+					glm::vec4 vertex0 = model * glm::vec4(vertices[indices[k]].position.x, vertices[indices[k]].position.y, vertices[indices[k]].position.z, 1.0f);
+					glm::vec4 vertex1 = model * glm::vec4(vertices[indices[k+1]].position.x, vertices[indices[k+1]].position.y, vertices[indices[k+1]].position.z, 1.0f);
+					glm::vec4 vertex2 = model * glm::vec4(vertices[indices[k+2]].position.x, vertices[indices[k+2]].position.y, vertices[indices[k+2]].position.z, 1.0f);
+					
+					btVector3 v0(vertex0.x, vertex0.y, vertex0.z);
+					btVector3 v1(vertex1.x, vertex1.y, vertex1.z);
+					btVector3 v2(vertex2.x, vertex2.y, vertex2.z);
+
+					triangleMesh->addTriangle(v0, v1, v2);
+					triangleMesh->addTriangleIndices(k, k+1, k+2);
+				}
+			}
 		}
 	}
 
@@ -176,6 +248,8 @@ void WorldPhysics::addRigidBody(std::shared_ptr<Object> object, glm::mat4 positi
 	btRigidBody * body = new btRigidBody(rbInfo);
 
 	dynamicsWorld->addRigidBody(body);
+	rigidBodies.push_back(body);
+	worldRigidBody.push_back(object);
 }
 
 void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
@@ -247,6 +321,7 @@ void WorldPhysics::addSoftBody(std::shared_ptr<Object> object, btScalar mass)
 
 	// add soft body to dynamics world
 	dynamicsWorld->addSoftBody(softBody);
+	worldSoftBody.push_back(object);
 	
 	// recreate mesh
 	btSoftBody::tNodeArray nodes = softBody->m_nodes;
@@ -346,10 +421,14 @@ void WorldPhysics::setSoftBodyVertexMass(int sbIndex, int vIndex, btScalar mass)
 void WorldPhysics::attachVertexSoftBody(int sbIndex, int rbIndex, int vIndex, bool disableCollision)
 {
 	btSoftBodyArray softBodyArray = dynamicsWorld->getSoftBodyArray();
+	if(softBodyArray.size() == 0)
+	{
+		std::cerr << "Error : there are no soft bodies in current world !" << std::endl;
+		return;
+	}
 	btSoftBody * softBody = softBodyArray[sbIndex];
 
-	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[rbIndex];
-	btRigidBody * rigidBody = btRigidBody::upcast(obj);
+	btRigidBody * rigidBody = rigidBodies[rbIndex];
 
 	softBody->appendAnchor(vIndex, rigidBody, disableCollision);
 }
@@ -387,6 +466,7 @@ void WorldPhysics::removeKinematicCharacter()
 void WorldPhysics::stepSimulation()
 {
 	dynamicsWorld->stepSimulation(1.0f/60.0f, 10);
+	stepSimulationAux();
 }
 
 void WorldPhysics::stepSimulation(glm::mat4 & view, glm::mat4 & projection)
@@ -396,12 +476,28 @@ void WorldPhysics::stepSimulation(glm::mat4 & view, glm::mat4 & projection)
 
 	dynamicsWorld->stepSimulation(1.0f/60.0f, 10);
 	dynamicsWorld->debugDrawWorld();
+
+	stepSimulationAux();
+}
+
+void WorldPhysics::stepSimulationAux()
+{
+	// RIGID BODIES
+	for(int i{0}; i < worldRigidBody.size(); ++i)
+	{
+		glm::mat4 model = getObjectOpenGLMatrix(i);
+		worldRigidBody[i]->setModel(model);
+	}
+	// SOFT BODIES
+	for(int i{0}; i < worldSoftBody.size(); ++i)
+	{
+		updateSoftBody(i, worldSoftBody[i]);
+	}
 }
 
 glm::mat4 WorldPhysics::getObjectOpenGLMatrix(int objectIndex)
 {
-	btCollisionObject * obj = dynamicsWorld->getCollisionObjectArray()[objectIndex];
-	btRigidBody * body = btRigidBody::upcast(obj);
+	btRigidBody * body = rigidBodies[objectIndex];
 	btTransform transform;
 	if(body && body->getMotionState())
 	{
@@ -409,7 +505,7 @@ glm::mat4 WorldPhysics::getObjectOpenGLMatrix(int objectIndex)
 	}
 	else
 	{
-		transform = obj->getWorldTransform();
+		transform = body->getWorldTransform();
 	}
 
 	glm::mat4 matrix;

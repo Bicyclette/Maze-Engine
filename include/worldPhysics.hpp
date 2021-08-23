@@ -72,6 +72,7 @@ class WorldPhysics
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
 		btCollisionShape * createCompoundShape(std::shared_ptr<Object> & object);
 		btCollisionShape * createTriangleShape(std::shared_ptr<Object> & object);
+		void stepSimulationAux();
 
 		btDebugDraw debugDrawer;
 		btSoftBodyRigidBodyCollisionConfiguration * collisionConfiguration;
@@ -81,7 +82,11 @@ class WorldPhysics
 		btSoftRigidDynamicsWorld * dynamicsWorld;
 		btSoftBodyWorldInfo * softBodyWorldInfo;
 		btAlignedObjectArray<btCollisionShape*> collisionShapes;
+		btAlignedObjectArray<btRigidBody*> rigidBodies;
 		btKinematicCharacterController * character;
+
+		std::vector<std::shared_ptr<Object>> worldRigidBody;
+		std::vector<std::shared_ptr<Object>> worldSoftBody;
 };
 
 #endif

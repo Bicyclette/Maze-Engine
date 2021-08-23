@@ -12,6 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/scene.h>
+#include <cstdio>
+#include <string.h>
 
 class Light;
 class PointLight;

@@ -72,6 +72,21 @@ struct AABB Object::getAABB()
 	return aabb;
 }
 
+void Object::setCollisionShape(std::string & collisionFilePath, glm::mat4 & aModel)
+{
+	collisionShape = std::make_shared<Object>(collisionFilePath, aModel);
+}
+
+std::shared_ptr<Object> Object::getCollisionShape()
+{
+	return collisionShape;
+}
+
+std::vector<glm::mat4> & Object::getInstanceModel()
+{
+	return instanceModel;
+}
+
 void Object::draw(Shader& shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 {
 	shader.use();
@@ -372,7 +387,7 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 		std::string texName = std::string(path.C_Str()).substr(index + 1);
 		std::string texPath = std::string(directory + "/" + texName);
 
-		if(texName[0] == '*' && index == -1)
+		if(texName[0] == '*')
 		{
 			int embedded{static_cast<int>(texName[1] - '0')};
 

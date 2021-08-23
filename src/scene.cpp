@@ -10,14 +10,25 @@ int Scene::getId()
 	return ID;
 }
 
-void Scene::addObject(std::string filePath, glm::mat4 aModel, const std::vector<glm::mat4> & instanceModel)
+void Scene::addObject(std::string filePath, glm::mat4 aModel, std::string collisionFilePath, const std::vector<glm::mat4> & instanceModel)
 {
-	objects.push_back(std::make_shared<Object>(filePath, aModel));
+	std::shared_ptr<Object> obj{std::make_shared<Object>(filePath, aModel)};
 
 	if(instanceModel.size() > 0)
 	{
-		objects.at(objects.size() - 1)->setInstancing(instanceModel);
+		obj->setInstancing(instanceModel);
 	}
+	if(!collisionFilePath.empty())
+	{
+		obj->setCollisionShape(collisionFilePath, aModel);
+	}
+
+	objects.push_back(obj);
+}
+
+void Scene::addObject(std::shared_ptr<Object> obj)
+{
+	objects.push_back(obj);
 }
 
 void Scene::setCharacter(std::shared_ptr<Character> aCharacter)

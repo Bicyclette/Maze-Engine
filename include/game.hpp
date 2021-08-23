@@ -6,6 +6,8 @@
 #include <utility>
 #include <cmath>
 #include <thread>
+#include <map>
+#include <iterator>
 #include "scene.hpp"
 #include "graphics.hpp"
 #include "color.hpp"
@@ -38,6 +40,7 @@ class Game
 		int activeScene;
 		std::vector<std::shared_ptr<Scene>> scenes;
 		std::vector<std::unique_ptr<WorldPhysics>> worldPhysics;
+		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
 

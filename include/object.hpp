@@ -42,6 +42,9 @@ class Object
 		glm::mat4 getModel();
 		void setModel(glm::mat4 & matrix);
 		struct AABB getAABB();
+		void setCollisionShape(std::string & collisionFilePath, glm::mat4 & aModel);
+		std::shared_ptr<Object> getCollisionShape();
+		std::vector<glm::mat4> & getInstanceModel();
 		
 	protected:
 
@@ -60,6 +63,7 @@ class Object
 		std::string directory;
 		std::vector<Texture> texturesLoaded;
 		std::vector<std::shared_ptr<Mesh>> meshes;
+		std::shared_ptr<Object> collisionShape;
 
 		GLuint instanceVBO;
 		std::vector<glm::mat4> instanceModel;

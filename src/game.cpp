@@ -5,15 +5,9 @@ Game::Game(int clientWidth, int clientHeight) :
 	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
 {
 	// instance models
-	std::vector<glm::mat4> instanceModel;
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.5f, 2.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 1.5f, -2.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(7.0f, 1.5f, 0.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 5.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, -0.5f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, -1.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 1.5f, -4.0f)));
-	instanceModel.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 1.5f, 3.0f)));
+	std::vector<glm::mat4> pillarInstance;
+	pillarInstance.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 4.0f, -5.6927f)));
+	pillarInstance.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-5.7904f, 4.0f, -10.304f)));
 	
 	// skybox textures
 	std::vector<std::string> skyTextures;
@@ -54,8 +48,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->addObject("assets/character/ball2.glb", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)));
 	scenes[scenes.size()-1]->addObject("assets/character/bench.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("assets/character/bench.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("assets/character/pillar.glb", glm::mat4(1.0f));
-	scenes[scenes.size()-1]->addObject("assets/character/pillar.glb", glm::mat4(1.0f));
+	scenes[scenes.size()-1]->addObject("assets/character/pillar.glb", glm::mat4(1.0f), "assets/character/pillar_collision_shape.glb", pillarInstance);
 	scenes[scenes.size()-1]->addObject("assets/character/flag.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("assets/character/flag_bearer.glb", glm::mat4(1.0f));
 
@@ -73,11 +66,21 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[3], glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 4.0f, -2.0f)), btScalar(0.25), btScalar(0.7), COLLISION_SHAPE::SPHERE);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[4], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.5f, 0.0f)), 3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
 	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[5], glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 1.5f, 0.0f)), -3.14f/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)), btScalar(3.0), btScalar(0.025), COLLISION_SHAPE::BOX);
-	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 4.0f, -5.6927f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
-	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[7], glm::translate(glm::mat4(1.0f), glm::vec3(-5.7904f, 4.0f, -10.304f)), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::CYLINDER);
-	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[8], btScalar(0.25));
+	worldPhysics[worldPhysics.size() - 1]->addRigidBody(scene_objects[6], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[worldPhysics.size() - 1]->addSoftBody(scene_objects[7], btScalar(0.25));
 	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 6, 60);
-	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 7, 62);
+	worldPhysics[worldPhysics.size() - 1]->attachVertexSoftBody(0, 6, 62);
+
+	// update loadedAssets
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/ground.glb", scene_objects[0]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/campfire.glb", scene_objects[1]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/ball.glb", scene_objects[2]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/ball2.glb", scene_objects[3]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/bench.glb", scene_objects[4]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/bench.glb", scene_objects[5]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
+	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -93,19 +96,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 				);
 		return;
 	}
-
 	worldPhysics[activeScene]->stepSimulation();
-	std::vector<std::shared_ptr<Object>> scene_objects = scenes[activeScene]->getObjects();
-	int indexPhysics{0};
-	for(;indexPhysics < worldPhysics[activeScene]->getNumRigidBody(); ++indexPhysics)
-	{
-		glm::mat4 model = worldPhysics[activeScene]->getObjectOpenGLMatrix(indexPhysics);
-		scene_objects[indexPhysics]->setModel(model);
-	}
-	for(int i{0}; i < worldPhysics[activeScene]->getNumSoftBody(); ++i, ++indexPhysics)
-	{
-		worldPhysics[activeScene]->updateSoftBody(i, scene_objects[indexPhysics]);
-	}
 
 	// update character's current animation
 	if(character && character->sceneID == scenes[activeScene]->getId())
