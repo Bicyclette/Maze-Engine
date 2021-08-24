@@ -383,9 +383,7 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 	{
 		aiString path;
 		mat->GetTexture(type, i, &path);
-		int index = std::string(path.C_Str()).find_last_of("/");
-		std::string texName = std::string(path.C_Str()).substr(index + 1);
-		std::string texPath = std::string(directory + "/" + texName);
+		std::string texName = std::string(path.C_Str());
 
 		if(texName[0] == '*')
 		{
@@ -402,7 +400,7 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 			bool skip{false};
 			for(int j{0}; j < texturesLoaded.size(); ++j)
 			{
-				if(std::strcmp(texturesLoaded[j].path.c_str(), texPath.c_str()) == 0)
+				if(std::strcmp(texturesLoaded[j].path.c_str(), texName.c_str()) == 0)
 				{
 					texs.push_back(texturesLoaded[j]);
 					skip = true;
@@ -412,7 +410,7 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 
 			if(!skip)
 			{
-				Texture texture = createTexture(texPath, t, false);
+				Texture texture = createTexture(texName, t, false);
 				texs.push_back(texture);
 				texturesLoaded.push_back(texture);
 			}

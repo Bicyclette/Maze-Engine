@@ -1,5 +1,5 @@
 # MAZE-engine
-A simple 3D game engine, written in C++17.
+A simple, rudimentary and low level 3D game engine, written in C++17.
 
 **Features**
 * scene explorer camera and third person camera
