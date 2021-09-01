@@ -337,16 +337,18 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 
 	std::vector<Texture> diffuse = loadMaterialTextures(scene, mesh_material, aiTextureType_DIFFUSE, TEXTURE_TYPE::DIFFUSE);
 	textures.insert(textures.end(), diffuse.begin(), diffuse.end());
-	
+
 	std::vector<Texture> specular = loadMaterialTextures(scene, mesh_material, aiTextureType_SPECULAR, TEXTURE_TYPE::SPECULAR);
 	textures.insert(textures.end(), specular.begin(), specular.end());
-	
+
 	std::vector<Texture> normal = loadMaterialTextures(scene, mesh_material, aiTextureType_NORMALS, TEXTURE_TYPE::NORMAL);
 	if(normal.size() == 0)
 		normal = loadMaterialTextures(scene, mesh_material, aiTextureType_HEIGHT, TEXTURE_TYPE::NORMAL);
 	textures.insert(textures.end(), normal.begin(), normal.end());
 
-	std::vector<Texture> metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
+	std::vector<Texture> metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_METALNESS, TEXTURE_TYPE::METALLIC_ROUGHNESS);
+	if(metallicRoughMaps.size() == 0)
+		metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
 	textures.insert(textures.end(), metallicRoughMaps.begin(), metallicRoughMaps.end());
 
 	mesh_material->Get(AI_MATKEY_COLOR_DIFFUSE, color_diffuse);
@@ -384,7 +386,9 @@ std::vector<struct Texture> Object::loadMaterialTextures(
 		aiString path;
 		mat->GetTexture(type, i, &path);
 		std::string texName = std::string(path.C_Str());
-		std::string texPath = std::string(directory + "/" + path.C_Str());
+		int index = texName.find_last_of("/");
+		texName = texName.substr(index + 1, texName.size());
+		std::string texPath = std::string(directory + "/" + texName);
 
 		if(texName[0] == '*')
 		{
