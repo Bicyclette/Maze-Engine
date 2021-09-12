@@ -57,13 +57,20 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![third person camera](third_person_camera.gif)
 ### Bullet physics debug draw
 ![physics debug draw](btIDebugDraw.gif)
+### star wars podracer
+![podracer](podracer_game_engine.png)
 
 ## TO DO
 **Graphics**
 * Fix brightness threshold for non emissive surfaces.
+* Remove global shadowmap resolution
 
 **Audio**
 * Add collection of audio elements for the scene class.
 
 **UI**
 * OpenGL based user interface (buttons, menus, layout).
+* Text rendering
+
+## BUGS
+* Spot and directional lights cannot live together
