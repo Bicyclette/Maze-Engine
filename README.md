@@ -59,6 +59,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![physics debug draw](btIDebugDraw.gif)
 ### star wars podracer
 ![podracer](podracer_game_engine.png)
+### vehicle controller
+![vehicle](btRaycastVehicle.gif)
 
 ## TO DO
 **Graphics**
