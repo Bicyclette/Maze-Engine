@@ -1,10 +1,12 @@
 #ifndef GAME_PHYSICS_HPP
 #define GAME_PHYSICS_HPP
 
+#include <array>
 #include <iostream>
 #include <memory>
 #include <utility>
 #include <functional>
+#include <algorithm>
 #include "character.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -14,6 +16,7 @@
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include "vehicle.hpp"
 
 enum class COLLISION_SHAPE
 {
@@ -67,6 +70,25 @@ class WorldPhysics
 		void characterDoActionRun(std::shared_ptr<Character> hero, Character::DIRECTION d, float delta);
 		void characterDoActionJump(std::shared_ptr<Character> hero, bool forward, float delta);
 		void characterDoActionIdle(std::shared_ptr<Character> hero);
+		void addVehicle(
+				std::array<float, 6> & drive_steer_brake,
+				float sDamping,
+				float sStiffness,
+				float sCompression,
+				float sRestLength,
+				float rollInfluence,
+				float wheel_width,
+				float wheel_friction,
+				float wheel_radius,
+				btVector3 wheelAxis,
+				std::vector<btVector3> & connectionPoint,
+				std::array<bool, 4> & frontWheel,
+				int rbChassisIndex,
+				std::vector<std::shared_ptr<Object>> wheel = std::vector<std::shared_ptr<Object>>());
+		void vehicleDrive(int id, bool forward);
+		void vehicleSteering(int id, VEHICLE_STEERING dir);
+		void setVehicleWheelTransform(int id);
+		std::vector<Vehicle> & getVehicles();
 
 	private:
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
@@ -87,6 +109,8 @@ class WorldPhysics
 
 		std::vector<std::shared_ptr<Object>> worldRigidBody;
 		std::vector<std::shared_ptr<Object>> worldSoftBody;
+
+		std::vector<Vehicle> vehicles;
 };
 
 #endif

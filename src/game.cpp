@@ -81,6 +81,48 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
+/*
+	// create car scene
+	scenes.push_back(std::make_shared<Scene>("car scene", 0));
+
+	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
+	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 1000.0f);
+	
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(-10.5f, 50.0f, -5.75f), glm::vec3(0.025f), glm::vec3(50.0f, 45.0f, 30.0f), glm::vec3(1.0f), glm::vec3(0.5f, -1.0f, -0.5f));
+
+	scenes[0]->addObject("../assets/car/ground.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("../assets/car/chassis.glb", glm::mat4(1.0f), "../assets/car/chassis_collision_shape.glb");
+	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
+
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setGridAxis(8);
+
+	// set physics properties for scene
+	worldPhysics.push_back(std::make_unique<WorldPhysics>());
+	scene_objects = scenes[0]->getObjects();
+	worldPhysics[0]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
+	worldPhysics[0]->addRigidBody(scene_objects[1], glm::mat4(1.0f), btScalar(1.0f), btScalar(0.15f), COLLISION_SHAPE::CONVEX_HULL);
+	std::array<float, 6> drive_steer_brake{2.5f, 0.05f, 0.75f, 0.01f, 0.5f, 0.01f};
+	std::vector<btVector3> connectionPoint{
+		btVector3(2.25f, 1.0f, 3.25f),
+		btVector3(-2.25f, 1.0f, 3.25f),
+		btVector3(2.25f, 1.0f, -4.0f),
+		btVector3(-2.25f, 1.0f, -4.0f)
+	};
+	std::array<bool, 4> frontWheel{false, false, true, true};
+	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
+	worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.75f, 0.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel);
+*/
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -351,6 +393,21 @@ void Game::characterDoActionIdle()
 		character->idle();
 		worldPhysics[activeScene]->characterDoActionIdle(character);
 	}
+}
+
+void Game::vehicleDrive(int id, bool forward)
+{
+	worldPhysics[activeScene]->vehicleDrive(id, forward);
+}
+
+void Game::vehicleSteering(int id, VEHICLE_STEERING dir)
+{
+	worldPhysics[activeScene]->vehicleSteering(id, dir);
+}
+
+void Game::vehicleSetWheelTransform(int id)
+{
+	worldPhysics[activeScene]->setVehicleWheelTransform(id);
 }
 
 void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)

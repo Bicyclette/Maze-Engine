@@ -47,6 +47,31 @@ void characterMovements(std::unique_ptr<WindowManager> & client, std::unique_ptr
 	}
 }
 
+void vehicleCallback(std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game)
+{
+	std::bitset<16> inputs{client->getUserInputs()};
+
+	if(inputs.test(6))
+	{
+		game->vehicleDrive(0, true);
+	}
+	if(inputs.test(7))
+	{
+		game->vehicleDrive(0, false);
+	}
+	if(inputs.test(8))
+	{
+		game->vehicleSteering(0, VEHICLE_STEERING::RIGHT);
+	}
+	if(inputs.test(9))
+	{
+		game->vehicleSteering(0, VEHICLE_STEERING::LEFT);
+	}
+
+	// draw wheels
+	game->vehicleSetWheelTransform(0);
+}
+
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 {
 	game->setActiveScene(0);
@@ -75,6 +100,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 
 		if(game->getCharacterScene() == game->getActiveScene())
 			characterMovements(client, game, delta);
+		//vehicleCallback(client, game); // temporary
 
 		// draw scene
 		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true, false);

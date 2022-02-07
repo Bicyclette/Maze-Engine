@@ -465,6 +465,7 @@ void WorldPhysics::removeKinematicCharacter()
 
 void WorldPhysics::stepSimulation()
 {
+	// step
 	dynamicsWorld->stepSimulation(1.0f/60.0f, 10);
 	stepSimulationAux();
 }
@@ -602,6 +603,104 @@ void WorldPhysics::characterDoActionIdle(std::shared_ptr<Character> hero)
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
 	model = glm::rotate(model, hero->turnAngle, glm::vec3(0, 1, 0));
 	hero->setModel(model);
+}
+
+void WorldPhysics::addVehicle(
+		std::array<float, 6> & drive_steer_brake,
+		float sDamping,
+		float sStiffness,
+		float sCompression,
+		float sRestLength,
+		float rollInfluence,
+		float wheel_width,
+		float wheel_friction,
+		float wheel_radius,
+		btVector3 wheelAxis,
+		std::vector<btVector3> & connectionPoint,
+		std::array<bool, 4> & frontWheel,
+		int rbChassisIndex,
+		std::vector<std::shared_ptr<Object>> wheel)
+{
+	// vehicle data
+	Vehicle vehicle(drive_steer_brake, sDamping, sStiffness, sCompression, sRestLength, rollInfluence, wheel_width, wheel_friction, wheel_radius, wheel);
+
+	vehicle.raycaster = new btDefaultVehicleRaycaster(dynamicsWorld);
+	rigidBodies[rbChassisIndex]->setActivationState(DISABLE_DEACTIVATION);
+	vehicle.vehicle = new btRaycastVehicle(vehicle.tuning, rigidBodies[rbChassisIndex], vehicle.raycaster);
+	vehicle.vehicle->setCoordinateSystem(0, 1, 2);
+	dynamicsWorld->addVehicle(vehicle.vehicle);
+
+	// set wheels
+	btVector3 wheelDirection(0.0f, -1.0f, 0.0f);
+	vehicle.setWheels(wheelDirection, wheelAxis, connectionPoint, frontWheel);
+
+	// add to vehicle collection
+	vehicles.push_back(vehicle);
+}
+
+void WorldPhysics::vehicleDrive(int id, bool forward)
+{
+	Vehicle & vehicle{vehicles[id]};
+	if(forward)
+	{
+		vehicle.data.engineForce += vehicle.data.engineIncrement;
+		vehicle.data.engineForce = std::min(vehicle.data.engineForce, vehicle.data.maxEngineForce);
+	}
+	else
+	{
+		vehicle.data.engineForce -= vehicle.data.engineIncrement;
+		vehicle.data.engineForce = std::max(vehicle.data.engineForce, -vehicle.data.maxEngineForce);
+		vehicle.data.brakeForce += vehicle.data.brakeIncrement;
+		vehicle.data.brakeForce = std::min(vehicle.data.brakeForce, vehicle.data.maxBrakeForce);
+		for(int i{0}; i < 4; ++i)
+		{
+			if(!vehicle.data.front[i])
+				vehicle.vehicle->setBrake(vehicle.data.brakeForce, i);
+		}
+	}
+	for(int i{0}; i < 4; ++i)
+	{
+		if(!vehicle.data.front[i])
+			vehicle.vehicle->applyEngineForce(vehicle.data.engineForce, i);
+	}
+}
+
+void WorldPhysics::vehicleSteering(int id, VEHICLE_STEERING dir)
+{
+	Vehicle & vehicle{vehicles[id]};
+	if(dir == VEHICLE_STEERING::RIGHT)
+	{
+		vehicle.data.steering -= vehicle.data.steeringIncrement;
+		vehicle.data.steering = std::max(vehicle.data.steering, -vehicle.data.maxSteeringForce);
+	}
+	else if(dir == VEHICLE_STEERING::LEFT)
+	{
+		vehicle.data.steering += vehicle.data.steeringIncrement;
+		vehicle.data.steering = std::min(vehicle.data.steering, vehicle.data.maxSteeringForce);
+	}
+	for(int i{0}; i < 4; ++i)
+	{
+		if(vehicle.data.front[i])
+			vehicle.vehicle->setSteeringValue(vehicle.data.steering, i);
+	}
+}
+
+void WorldPhysics::setVehicleWheelTransform(int id)
+{
+	Vehicle & vehicle{vehicles[id]};
+	for(int i{0}; i < 4; ++i)
+	{
+		btTransform tr{vehicle.vehicle->getWheelTransformWS(i)};
+		float oglMatrix[16];
+		tr.getOpenGLMatrix(oglMatrix);
+		glm::mat4 model(
+				oglMatrix[0], oglMatrix[1], oglMatrix[2], oglMatrix[3],
+				oglMatrix[4], oglMatrix[5], oglMatrix[6], oglMatrix[7],
+				oglMatrix[8], oglMatrix[9], oglMatrix[10], oglMatrix[11],
+				oglMatrix[12], oglMatrix[13], oglMatrix[14], oglMatrix[15]
+				);
+		vehicle.data.wheel[i]->setModel(model);
+	}
 }
 
 // ######################################################################

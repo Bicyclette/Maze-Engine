@@ -34,6 +34,9 @@ class Game
 		void characterDoActionRun(Character::DIRECTION d, float delta);
 		void characterDoActionJump(bool forward, float delta);
 		void characterDoActionIdle();
+		void vehicleDrive(int id, bool forward);
+		void vehicleSteering(int id, VEHICLE_STEERING dir);
+		void vehicleSetWheelTransform(int id);
 
 	private:
 

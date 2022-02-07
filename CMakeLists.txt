@@ -47,6 +47,7 @@ set(SRCS
 	src/IBL.cpp
 	src/particle.cpp
 	src/audio.cpp
+	src/vehicle.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -76,6 +77,7 @@ set(HEADERS
 	include/IBL.hpp
 	include/particle.hpp
 	include/audio.hpp
+	include/vehicle.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

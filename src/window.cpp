@@ -185,12 +185,12 @@ void WindowManager::checkEvents()
 	{
 		userInputs.set(6);
 	}
-	/*
+
 	if(event.keyboardState[SDL_SCANCODE_DOWN])
 	{
 		userInputs.set(7);
 	}
-	*/
+
 	if(event.keyboardState[SDL_SCANCODE_RIGHT])
 	{
 		userInputs.set(8);
