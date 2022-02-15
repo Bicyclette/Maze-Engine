@@ -41,7 +41,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(10.0f, 9.0f, 6.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(1.0f, 0.9f, 0.6f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
 	scenes[scenes.size()-1]->addObject("assets/character/ground.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("assets/character/campfire.glb", glm::mat4(1.0f));
