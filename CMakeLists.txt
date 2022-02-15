@@ -78,6 +78,7 @@ set(HEADERS
 	include/particle.hpp
 	include/audio.hpp
 	include/vehicle.hpp
+	include/rapidxml.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

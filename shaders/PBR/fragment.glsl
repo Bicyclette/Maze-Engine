@@ -20,7 +20,6 @@ struct Light
 struct Material
 {
 	vec3 albedo;
-	vec3 emissiveColor;
 	float metallic;
 	float roughness;
 	float opacity;
@@ -30,6 +29,8 @@ struct Material
 	int hasMetallicRough;
 	sampler2D normalMap;
 	int hasNormal;
+	vec3 emissiveColor;
+	float emissionIntensity;
 	sampler2D emissionMap;
 	int hasEmission;
 	int nbTextures;
@@ -339,7 +340,7 @@ void main()
 	vec3 emission = material.emissiveColor;
 	if(material.hasEmission == 1)
 		emission = texture(material.emissionMap, fs_in.texCoords).rgb;
-
+	emission *= material.emissionIntensity;
 	float brightness = dot(fragColor.rgb + emission, vec3(0.2126f, 0.7152f, 0.0722f));
 
 	// bright color

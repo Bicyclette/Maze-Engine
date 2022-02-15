@@ -22,7 +22,6 @@ struct Light
 struct Material
 {
 	vec3 color_diffuse;
-	vec3 emissiveColor;
 	vec3 color_specular;
 	vec3 color_ambient;
 	float opacity;
@@ -33,6 +32,8 @@ struct Material
 	int hasSpecular;
 	sampler2D normal;
 	int hasNormal;
+	vec3 emissiveColor;
+	float emissionIntensity;
 	sampler2D emissionMap;
 	int hasEmission;
 	int nbTextures;
@@ -330,8 +331,8 @@ void main()
 	vec3 emission = material.emissiveColor;
 	if(material.hasEmission == 1)
 		emission = texture(material.emissionMap, fs_in.texCoords).rgb;
-
-	float brightness = dot(fragColor.rgb + material.emissiveColor, vec3(0.2126f, 0.7152f, 0.0722f));
+	emission *= material.emissionIntensity;
+	float brightness = dot(fragColor.rgb + emission, vec3(0.2126f, 0.7152f, 0.0722f));
 
 	// bright color
 	if(brightness > 1.0f)

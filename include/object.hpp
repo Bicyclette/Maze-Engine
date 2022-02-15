@@ -12,6 +12,8 @@
 #include <omp.h>
 #include <memory>
 #include <utility>
+#include <fstream>
+#include "rapidxml.hpp"
 #include "mesh.hpp"
 #include "shader_light.hpp"
 
@@ -62,6 +64,7 @@ class Object
 		std::string name;
 
 		std::string directory;
+		std::string fullPath;
 		std::vector<Texture> texturesLoaded;
 		std::vector<std::shared_ptr<Mesh>> meshes;
 		std::shared_ptr<Object> collisionShape;

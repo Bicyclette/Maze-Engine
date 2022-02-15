@@ -87,6 +87,7 @@ void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 	{
 		s.setVec3f("material.color_diffuse", material.color_diffuse);
 		s.setVec3f("material.emissiveColor", material.color_emissive);
+		s.setFloat("material.emissionIntensity", material.emission_intensity);
 		s.setVec3f("material.color_specular", material.color_specular);
 		s.setVec3f("material.color_ambient", material.color_ambient);
 		s.setFloat("material.shininess", material.shininess);
@@ -101,6 +102,7 @@ void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 	{
 		s.setVec3f("material.albedo", material.color_diffuse);
 		s.setVec3f("material.emissiveColor", material.color_emissive);
+		s.setFloat("material.emissionIntensity", material.emission_intensity);
 		s.setFloat("material.metallic", material.metallic);
 		s.setFloat("material.roughness", material.roughness);
 		s.setFloat("material.ao", 1.0f);

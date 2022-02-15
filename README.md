@@ -57,12 +57,12 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![third person camera](third_person_camera.gif)
 ### Bullet physics debug draw
 ![physics debug draw](btIDebugDraw.gif)
-### star wars podracer
-![podracer](podracer_game_engine.png)
 ### vehicle controller
 ![vehicle](btRaycastVehicle.gif)
 ### bloom
-![bloom](bloom.png)
+![bloom](bloom_lightsaber.png)
+### star wars podracer
+![podracer](podracer_game_engine.png)
 
 ## TO DO
 **Graphics**

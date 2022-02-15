@@ -94,6 +94,7 @@ struct Material
 	float shininess;
 	float roughness;
 	float metallic;
+	float emission_intensity;
 	std::vector<Texture> textures; // [0] = diffuse, [1] = specular, [2] = normal, [3] = metallicRough, [4] = emissive
 };
 
