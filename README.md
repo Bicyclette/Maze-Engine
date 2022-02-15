@@ -13,7 +13,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * vignette effect
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
-* physics with the BULLET engine : rigid bodies, soft bodies and kinematic character controller
+* physics with the BULLET engine : rigid bodies, soft bodies, kinematic character controller and vehicle controller
 * debug draw for the BULLET engine
 * fire particle system
 * audio management with the OPENAL library
@@ -61,10 +61,11 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![podracer](podracer_game_engine.png)
 ### vehicle controller
 ![vehicle](btRaycastVehicle.gif)
+### bloom
+![bloom](bloom.png)
 
 ## TO DO
 **Graphics**
-* Fix brightness threshold for non emissive surfaces.
 * Remove global shadowmap resolution
 
 **Audio**
@@ -76,3 +77,4 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 ## BUGS
 * Spot and directional lights cannot live together
+* Wheels of vehicle controller rotate in wrong direction

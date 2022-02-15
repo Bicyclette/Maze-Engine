@@ -2,6 +2,8 @@
 
 Graphics::Graphics(int width, int height) :
 	bloomEffect{true},
+	bloomSigma(4.0f),
+	bloomSize(15),
 	ssaoEffect{true},
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
@@ -37,10 +39,44 @@ Graphics::Graphics(int width, int height) :
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 	},
-	ping{std::make_unique<Framebuffer>(true, false, true)},
-	pong{std::make_unique<Framebuffer>(true, false, true)},
-	shadowQuality(SHADOW_QUALITY::ULTRA),
-	orthoDimension(10.0f),
+	downSampling{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+		},
+	ping_pong{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+		},
+	upSampling{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+		},
+	shadowQuality(SHADOW_QUALITY::HIGH),
+	orthoDimension(100.0f),
 	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
@@ -49,7 +85,10 @@ Graphics::Graphics(int width, int height) :
 	gBuffer("shaders/GBuffer/vertex.glsl", "shaders/GBuffer/fragment.glsl", SHADER_TYPE::GBUFFER),
 	ao("shaders/AO/vertex.glsl", "shaders/AO/fragment.glsl", SHADER_TYPE::AO),
 	aoBlur("shaders/AO/blur/vertex.glsl", "shaders/AO/blur/fragment.glsl", SHADER_TYPE::AO),
-	bloom("shaders/bloom/vertex.glsl", "shaders/bloom/fragment.glsl", SHADER_TYPE::BLOOM),
+	gaussianBlur("shaders/gaussianBlur/vertex.glsl", "shaders/gaussianBlur/fragment.glsl", SHADER_TYPE::BLUR),
+	tentBlur("shaders/tentBlur/vertex.glsl", "shaders/tentBlur/fragment.glsl", SHADER_TYPE::BLUR),
+	downSample("shaders/downSampling/vertex.glsl", "shaders/downSampling/fragment.glsl", SHADER_TYPE::SAMPLING),
+	upSample("shaders/upSampling/vertex.glsl", "shaders/upSampling/fragment.glsl", SHADER_TYPE::SAMPLING),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
 	// Generic Multisample FBO
@@ -58,14 +97,14 @@ Graphics::Graphics(int width, int height) :
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
 
 	for(int i{0}; i < 2; ++i)
-		normal.at(i)->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+		normal[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	if(shadowQuality != SHADOW_QUALITY::OFF)
 	{
 		for(int i{0}; i < 10; ++i)
 		{
-			omniDepth.at(i)->addAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
-			stdDepth.at(i)->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
+			omniDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
+			stdDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
 		}
 	}
 
@@ -77,7 +116,7 @@ Graphics::Graphics(int width, int height) :
 
 	// AMBIENT OCCLUSION
 	for(int i{0}; i < 2; ++i)
-		AOBuffer.at(i)->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
+		AOBuffer[i]->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
 
 	std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 	std::default_random_engine generator;
@@ -108,9 +147,22 @@ Graphics::Graphics(int width, int height) :
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	// BLOOM ping pong FBOs
-	ping->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	pong->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	// BLOOM FBOs
+	for(int i{1}; i <= 6; ++i)
+	{
+		int factor = std::pow(2, i);
+		int up = std::pow(2, 6-i);
+		int w = width / factor;
+		int h = height / factor;
+		downSampling[i-1]->addAttachment(
+				ATTACHMENT_TYPE::TEXTURE,
+				ATTACHMENT_TARGET::COLOR,
+				w, h);
+		ping_pong[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, w, h);
+		ping_pong[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, w, h);
+		upSampling[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
+		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
+	}
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -138,6 +190,26 @@ void Graphics::setBloomEffect(bool b)
 bool Graphics::bloomOn()
 {
 	return bloomEffect;
+}
+
+float Graphics::getBloomSigma()
+{
+	return bloomSigma;
+}
+
+int Graphics::getBloomSize()
+{
+	return bloomSize;
+}
+
+void Graphics::setBloomSigma(float sigma)
+{
+	bloomSigma = sigma;
+}
+
+void Graphics::setBloomSize(int size)
+{
+	bloomSize = size;
 }
 
 void Graphics::setSSAOEffect(bool ao)
@@ -219,9 +291,24 @@ Shader & Graphics::getAOBlurShader()
 	return aoBlur;
 }
 
-Shader & Graphics::getBloomShader()
+Shader & Graphics::getGaussianBlurShader()
 {
-	return bloom;
+	return gaussianBlur;
+}
+
+Shader & Graphics::getTentBlurShader()
+{
+	return tentBlur;
+}
+
+Shader & Graphics::getDownSamplingShader()
+{
+	return downSample;
+}
+
+Shader & Graphics::getUpSamplingShader()
+{
+	return upSample;
 }
 
 Shader & Graphics::getFinalShader()
@@ -236,17 +323,17 @@ std::unique_ptr<Framebuffer> & Graphics::getMultisampleFBO()
 
 std::unique_ptr<Framebuffer> & Graphics::getNormalFBO(int index)
 {
-	return normal.at(index);
+	return normal[index];
 }
 
 std::unique_ptr<Framebuffer> & Graphics::getOmniDepthFBO(int index)
 {
-	return omniDepth.at(index);
+	return omniDepth[index];
 }
 
 std::unique_ptr<Framebuffer> & Graphics::getStdDepthFBO(int index)
 {
-	return stdDepth.at(index);
+	return stdDepth[index];
 }
 
 std::unique_ptr<Framebuffer> & Graphics::getGBufferFBO()
@@ -256,17 +343,22 @@ std::unique_ptr<Framebuffer> & Graphics::getGBufferFBO()
 
 std::unique_ptr<Framebuffer> & Graphics::getAOFBO(int index)
 {
-	return AOBuffer.at(index);
+	return AOBuffer[index];
 }
 
-std::unique_ptr<Framebuffer> & Graphics::getPingFBO()
+std::unique_ptr<Framebuffer> & Graphics::getDownSamplingFBO(int index)
 {
-	return ping;
+	return downSampling[index];
 }
 
-std::unique_ptr<Framebuffer> & Graphics::getPongFBO()
+std::unique_ptr<Framebuffer> & Graphics::getPingPongFBO(int index)
 {
-	return pong;
+	return ping_pong[index];
+}
+
+std::unique_ptr<Framebuffer> & Graphics::getUpSamplingFBO(int index)
+{
+	return upSampling[index];
 }
 
 std::unique_ptr<Mesh> & Graphics::getQuadMesh()
@@ -286,15 +378,49 @@ void Graphics::resizeScreen(int width, int height)
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 	};
-	ping = std::make_unique<Framebuffer>(true, false, true);
-	pong = std::make_unique<Framebuffer>(true, false, true);
+	downSampling = std::array<std::unique_ptr<Framebuffer>, 6>{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+	};
+	ping_pong = std::array<std::unique_ptr<Framebuffer>, 12>{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+	};
+	upSampling = std::array<std::unique_ptr<Framebuffer>, 12>{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+	};
 	
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
 
 	for(int i{0}; i < 2; ++i)
-		normal.at(i)->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+		normal[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// SSAO G-BUFFER FBO
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height, GL_NEAREST);
@@ -304,11 +430,24 @@ void Graphics::resizeScreen(int width, int height)
 
 	// AMBIENT OCCLUSION BUFFER
 	for(int i{0}; i < 2; ++i)
-		AOBuffer.at(i)->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
+		AOBuffer[i]->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
 
 	// bloom ping pong FBOs
-	ping->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-	pong->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	for(int i{1}; i <= 6; ++i)
+	{
+		int factor = std::pow(2, i);
+		int up = std::pow(2, 6-i);
+		int w = width / factor;
+		int h = height / factor;
+		downSampling[i-1]->addAttachment(
+				ATTACHMENT_TYPE::TEXTURE,
+				ATTACHMENT_TARGET::COLOR,
+				w, h);
+		ping_pong[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, w, h);
+		ping_pong[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, w, h);
+		upSampling[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
+		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
+	}
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()

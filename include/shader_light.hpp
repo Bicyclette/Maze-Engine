@@ -27,7 +27,8 @@ enum class SHADER_TYPE
 	SHADOWS,
 	GBUFFER,
 	AO,
-	BLOOM,
+	BLUR,
+	SAMPLING,
 	FINAL
 };
 
@@ -63,7 +64,8 @@ enum class TEXTURE_TYPE
 	DIFFUSE,
 	SPECULAR,
 	NORMAL,
-	METALLIC_ROUGHNESS
+	METALLIC_ROUGHNESS,
+	EMISSIVE
 };
 
 struct Texture
@@ -92,7 +94,7 @@ struct Material
 	float shininess;
 	float roughness;
 	float metallic;
-	std::vector<Texture> textures; // [0] = diffuse, [1] = specular, [2] = normal, [3] = metallicRough
+	std::vector<Texture> textures; // [0] = diffuse, [1] = specular, [2] = normal, [3] = metallicRough, [4] = emissive
 };
 
 struct Texture createTexture(const std::string & texPath, TEXTURE_TYPE t, bool flip);

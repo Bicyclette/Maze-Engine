@@ -9,7 +9,8 @@ Vehicle::Vehicle(
 		float wheel_width,
 		float wheel_friction,
 		float wheel_radius,
-		std::vector<std::shared_ptr<Object>> & wheel)
+		std::vector<std::shared_ptr<Object>> & wheel,
+		glm::vec3 upVector)
 {
 	data.sceneID = 0;
 
@@ -33,6 +34,9 @@ Vehicle::Vehicle(
 	data.wheel_friction = wheel_friction;
 	data.wheel_radius = wheel_radius;
 	data.wheel = wheel;
+
+	baseUp = upVector;
+	up = baseUp;
 }
 
 void Vehicle::setScene(int id)

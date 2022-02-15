@@ -97,6 +97,8 @@ void Object::draw(Shader& shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 
 	for(int i{0}; i < meshCount; ++i)
 	{
+		if(shader.getType() == SHADER_TYPE::SHADOWS && meshes[i]->getMaterial().color_emissive != glm::vec3(0.0f))
+			continue;
 		meshes[i]->draw(shader, iblData, instancing, instanceModel.size(), mode);
 	}
 }
@@ -350,6 +352,9 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	if(metallicRoughMaps.size() == 0)
 		metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
 	textures.insert(textures.end(), metallicRoughMaps.begin(), metallicRoughMaps.end());
+	
+	std::vector<Texture> emission = loadMaterialTextures(scene, mesh_material, aiTextureType_EMISSIVE, TEXTURE_TYPE::EMISSIVE);
+	textures.insert(textures.end(), emission.begin(), emission.end());
 
 	mesh_material->Get(AI_MATKEY_COLOR_DIFFUSE, color_diffuse);
 	mesh_material->Get(AI_MATKEY_COLOR_SPECULAR, color_specular);

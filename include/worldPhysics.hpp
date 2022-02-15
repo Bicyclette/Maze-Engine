@@ -70,7 +70,7 @@ class WorldPhysics
 		void characterDoActionRun(std::shared_ptr<Character> hero, Character::DIRECTION d, float delta);
 		void characterDoActionJump(std::shared_ptr<Character> hero, bool forward, float delta);
 		void characterDoActionIdle(std::shared_ptr<Character> hero);
-		void addVehicle(
+		std::shared_ptr<Vehicle> addVehicle(
 				std::array<float, 6> & drive_steer_brake,
 				float sDamping,
 				float sStiffness,
@@ -84,11 +84,14 @@ class WorldPhysics
 				std::vector<btVector3> & connectionPoint,
 				std::array<bool, 4> & frontWheel,
 				int rbChassisIndex,
-				std::vector<std::shared_ptr<Object>> wheel = std::vector<std::shared_ptr<Object>>());
-		void vehicleDrive(int id, bool forward);
-		void vehicleSteering(int id, VEHICLE_STEERING dir);
-		void setVehicleWheelTransform(int id);
-		std::vector<Vehicle> & getVehicles();
+				std::vector<std::shared_ptr<Object>> wheel = std::vector<std::shared_ptr<Object>>(),
+				glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f));
+		void vehicleDrive(std::shared_ptr<Vehicle> & v, bool forward);
+		void vehicleDriveReset(std::shared_ptr<Vehicle> & v);
+		void vehicleSteering(std::shared_ptr<Vehicle> & v, VEHICLE_STEERING dir);
+		void vehicleSteeringReset(std::shared_ptr<Vehicle> & v);
+		void setVehicleWheelTransform(std::shared_ptr<Vehicle> & v);
+		void updateVehicleUpVector(std::shared_ptr<Vehicle> & v);
 
 	private:
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
@@ -109,8 +112,6 @@ class WorldPhysics
 
 		std::vector<std::shared_ptr<Object>> worldRigidBody;
 		std::vector<std::shared_ptr<Object>> worldSoftBody;
-
-		std::vector<Vehicle> vehicles;
 };
 
 #endif

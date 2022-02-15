@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
+#include <assimp/material.h>
 #include <omp.h>
 #include <memory>
 #include <utility>

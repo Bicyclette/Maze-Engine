@@ -5,7 +5,10 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 	maxDistanceFromCharacter(20.0f),
 	distanceFromCharacter(minDistanceFromCharacter),
 	recenterTarget(glm::vec3(0.0f, 2.5f, 0.0f)),
-	lookAbove(glm::vec3(0.0f, 3.0f, 0.0f))
+	lookAbove(glm::vec3(0.0f, 3.0f, 0.0f)),
+	minDistanceFromVehicle(20.0f),
+	maxDistanceFromVehicle(30.0f),
+	distanceFromVehicle(minDistanceFromVehicle)
 {
 	float aspectRatio = static_cast<float>(scrDim.x) / static_cast<float>(scrDim.y);
 	camType = type;
@@ -24,6 +27,26 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 	nearPlane = near;
 	farPlane = far;
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
+}
+
+void Camera::updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, glm::vec3 vehicleUp, float steering, float steeringIncrement, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
+{
+	target = vehiclePos + vehicleUp * 2.5f;
+	glm::vec3 offset = -(glm::normalize(vehicleDirection) * distanceFromVehicle);
+	offset = offset + vehicleUp * 12.0f * (distanceFromVehicle / minDistanceFromVehicle);
+	if(steering > steeringIncrement || steering < -steeringIncrement)
+		offset = glm::rotate(offset, steering / 3.0f, vehicleUp);
+	position = target + offset;
+	up = glm::vec3(0.0f, 1.0f, 0.0f);
+	right = glm::normalize(glm::cross(glm::normalize(target - position), up));
+	up = glm::normalize(glm::cross(right, glm::normalize(target - position)));
+
+	if(inputs.test(3)) // mouse scroll
+	{
+		zoom(mouse, delta);
+	}
+
+	view = glm::lookAt(position, target, up);
 }
 
 void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
@@ -119,6 +142,13 @@ void Camera::zoom(const std::array<int, 3> & m, float delta)
 		distanceFromCharacter -= factor;
 		distanceFromCharacter = (distanceFromCharacter < minDistanceFromCharacter) ? minDistanceFromCharacter : distanceFromCharacter;
 		distanceFromCharacter = (distanceFromCharacter > maxDistanceFromCharacter) ? maxDistanceFromCharacter : distanceFromCharacter;
+	}
+	else if(camType == CAM_TYPE::VEHICLE)
+	{
+		float factor = m[2] * delta * (speed * 20.0f);
+		distanceFromVehicle -= factor;
+		distanceFromVehicle = (distanceFromVehicle < minDistanceFromVehicle) ? minDistanceFromVehicle : distanceFromVehicle;
+		distanceFromVehicle = (distanceFromVehicle > maxDistanceFromVehicle) ? maxDistanceFromVehicle : distanceFromVehicle;
 	}
 }
 

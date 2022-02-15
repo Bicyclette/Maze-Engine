@@ -65,7 +65,8 @@ class Vehicle
 				float wheel_width,
 				float wheel_friction,
 				float wheel_radius,
-				std::vector<std::shared_ptr<Object>> & wheel);
+				std::vector<std::shared_ptr<Object>> & wheel,
+				glm::vec3 upVector);
 		void setScene(int id);
 		void setName(std::string name);
 		void setWheels(btVector3 direction, btVector3 axis, std::vector<btVector3> & connectionPoint, std::array<bool, 4> & frontWheel);
@@ -75,4 +76,6 @@ class Vehicle
 		btRaycastVehicle * vehicle;
 		btRaycastVehicle::btVehicleTuning tuning;
 		btVehicleRaycaster * raycaster;
+		glm::vec3 baseUp;
+		glm::vec3 up;
 };

@@ -26,6 +26,8 @@ class Game
 		std::vector<std::shared_ptr<Scene>> & getScenes();
 		int getActiveScene();
 		void setActiveScene(int index);
+		int getActiveVehicle();
+		void setActiveVehicle(int index);
 		void setCharacterScene(int index);
 		int getCharacterScene();
 		void setCharacter(std::string filePath, glm::mat4 aModel, std::string aName, int index, glm::ivec2 scrDim);
@@ -34,18 +36,23 @@ class Game
 		void characterDoActionRun(Character::DIRECTION d, float delta);
 		void characterDoActionJump(bool forward, float delta);
 		void characterDoActionIdle();
-		void vehicleDrive(int id, bool forward);
-		void vehicleSteering(int id, VEHICLE_STEERING dir);
-		void vehicleSetWheelTransform(int id);
+		void vehicleDrive(bool forward);
+		void vehicleDriveReset();
+		void vehicleSteering(VEHICLE_STEERING dir);
+		void vehicleSteeringReset();
+		void vehicleSetWheelTransform();
+		void vehicleUpdateUpVector();
 
 	private:
 
 		int activeScene;
+		int activeVehicle;
 		std::vector<std::shared_ptr<Scene>> scenes;
 		std::vector<std::unique_ptr<WorldPhysics>> worldPhysics;
 		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
+		std::vector<std::shared_ptr<Vehicle>> vehicles;
 
 	private: // render passes
 

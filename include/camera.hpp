@@ -16,7 +16,8 @@
 enum class CAM_TYPE
 {
 	REGULAR,
-	THIRD_PERSON
+	THIRD_PERSON,
+	VEHICLE
 };
 
 class Camera
@@ -26,6 +27,7 @@ class Camera
 		Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f), float camFov = 45.0f, float near = 0.1f, float far = 100.0f);
 		void updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
 		void updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
+		void updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, glm::vec3 vehicleUp, float steering, float steeringIncrement, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
 		void updateProjectionMatrix(int w, int h);
 		glm::mat4 & getViewMatrix();
 		glm::mat4 & getProjectionMatrix();
@@ -72,6 +74,12 @@ class Camera
 		float distanceFromCharacter;
 		glm::vec3 recenterTarget;
 		glm::vec3 lookAbove;
+	
+	private: // variables for vehicle camera
+
+		const float maxDistanceFromVehicle;
+		const float minDistanceFromVehicle;
+		float distanceFromVehicle;
 };
 
 #endif

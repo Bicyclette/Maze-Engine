@@ -31,6 +31,10 @@ class Graphics
 		Graphics(int width, int height);
 		void setBloomEffect(bool b);
 		bool bloomOn();
+		float getBloomSigma();
+		int getBloomSize();
+		void setBloomSigma(float sigma);
+		void setBloomSize(int size);
 		void setSSAOEffect(bool ao);
 		bool ssaoOn();
 		void setShadowQuality(SHADOW_QUALITY quality);
@@ -47,7 +51,10 @@ class Graphics
 		Shader & getGBufferShader();
 		Shader & getAOShader();
 		Shader & getAOBlurShader();
-		Shader & getBloomShader();
+		Shader & getGaussianBlurShader();
+		Shader & getTentBlurShader();
+		Shader & getUpSamplingShader();
+		Shader & getDownSamplingShader();
 		Shader & getFinalShader();
 		std::unique_ptr<Framebuffer> & getMultisampleFBO();
 		std::unique_ptr<Framebuffer> & getNormalFBO(int index);
@@ -55,8 +62,9 @@ class Graphics
 		std::unique_ptr<Framebuffer> & getStdDepthFBO(int index);
 		std::unique_ptr<Framebuffer> & getGBufferFBO();
 		std::unique_ptr<Framebuffer> & getAOFBO(int index);
-		std::unique_ptr<Framebuffer> & getPingFBO();
-		std::unique_ptr<Framebuffer> & getPongFBO();
+		std::unique_ptr<Framebuffer> & getDownSamplingFBO(int index);
+		std::unique_ptr<Framebuffer> & getPingPongFBO(int index);
+		std::unique_ptr<Framebuffer> & getUpSamplingFBO(int index);
 		std::unique_ptr<Mesh> & getQuadMesh();
 		void resizeScreen(int width, int height);
 		std::vector<glm::vec3> & getAOKernel();
@@ -70,10 +78,13 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 10> stdDepth; // for directional and spotlight shadow mapping
 		std::unique_ptr<Framebuffer> GBuffer; // position + normal + color
 		std::array<std::unique_ptr<Framebuffer>, 2> AOBuffer; // single color component (RED) for ambient occlusion data
-		std::unique_ptr<Framebuffer> ping;
-		std::unique_ptr<Framebuffer> pong;
+		std::array<std::unique_ptr<Framebuffer>, 6> downSampling; // only color, no multisampling
+		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
+		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
 
 		bool bloomEffect;
+		float bloomSigma;
+		int bloomSize;
 		bool ssaoEffect;
 		SHADOW_QUALITY shadowQuality;
 		float orthoDimension;
@@ -88,7 +99,10 @@ class Graphics
 		Shader gBuffer;
 		Shader ao;
 		Shader aoBlur;
-		Shader bloom;
+		Shader gaussianBlur;
+		Shader tentBlur;
+		Shader downSample;
+		Shader upSample;
 		Shader end;
 
 		std::unique_ptr<Mesh> quad;

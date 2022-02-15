@@ -33,6 +33,8 @@ struct Material
 	int hasSpecular;
 	sampler2D normal;
 	int hasNormal;
+	sampler2D emissionMap;
+	int hasEmission;
 	int nbTextures;
 };
 
@@ -325,22 +327,17 @@ void main()
 	fragColor = vec4(color, alpha);
 
 	// get brightness
-	float brightness = texture(material.specular, fs_in.texCoords).r * dot(fragColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
+	vec3 emission = material.emissiveColor;
+	if(material.hasEmission == 1)
+		emission = texture(material.emissionMap, fs_in.texCoords).rgb;
+
+	float brightness = dot(fragColor.rgb + material.emissiveColor, vec3(0.2126f, 0.7152f, 0.0722f));
 
 	// bright color
-	if(material.emissiveColor != vec3(0.0f))
+	if(brightness > 1.0f)
 	{
-		if(material.hasDiffuse == 1)
-			brightColor = texture(material.diffuse, fs_in.texCoords);
-		else if(material.hasDiffuse == 0)
-			brightColor = vec4(material.color_diffuse, 1.0f);
+		brightColor = vec4(fragColor.rgb + material.emissiveColor, 1.0f);
 	}
-	/*
-	else if(brightness > 1.0f)
-	{
-		brightColor = vec4(fragColor.rgb, 1.0f);
-	}
-	*/
 	else
 		brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }

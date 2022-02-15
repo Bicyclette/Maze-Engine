@@ -53,32 +53,44 @@ void vehicleCallback(std::unique_ptr<WindowManager> & client, std::unique_ptr<Ga
 
 	if(inputs.test(6))
 	{
-		game->vehicleDrive(0, true);
+		game->vehicleDrive(true);
 	}
 	if(inputs.test(7))
 	{
-		game->vehicleDrive(0, false);
+		game->vehicleDrive(false);
 	}
 	if(inputs.test(8))
 	{
-		game->vehicleSteering(0, VEHICLE_STEERING::RIGHT);
+		game->vehicleSteering(VEHICLE_STEERING::RIGHT);
 	}
 	if(inputs.test(9))
 	{
-		game->vehicleSteering(0, VEHICLE_STEERING::LEFT);
+		game->vehicleSteering(VEHICLE_STEERING::LEFT);
+	}
+	if(!inputs.test(6) && !inputs.test(7))
+	{
+		game->vehicleDriveReset();
+	}
+	if(!inputs.test(8) && !inputs.test(9))
+	{
+		game->vehicleSteeringReset();
 	}
 
 	// draw wheels
-	game->vehicleSetWheelTransform(0);
+	game->vehicleSetWheelTransform();
+
+	// Up vector
+	game->vehicleUpdateUpVector();
 }
 
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 {
 	game->setActiveScene(0);
+	//game->setActiveVehicle(0);
 
 	// >>>>>>>>>>>>>>>>>>>> create collection of characters
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-	game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+	//game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
 	// <<<<<<<<<<<<<<<<<<<< create collection of characters
 
 	// delta
@@ -100,10 +112,11 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 
 		if(game->getCharacterScene() == game->getActiveScene())
 			characterMovements(client, game, delta);
-		//vehicleCallback(client, game); // temporary
+		if(game->getActiveVehicle() != -1)
+			vehicleCallback(client, game);
 
 		// draw scene
-		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true, false);
+		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, false, false);
 
 		client->resetEvents();
 		SDL_GL_SwapWindow(client->getWindowPtr());

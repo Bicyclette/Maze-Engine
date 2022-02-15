@@ -2,6 +2,7 @@
 
 Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
+	activeVehicle(-1),
 	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
 {
 	// instance models
@@ -81,9 +82,10 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
+
 /*
 	// create car scene
-	scenes.push_back(std::make_shared<Scene>("car scene", 0));
+	scenes.push_back(std::make_shared<Scene>("car scene", 1));
 
 	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
 	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
@@ -91,18 +93,18 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 1000.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(-10.5f, 50.0f, -5.75f), glm::vec3(0.025f), glm::vec3(50.0f, 45.0f, 30.0f), glm::vec3(1.0f), glm::vec3(0.5f, -1.0f, -0.5f));
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 50.0f, -40.0f), glm::vec3(0.025f), glm::vec3(50.0f, 45.0f, 30.0f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f));
 
-	scenes[0]->addObject("../assets/car/ground.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("../assets/car/chassis.glb", glm::mat4(1.0f), "../assets/car/chassis_collision_shape.glb");
-	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("../assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/car/ground.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/car/chassis.glb", glm::mat4(1.0f), "assets/car/chassis_collision_shape.glb");
+	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
@@ -112,7 +114,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scene_objects = scenes[0]->getObjects();
 	worldPhysics[0]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
 	worldPhysics[0]->addRigidBody(scene_objects[1], glm::mat4(1.0f), btScalar(1.0f), btScalar(0.15f), COLLISION_SHAPE::CONVEX_HULL);
-	std::array<float, 6> drive_steer_brake{2.5f, 0.05f, 0.75f, 0.01f, 0.5f, 0.01f};
+	std::array<float, 6> drive_steer_brake{2.5f, 0.05f, 0.9f, 0.025f, 0.5f, 0.01f};
 	std::vector<btVector3> connectionPoint{
 		btVector3(2.25f, 1.0f, 3.25f),
 		btVector3(-2.25f, 1.0f, 3.25f),
@@ -121,7 +123,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	};
 	std::array<bool, 4> frontWheel{false, false, true, true};
 	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
-	worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.75f, 0.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel);
+	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.75f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
+	vehicles.push_back(v);
 */
 }
 
@@ -130,15 +133,18 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// update physics
-	if(debugPhysics)
+	if(!worldPhysics.empty())
 	{
-		worldPhysics[activeScene]->stepSimulation(
-				scenes[activeScene]->getActiveCamera()->getViewMatrix(),
-				scenes[activeScene]->getActiveCamera()->getProjectionMatrix()
-				);
-		return;
+		if(debugPhysics)
+		{
+			worldPhysics[activeScene]->stepSimulation(
+					scenes[activeScene]->getActiveCamera()->getViewMatrix(),
+					scenes[activeScene]->getActiveCamera()->getProjectionMatrix()
+					);
+			return;
+		}
+		worldPhysics[activeScene]->stepSimulation();
 	}
-	worldPhysics[activeScene]->stepSimulation();
 
 	// update character's current animation
 	if(character && character->sceneID == scenes[activeScene]->getId())
@@ -191,7 +197,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			if(graphics->bloomOn())
 			{
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments()[0].id);
+				glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(11)->getAttachments()[0].id);
 				graphics->getFinalShader().setInt("bloom", 1);
 				graphics->getFinalShader().setInt("bloomEffect", 1);
 			}
@@ -245,7 +251,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			if(graphics->bloomOn())
 			{
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getPongFBO()->getAttachments()[0].id);
+				glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(11)->getAttachments()[0].id);
 				graphics->getFinalShader().setInt("bloom", 1);
 				graphics->getFinalShader().setInt("bloomEffect", 1);
 			}
@@ -282,6 +288,18 @@ void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs
 			scenes[index]->getActiveCamera()->updateViewMatrix(inputs, mouse, delta);
 		else if(type == CAM_TYPE::THIRD_PERSON)
 			scenes[index]->getActiveCamera()->updateViewMatrix(character->getPosition(), character->getDirection(), inputs, mouse, delta);
+		else if(type == CAM_TYPE::VEHICLE)
+		{
+			std::shared_ptr<Vehicle> & vehicle{vehicles[activeVehicle]};
+			btRaycastVehicle * raycastVehicle = vehicle->vehicle;
+			btVector3 position = raycastVehicle->getChassisWorldTransform().getOrigin();
+			glm::vec3 pos(position.x(), position.y(), position.z());
+			btVector3 direction = raycastVehicle->getForwardVector();
+			glm::vec3 dir(direction.x(), direction.y(), direction.z());
+			float steerAngle = vehicle->data.steering;
+			glm::vec3 up = vehicle->up;
+			scenes[index]->getActiveCamera()->updateViewMatrix(pos, -dir, up, -steerAngle, vehicle->data.steeringIncrement, inputs, mouse, delta);
+		}
 	}
 }
 
@@ -303,6 +321,16 @@ int Game::getActiveScene()
 void Game::setActiveScene(int index)
 {
 	activeScene = index;
+}
+
+int Game::getActiveVehicle()
+{
+	return activeVehicle;
+}
+
+void Game::setActiveVehicle(int index)
+{
+	activeVehicle = index;
 }
 
 void Game::setCharacterScene(int index)
@@ -395,19 +423,34 @@ void Game::characterDoActionIdle()
 	}
 }
 
-void Game::vehicleDrive(int id, bool forward)
+void Game::vehicleDrive(bool forward)
 {
-	worldPhysics[activeScene]->vehicleDrive(id, forward);
+	worldPhysics[activeScene]->vehicleDrive(vehicles[activeVehicle], forward);
 }
 
-void Game::vehicleSteering(int id, VEHICLE_STEERING dir)
+void Game::vehicleDriveReset()
 {
-	worldPhysics[activeScene]->vehicleSteering(id, dir);
+	worldPhysics[activeScene]->vehicleDriveReset(vehicles[activeVehicle]);
 }
 
-void Game::vehicleSetWheelTransform(int id)
+void Game::vehicleSteering(VEHICLE_STEERING dir)
 {
-	worldPhysics[activeScene]->setVehicleWheelTransform(id);
+	worldPhysics[activeScene]->vehicleSteering(vehicles[activeVehicle], dir);
+}
+
+void Game::vehicleSteeringReset()
+{
+	worldPhysics[activeScene]->vehicleSteeringReset(vehicles[activeVehicle]);
+}
+
+void Game::vehicleSetWheelTransform()
+{
+	worldPhysics[activeScene]->setVehicleWheelTransform(vehicles[activeVehicle]);
+}
+
+void Game::vehicleUpdateUpVector()
+{
+	worldPhysics[activeScene]->updateVehicleUpVector(vehicles[activeVehicle]);
 }
 
 void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
@@ -585,44 +628,94 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 
 void Game::bloomPass(int width, int height)
 {
-	glViewport(0, 0, width, height);
-	std::unique_ptr<Framebuffer> & ping = graphics->getPingFBO();
-	std::unique_ptr<Framebuffer> & pong = graphics->getPongFBO();
-	Shader & bloom = graphics->getBloomShader();
-	bloom.use();
-	bloom.setInt("image", 0);
-
-	// blur image
-	bool horizontal{true};
 	bool firstIteration{true};
-	int amount{10};
-	for(int i{0}; i < amount; ++i)
+	Shader & downSampling = graphics->getDownSamplingShader();
+	Shader & upSampling = graphics->getUpSamplingShader();
+	Shader & gaussianBlur = graphics->getGaussianBlurShader();
+	Shader & tentBlur = graphics->getTentBlurShader();
+	
+	// downsampling and blurring
+	for(int i{0}; i < 6; ++i)
 	{
-		if(horizontal)
+		downSampling.use();
+		int factor = std::pow(2, i+1);
+		glViewport(0, 0, width / factor, height / factor);
+		std::unique_ptr<Framebuffer> & fbo = graphics->getDownSamplingFBO(i);
+		fbo->bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		downSampling.setInt("image", 0);
+		glActiveTexture(GL_TEXTURE0);
+		if(firstIteration)
 		{
-			ping->bind();
-			glClear(GL_COLOR_BUFFER_BIT);
-			bloom.setInt("horizontal", 1);
-			glActiveTexture(GL_TEXTURE0);
-			if(firstIteration)
-			{
-				firstIteration = false;
-				glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(1)->getAttachments()[0].id);
-			}
-			else
-				glBindTexture(GL_TEXTURE_2D, pong->getAttachments()[0].id);
-			graphics->getQuadMesh()->draw(bloom);
+			firstIteration = false;
+			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(1)->getAttachments()[0].id);
 		}
 		else
+			glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO(i*2-1)->getAttachments()[0].id);
+		graphics->getQuadMesh()->draw(downSampling);
+
+		// apply horizontal gaussian blur
+		gaussianBlur.use();
+		std::unique_ptr<Framebuffer> & ping = graphics->getPingPongFBO(i*2);
+		ping->bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		gaussianBlur.setInt("image", 0);
+		gaussianBlur.setInt("blurSize", graphics->getBloomSize());
+		gaussianBlur.setFloat("sigma", graphics->getBloomSigma());
+		gaussianBlur.setInt("direction", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, graphics->getDownSamplingFBO(i)->getAttachments()[0].id);
+		graphics->getQuadMesh()->draw(gaussianBlur);
+		
+		// apply vertical gaussian blur
+		std::unique_ptr<Framebuffer> & pong = graphics->getPingPongFBO(i*2+1);
+		pong->bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		gaussianBlur.setInt("image", 0);
+		gaussianBlur.setInt("blurSize", graphics->getBloomSize());
+		gaussianBlur.setFloat("sigma", graphics->getBloomSigma());
+		gaussianBlur.setInt("direction", 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO(i*2)->getAttachments()[0].id);
+		graphics->getQuadMesh()->draw(gaussianBlur);
+	}
+
+	// upsampling
+	firstIteration = true;
+	for(int i{0}; i < 6; ++i)
+	{
+		upSampling.use();
+		int factor = std::pow(2, 5-i);
+		glViewport(0, 0, width / factor, height / factor);
+		std::unique_ptr<Framebuffer> & mergeFBO = graphics->getUpSamplingFBO(i*2);
+		mergeFBO->bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		upSampling.setInt("low_res", 0);
+		upSampling.setInt("high_res", 1);
+		glActiveTexture(GL_TEXTURE0);
+		if(firstIteration)
 		{
-			pong->bind();
-			glClear(GL_COLOR_BUFFER_BIT);
-			bloom.setInt("horizontal", 0);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, ping->getAttachments()[0].id);
-			graphics->getQuadMesh()->draw(bloom);
+			firstIteration = false;
+			glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO((5-i)*2+1)->getAttachments()[0].id);
 		}
-		horizontal = !horizontal;
+		else
+			glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO((i-1)*2+1)->getAttachments()[0].id);
+		glActiveTexture(GL_TEXTURE1);
+		if(4-i == -1)
+			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(1)->getAttachments()[0].id);
+		else
+			glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO((4-i)*2+1)->getAttachments()[0].id);
+		graphics->getQuadMesh()->draw(upSampling);
+
+		// apply tent filter
+		tentBlur.use();
+		std::unique_ptr<Framebuffer> & tentFBO = graphics->getUpSamplingFBO(i*2+1);
+		tentFBO->bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		tentBlur.setInt("image", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(i*2)->getAttachments()[0].id);
+		graphics->getQuadMesh()->draw(tentBlur);
 	}
 }
 
