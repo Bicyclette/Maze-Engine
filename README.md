@@ -60,7 +60,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ### vehicle controller
 ![vehicle](engine_imgs/btRaycastVehicle.gif)
 ### bloom
-![bloom](engine_imgs/green_lightsaber.png)
+![bloom](engine_imgs/yellow_lightsaber.png)
 ### star wars podracer
 ![podracer](engine_imgs/podracer_game_engine.png)
 
