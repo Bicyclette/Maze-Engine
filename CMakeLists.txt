@@ -79,6 +79,7 @@ set(HEADERS
 	include/audio.hpp
 	include/vehicle.hpp
 	include/rapidxml.hpp
+	include/lightning.hpp
 	include/helpers.hpp
 	include/imgui.h
 	include/imconfig.h

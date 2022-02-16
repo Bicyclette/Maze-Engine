@@ -52,17 +52,17 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 ## DEMO
 ### scene explorer camera
-![explorer camera](maze_engine.gif)
+![explorer camera](engine_imgs/maze_engine.gif)
 ### third person camera
-![third person camera](third_person_camera.gif)
+![third person camera](engine_imgs/third_person_camera.gif)
 ### Bullet physics debug draw
-![physics debug draw](btIDebugDraw.gif)
+![physics debug draw](engine_imgs/btIDebugDraw.gif)
 ### vehicle controller
-![vehicle](btRaycastVehicle.gif)
+![vehicle](engine_imgs/btRaycastVehicle.gif)
 ### bloom
-![bloom](bloom_lightsaber.png)
+![bloom](engine_imgs/green_lightsaber.png)
 ### star wars podracer
-![podracer](podracer_game_engine.png)
+![podracer](engine_imgs/podracer_game_engine.png)
 
 ## TO DO
 **Graphics**
