@@ -64,7 +64,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![bloom yellow](engine_imgs/yellow_lightsaber.png)
 ![bloom red](engine_imgs/red_lightsaber.png)
 ![bloom purple](engine_imgs/purple_lightsaber.png)
-![bloom blue](engine_imgs/blue_lightsaber.png)
 ![bloom](engine_imgs/bloom_lightsabers.png)
 ### star wars podracer
 ![podracer](engine_imgs/podracer_game_engine.png)
