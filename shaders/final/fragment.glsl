@@ -14,6 +14,16 @@ vec4 gammaCorrection(vec4 c)
 	return vec4(pow(c.rgb, vec3(gamma)), c.a);
 }
 
+vec3 ACES_tone_mapping(vec3 data)
+{
+	float a = 2.51f;
+	float b = 0.03f;
+	float c = 2.43f;
+	float d = 0.59f;
+	float e = 0.14f;
+	return clamp((data*(a*data+b))/(data*(c*data+d)+e),0.0f, 1.0f);
+}
+
 void main()
 {
 	vec3 sceneColor = texture(scene, texCoords).rgb;
@@ -26,17 +36,17 @@ void main()
 	// gather colors
 	vec3 color = sceneColor + bloomColor;
 
-	// reinhard tone mapping
-	vec3 mapped = color / (color + vec3(1.0));
+	// ACES tone mapping
+	color = ACES_tone_mapping(color);
 
 	// vignette effect
 	vec3 vignette = vec3(1.0f);
 	float dist = distance(texCoords, vec2(0.5, 0.5));
 	vignette = vec3(1.0f) - (vignette / (1.0f / dist));
-	mapped *= vignette;
+	color *= vignette;
 
 	// gamma correction
-	fragColor = gammaCorrection(vec4(mapped, 1.0));
+	fragColor = gammaCorrection(vec4(color, 1.0));
 
 	// show scene data (if one GBufferFBO's attachment was sent on scene uniform) or AO data
 	//fragColor = texture(scene, texCoords);
