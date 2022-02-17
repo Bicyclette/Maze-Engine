@@ -51,26 +51,33 @@ About Bullet, the following linking order must be respected when setting the val
 for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMath.
 
 ## DEMO
-### scene explorer camera
-![explorer camera](engine_imgs/maze_engine.gif)
-### third person camera
+### Character controller
+![explorer camera](engine_imgs/character_controller.gif)
+### Third person camera
 ![third person camera](engine_imgs/third_person_camera.gif)
 ### Bullet physics debug draw
 ![physics debug draw](engine_imgs/btIDebugDraw.gif)
-### vehicle controller
+### Vehicle controller
 ![vehicle](engine_imgs/btRaycastVehicle.gif)
-### bloom
+### Bloom
+![car](engine_imgs/car_bloom.png)
 ![bloom green](engine_imgs/green_lightsaber.png)
 ![bloom yellow](engine_imgs/yellow_lightsaber.png)
 ![bloom red](engine_imgs/red_lightsaber.png)
 ![bloom purple](engine_imgs/purple_lightsaber.png)
-![bloom](engine_imgs/bloom_lightsabers.png)
-### star wars podracer
+![bloom](engine_imgs/lightsabers.png)
+### Star Wars podracer
 ![podracer](engine_imgs/podracer_game_engine.png)
 
 ## TO DO
+**Tools**
+* Pathfinding
+* Navmesh
+* Podracer vehicle controller
+
 **Graphics**
 * Remove global shadowmap resolution
+* Lightning FX
 
 **Audio**
 * Add collection of audio elements for the scene class.

@@ -347,6 +347,8 @@ void main()
 	if(brightness > 1.0f)
 	{
 		brightColor = vec4(fragColor.rgb + emission, 1.0f);
+		if(material.emissionIntensity == 0.0f && brightness > 50.0f)
+			brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 	else
 		brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);

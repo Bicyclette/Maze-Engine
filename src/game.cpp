@@ -93,11 +93,11 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 50.0f, -40.0f), glm::vec3(0.025f), glm::vec3(50.0f, 45.0f, 30.0f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f));
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 50.0f, -40.0f), glm::vec3(0.025f), glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(1.0f), glm::vec3(1.5f, -1.0f, -0.15f));
 
 	scenes[0]->addObject("assets/car/ground.glb", glm::mat4(1.0f));
 	scenes[0]->addObject("assets/car/chassis.glb", glm::mat4(1.0f), "assets/car/chassis_collision_shape.glb");
