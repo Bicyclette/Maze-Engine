@@ -9,8 +9,9 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * skybox
 * shadow mapping
 * screen space ambient occlusion
-* bloom effect
-* vignette effect
+* bloom
+* lightning
+* vignette
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
 * physics with the BULLET engine : rigid bodies, soft bodies, kinematic character controller and vehicle controller
@@ -66,6 +67,10 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![bloom red](engine_imgs/red_lightsaber.png)
 ![bloom purple](engine_imgs/purple_lightsaber.png)
 ![bloom](engine_imgs/lightsabers.png)
+### Lightning
+![podracer lightning 1](engine_imgs/podracer_lightning3.png)
+![podracer lightning 2](engine_imgs/podracer_lightning.png)
+![podracer lightning 3](engine_imgs/lightning.gif)
 ### Star Wars podracer
 ![podracer](engine_imgs/podracer_game_engine.png)
 
@@ -77,7 +82,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 **Graphics**
 * Remove global shadowmap resolution
-* Lightning FX
 
 **Audio**
 * Add collection of audio elements for the scene class.

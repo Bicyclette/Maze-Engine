@@ -14,6 +14,11 @@ vec4 gammaCorrection(vec4 c)
 	return vec4(pow(c.rgb, vec3(gamma)), c.a);
 }
 
+vec3 reinhard(vec3 data)
+{
+	return data / (data + 1.0f);
+}
+
 vec3 ACES_tone_mapping(vec3 data)
 {
 	float a = 2.51f;
@@ -36,8 +41,9 @@ void main()
 	// gather colors
 	vec3 color = sceneColor + bloomColor;
 
-	// ACES tone mapping
-	color = ACES_tone_mapping(color);
+	// tone mapping
+	//color = ACES_tone_mapping(color);
+	color = reinhard(color);
 
 	// vignette effect
 	vec3 vignette = vec3(1.0f);

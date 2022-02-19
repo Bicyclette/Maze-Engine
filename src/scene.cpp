@@ -79,6 +79,16 @@ void Scene::addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, 
 	particlesEmitter.push_back(std::make_unique<ParticleEmitter>(pos, emitRate, maxLifetime, direction_type, speed, direction_vector));
 }
 
+void Scene::addLightning(glm::vec3 from, glm::vec3 to, int step, glm::vec3 color, float intensity, std::vector<float> & arcs, bool dynamic, float refreshInterval)
+{
+	lightning.push_back(std::make_unique<Lightning>(from, to, step, color, intensity, arcs, dynamic, refreshInterval));
+}
+
+std::vector<std::unique_ptr<Lightning>> & Scene::getLightnings()
+{
+	return lightning;
+}
+
 void Scene::setGridAxis(int gridDim)
 {
 	gridAxis = std::make_unique<GridAxis>(8);
@@ -124,21 +134,21 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 
 		for(int i{0}; i < pLights.size(); ++i)
 		{
-			pLights.at(i)->setViewMatrix(activeCamera->getViewMatrix());
-			pLights.at(i)->setProjMatrix(activeCamera->getProjectionMatrix());
-			pLights.at(i)->draw();
+			pLights[i]->setViewMatrix(activeCamera->getViewMatrix());
+			pLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			pLights[i]->draw();
 		}
 		for(int i{0}; i < dLights.size(); ++i)
 		{
-			dLights.at(i)->setViewMatrix(activeCamera->getViewMatrix());
-			dLights.at(i)->setProjMatrix(activeCamera->getProjectionMatrix());
-			dLights.at(i)->draw(graphics->getOrthoDimension());
+			dLights[i]->setViewMatrix(activeCamera->getViewMatrix());
+			dLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			dLights[i]->draw(graphics->getOrthoDimension());
 		}
 		for(int i{0}; i < sLights.size(); ++i)
 		{
-			sLights.at(i)->setViewMatrix(activeCamera->getViewMatrix());
-			sLights.at(i)->setProjMatrix(activeCamera->getProjectionMatrix());
-			sLights.at(i)->draw();
+			sLights[i]->setViewMatrix(activeCamera->getViewMatrix());
+			sLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			sLights[i]->draw();
 		}
 	}
 
@@ -172,6 +182,11 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 		if(debug)
 			particlesEmitter[i]->drawEmitter(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
 		particlesEmitter[i]->drawParticles(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), activeCamera->getRight(), activeCamera->getUp());
+	}
+
+	for(int i{0}; i < lightning.size(); ++i)
+	{
+		lightning[i]->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), delta);
 	}
 
 	if(sky)

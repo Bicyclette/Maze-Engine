@@ -76,7 +76,7 @@ Graphics::Graphics(int width, int height) :
 		std::make_unique<Framebuffer>(true, false, true)
 		},
 	shadowQuality(SHADOW_QUALITY::ULTRA),
-	orthoDimension(100.0f),
+	orthoDimension(10.0f),
 	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),

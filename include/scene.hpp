@@ -15,6 +15,7 @@
 #include "IBL.hpp"
 #include "particle.hpp"
 #include "audio.hpp"
+#include "lightning.hpp"
 
 class Scene
 {
@@ -33,6 +34,8 @@ class Scene
 		void setSkybox(std::vector<std::string> & textures, bool flip);
 		void setIBL(std::string texture, bool flip, int clientWidth, int clientHeight);
 		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector = glm::vec3(0.0f));
+		void addLightning(glm::vec3 from, glm::vec3 to, int step, glm::vec3 color, float intensity, std::vector<float> & arcs, bool dynamic, float refreshInterval);
+		std::vector<std::unique_ptr<Lightning>> & getLightnings();
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
 		void updateCameraPerspective(glm::ivec2 scrDim);
@@ -65,6 +68,7 @@ class Scene
 		std::unique_ptr<IBL> ibl;
 
 		std::vector<std::unique_ptr<ParticleEmitter>> particlesEmitter;
+		std::vector<std::unique_ptr<Lightning>> lightning;
 
 		std::unique_ptr<GridAxis> gridAxis;
 };
