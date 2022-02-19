@@ -172,7 +172,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	std::vector<float> arcs{0.1f, 0.01f, 0.25f, 0.01f};
 	scenes[0]->addLightning(glm::vec3(0.97563f, 1.5146f, 1.9529f), glm::vec3(-0.97563f, 1.5146f, 1.9529f), 30, glm::vec3(0.79f, 0.017f, 0.8f), 10.0f, arcs, true, 0.25f);
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/forest.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 }
 

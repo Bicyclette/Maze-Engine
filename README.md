@@ -74,9 +74,12 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 **Tools**
 * Pathfinding
 * Navmesh
+
+**Physics**
 * Podracer vehicle controller
 
 **Graphics**
+* Transparency
 * Remove global shadowmap resolution
 
 **Audio**
@@ -85,6 +88,9 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 **UI**
 * OpenGL based user interface (buttons, menus, layout).
 * Text rendering
+
+**Others**
+* Write documentation/how to
 
 ## BUGS
 * Spot and directional lights cannot live together
