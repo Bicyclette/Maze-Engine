@@ -126,7 +126,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.75f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
 	vehicles.push_back(v);
 */
-	
+/*	
 	// create emission scene
 	scenes.push_back(std::make_shared<Scene>("emission", 0));
 
@@ -144,7 +144,35 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[0]->addObject("assets/lightsaber/lightsaber.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/evening_meadow_2k.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setGridAxis(8);
+*/
+	// create podracer scene
+	scenes.push_back(std::make_shared<Scene>("podracer", 0));
+
+	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
+	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
+	
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	//scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.75f));
+	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(0.75f, 0.75f, 0.75f) * 2.0f, glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, -0.75f));
+	scenes[scenes.size()-1]->addPointLight(glm::vec3(-4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addPointLight(glm::vec3(4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addPointLight(glm::vec3(0.0f, 2.0f, 10.0f), glm::vec3(0.025f), glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+
+	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/podracer.gltf", glm::mat4(1.0f));
+	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/ground.glb", glm::mat4(1.0f));
+	
+	std::vector<float> arcs{0.1f, 0.01f, 0.25f, 0.01f};
+	scenes[0]->addLightning(glm::vec3(0.97563f, 1.5146f, 1.9529f), glm::vec3(-0.97563f, 1.5146f, 1.9529f), 30, glm::vec3(0.79f, 0.017f, 0.8f), 10.0f, arcs, true, 0.25f);
+
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/forest.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 }
 
