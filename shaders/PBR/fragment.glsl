@@ -202,6 +202,8 @@ float calculateOmniShadow(vec3 fragPos, vec3 lightPos, int l)
 void main()
 {
 	// early discard
+	if(material.opacity == 0.0f)
+		discard;
 	if(material.nbTextures > 0)
 	{
 		if(texture(material.albedoMap, fs_in.texCoords).a == 0.0f)
@@ -213,7 +215,7 @@ void main()
 	float roughness;
 	vec2 fragCoords = gl_FragCoord.xy / viewport;
 	float ao = (hasSSAO == 1) ? texture(ssao, fragCoords).r : 1.0f;
-	float opacity = material.opacity;
+	float alpha = (material.hasAlbedo == 1) ? texture(material.albedoMap, fs_in.texCoords).a * material.opacity : material.opacity;
 	if(material.hasAlbedo == 1)
     	albedo = pow(texture(material.albedoMap, fs_in.texCoords).rgb, vec3(2.2f));
 	else
@@ -334,7 +336,7 @@ void main()
 		ambient = albedo * ao * 0.3;
 	}
     vec3 color = ambient + Lo;
-    fragColor = vec4(color, 1.0);
+    fragColor = vec4(color, alpha);
 
 	// get brightness
 	vec3 emission = material.emissiveColor;
@@ -346,7 +348,7 @@ void main()
 	// bright color
 	if(brightness > 1.0f)
 	{
-		brightColor = vec4(fragColor.rgb + emission, 1.0f);
+		brightColor = vec4(fragColor.rgb + emission, alpha);
 		if(material.emissionIntensity == 0.0f && brightness > 5.0f)
 			brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}

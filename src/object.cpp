@@ -334,6 +334,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	aiColor3D color_specular;
 	aiColor3D color_ambient;
 	aiColor3D color_emissive{0.0f, 0.0f, 0.0f};
+	float opacity;
 	float shininess;
 	float roughness;
 	float metallic;
@@ -364,6 +365,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	mesh_material->Get(AI_MATKEY_COLOR_SPECULAR, color_specular);
 	mesh_material->Get(AI_MATKEY_COLOR_AMBIENT, color_ambient);
 	mesh_material->Get(AI_MATKEY_COLOR_EMISSIVE, color_emissive);
+	mesh_material->Get(AI_MATKEY_OPACITY, opacity);
 	mesh_material->Get(AI_MATKEY_SHININESS, shininess);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic);
@@ -382,11 +384,11 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 
 		for(rapidxml::xml_node<> * mesh_node = root_node->first_node("Material"); mesh_node; mesh_node = mesh_node->next_sibling())
 		{
-			rapidxml::xml_attribute<> * attr_name = mesh_node->first_attribute("name");
-			if(strcmp(attr_name->value(), material_name.C_Str()) == 0)
+			rapidxml::xml_attribute<> * attr = mesh_node->first_attribute("name");
+			if(strcmp(attr->value(), material_name.C_Str()) == 0)
 			{
-				rapidxml::xml_attribute<> * attr_emission_intensity = attr_name->next_attribute();
-				emission_intensity = atof(attr_emission_intensity->value());
+				attr = attr->next_attribute();
+				emission_intensity = atof(attr->value());
 			}
 		}
 	}
@@ -397,7 +399,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
     material.color_specular = glm::vec3(color_specular.r, color_specular.g, color_specular.b);
     material.color_ambient = glm::vec3(color_ambient.r, color_ambient.g, color_ambient.b);
     material.color_emissive = glm::vec3(color_emissive.r, color_emissive.g, color_emissive.b);
-	material.opacity = color_diffuse.a;
+	material.opacity = opacity;
 	material.shininess = shininess;
 	material.roughness = roughness;
 	material.metallic = metallic;

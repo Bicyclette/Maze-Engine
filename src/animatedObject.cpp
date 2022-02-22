@@ -535,6 +535,7 @@ std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene
 	// material
 	aiMaterial* mesh_material = scene->mMaterials[mesh->mMaterialIndex];
     
+	aiString material_name;
 	aiColor3D color_diffuse;
 	aiColor3D color_specular;
 	aiColor3D color_ambient;
@@ -543,6 +544,7 @@ std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene
 	float shininess;
 	float roughness;
 	float metallic;
+	float emission_intensity{0.0f};
 	std::vector<Texture> textures;
 
 	std::vector<Texture> diffuse = loadMaterialTextures(scene, mesh_material, aiTextureType_DIFFUSE, TEXTURE_TYPE::DIFFUSE);
@@ -556,9 +558,15 @@ std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene
 		normal = loadMaterialTextures(scene, mesh_material, aiTextureType_HEIGHT, TEXTURE_TYPE::NORMAL);
 	textures.insert(textures.end(), normal.begin(), normal.end());
 
-	std::vector<Texture> metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
+	std::vector<Texture> metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_METALNESS, TEXTURE_TYPE::METALLIC_ROUGHNESS);
+	if(metallicRoughMaps.size() == 0)
+		metallicRoughMaps = loadMaterialTextures(scene, mesh_material, aiTextureType_UNKNOWN, TEXTURE_TYPE::METALLIC_ROUGHNESS);
 	textures.insert(textures.end(), metallicRoughMaps.begin(), metallicRoughMaps.end());
+	
+	std::vector<Texture> emission = loadMaterialTextures(scene, mesh_material, aiTextureType_EMISSIVE, TEXTURE_TYPE::EMISSIVE);
+	textures.insert(textures.end(), emission.begin(), emission.end());
 
+	mesh_material->Get(AI_MATKEY_NAME, material_name);
 	mesh_material->Get(AI_MATKEY_COLOR_DIFFUSE, color_diffuse);
 	mesh_material->Get(AI_MATKEY_COLOR_SPECULAR, color_specular);
 	mesh_material->Get(AI_MATKEY_COLOR_AMBIENT, color_ambient);
@@ -567,6 +575,30 @@ std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene
 	mesh_material->Get(AI_MATKEY_SHININESS, shininess);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic);
+	
+	//########## START GET EMISSION INTENSITY ##########
+	std::string file{fullPath.substr(0, fullPath.find_last_of('.')) + ".xml"};
+	std::ifstream metadata{file};
+	if(!metadata.fail())
+	{
+		std::vector<char> buffer((std::istreambuf_iterator<char>(metadata)), std::istreambuf_iterator<char>());
+		buffer.push_back('\0');
+
+		rapidxml::xml_document<> doc;
+		doc.parse<0>(&buffer[0]);
+		rapidxml::xml_node<> * root_node = doc.first_node("Collection");
+
+		for(rapidxml::xml_node<> * mesh_node = root_node->first_node("Material"); mesh_node; mesh_node = mesh_node->next_sibling())
+		{
+			rapidxml::xml_attribute<> * attr = mesh_node->first_attribute("name");
+			if(strcmp(attr->value(), material_name.C_Str()) == 0)
+			{
+				attr = attr->next_attribute();
+				emission_intensity = atof(attr->value());
+			}
+		}
+	}
+	//########## END GET EMISSION INTENSITY ##########
 
 	material.textures = textures;
     material.color_diffuse = glm::vec3(color_diffuse.r, color_diffuse.g, color_diffuse.b);
@@ -577,6 +609,7 @@ std::shared_ptr<Mesh> AnimatedObject::getMesh(aiMesh* mesh, const aiScene* scene
 	material.shininess = shininess;
 	material.roughness = roughness;
 	material.metallic = metallic;
+	material.emission_intensity = emission_intensity;
 
 	// pack everything
     return std::make_shared<Mesh>(vertices, indices, material, meshName);

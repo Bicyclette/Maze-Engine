@@ -608,9 +608,9 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	s.setMatrix("proj", scenes[index]->getActiveCamera()->getProjectionMatrix());
 	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 	s.setInt("hasSSAO", graphics->ssaoOn() ? 1 : 0);
-	glActiveTexture(GL_TEXTURE0 + 13);
+	glActiveTexture(GL_TEXTURE0 + 14);
 	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(1)->getAttachments()[0].id);
-	s.setInt("ssao", 13);
+	s.setInt("ssao", 14);
 	s.setVec2f("viewport", glm::vec2(width, height));
 
 	// set shadow maps (point first, dir second and spot last)
@@ -618,7 +618,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	int nbDLights = scenes[index]->getDLights().size();
 	int nbSLights = scenes[index]->getSLights().size();
 
-	int textureOffset{4};
+	int textureOffset{5};
 
 	for(int i{0}; i < nbPLights; ++i)
 	{

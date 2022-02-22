@@ -71,7 +71,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![podracer lightning anim](engine_imgs/lightning.gif)
 
 ## TO DO
-**Tools**
+**AI**
 * Pathfinding
 * Navmesh
 
@@ -90,7 +90,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Text rendering
 
 **Others**
-* Write documentation/how to
+* Write documentation/how-to
 
 ## BUGS
 * Spot and directional lights cannot live together

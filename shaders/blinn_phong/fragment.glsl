@@ -337,7 +337,7 @@ void main()
 	// bright color
 	if(brightness > 1.0f)
 	{
-		brightColor = vec4(fragColor.rgb + material.emissiveColor, 1.0f);
+		brightColor = vec4(fragColor.rgb + emission, alpha);
 		if(material.emissionIntensity == 0.0f && brightness > 5.0f)
 			brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
