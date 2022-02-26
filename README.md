@@ -93,5 +93,4 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Write documentation/how-to
 
 ## BUGS
-* Spot and directional lights cannot live together
 * Wheels of vehicle controller rotate in wrong direction

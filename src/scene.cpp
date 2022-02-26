@@ -168,12 +168,18 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 
 	for(int i{0}; i < objects.size(); ++i)
 	{
-		objects[i]->draw(shader, &iblData, mode);
+		if(ibl)
+			objects[i]->draw(shader, &iblData, mode);
+		else
+			objects[i]->draw(shader, nullptr, mode);
 	}
 	
 	if(character && character->sceneID == ID)
 	{
-		character->draw(shader, &iblData, mode);
+		if(ibl)
+			character->draw(shader, &iblData, mode);
+		else
+			character->draw(shader, nullptr, mode);
 	}
 
 	for(int i{0}; i < particlesEmitter.size(); ++i)
