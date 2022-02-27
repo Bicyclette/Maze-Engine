@@ -1,6 +1,9 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
+	near(0.1f),
+	far(100.0f),
+	shadows(true),
 	bloomEffect{true},
 	bloomSigma(4.0f),
 	bloomSize(15),
@@ -75,10 +78,7 @@ Graphics::Graphics(int width, int height) :
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 		},
-	shadowQuality(SHADOW_QUALITY::ULTRA),
-	orthoDimension(10.0f),
-	orthoProjection(glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, 0.1f, 100.0f)),
-	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f)),
+	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
 	shadowMapping("shaders/shadowMapping/vertex.glsl", "shaders/shadowMapping/geometry.glsl", "shaders/shadowMapping/fragment.glsl", SHADER_TYPE::SHADOWS),
@@ -99,13 +99,10 @@ Graphics::Graphics(int width, int height) :
 	for(int i{0}; i < 2; ++i)
 		normal[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
-	if(shadowQuality != SHADOW_QUALITY::OFF)
+	for(int i{0}; i < 10; ++i)
 	{
-		for(int i{0}; i < 10; ++i)
-		{
-			omniDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
-			stdDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
-		}
+		omniDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(SHADOW_QUALITY::TINY), static_cast<int>(SHADOW_QUALITY::TINY));
+		stdDepth[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(SHADOW_QUALITY::TINY), static_cast<int>(SHADOW_QUALITY::TINY));
 	}
 
 	// SSAO G-BUFFER FBO
@@ -182,6 +179,26 @@ Graphics::Graphics(int width, int height) :
 	quad = std::make_unique<Mesh>(vertices, indices, quadMaterial, "final image");
 }
 
+void Graphics::setNearPlane(float nearPlane)
+{
+	near = nearPlane;
+}
+
+void Graphics::setFarPlane(float farPlane)
+{
+	far = farPlane;
+}
+
+void Graphics::setShadows(bool s)
+{
+	shadows = s;
+}
+
+bool Graphics::shadowsOn()
+{
+	return shadows;
+}
+
 void Graphics::setBloomEffect(bool b)
 {
 	bloomEffect = b;
@@ -222,32 +239,25 @@ bool Graphics::ssaoOn()
 	return ssaoEffect;
 }
 
-void Graphics::setShadowQuality(SHADOW_QUALITY quality)
+void Graphics::setStdShadowQuality(SHADOW_QUALITY quality, int index)
 {
-	shadowQuality = quality;
-	if(shadowQuality != SHADOW_QUALITY::OFF)
+	if(quality != SHADOW_QUALITY::OFF)
 	{
-		for(int i{0}; i < 10; ++i)
-		{
-			omniDepth.at(i)->updateAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
-			stdDepth.at(i)->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(shadowQuality), static_cast<int>(shadowQuality));
-		}
+		stdDepth[index]->updateAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::DEPTH, static_cast<int>(quality), static_cast<int>(quality));
 	}
 }
 
-SHADOW_QUALITY Graphics::getShadowQuality()
+void Graphics::setOmniShadowQuality(SHADOW_QUALITY quality, int index)
 {
-	return shadowQuality;
+	if(quality != SHADOW_QUALITY::OFF)
+	{
+		omniDepth[index]->updateAttachment(ATTACHMENT_TYPE::TEXTURE_CUBE_MAP, ATTACHMENT_TARGET::DEPTH, static_cast<int>(quality), static_cast<int>(quality));
+	}
 }
 
-glm::mat4 & Graphics::getOrthoProjection()
+glm::mat4 Graphics::getOrthoProjection(float orthoDimension)
 {
-	return orthoProjection;
-}
-
-float Graphics::getOrthoDimension()
-{
-	return orthoDimension;
+	return glm::ortho(-orthoDimension, orthoDimension, -orthoDimension, orthoDimension, near, far);
 }
 
 glm::mat4 & Graphics::getOmniPerspProjection()
@@ -255,10 +265,10 @@ glm::mat4 & Graphics::getOmniPerspProjection()
 	return omniPerspProjection;
 }
 
-glm::mat4 Graphics::getSpotPerspProjection(float outerCutOff)
+glm::mat4 Graphics::getSpotPerspProjection(float outerCutOff, float shadowQuality)
 {
 	float aspectRatio = static_cast<float>(shadowQuality) / static_cast<float>(shadowQuality);
-	return glm::perspective(glm::radians(outerCutOff * 2.0f), aspectRatio, 0.1f, 100.0f);
+	return glm::perspective(glm::radians(outerCutOff * 2.0f), aspectRatio, near, far);
 }
 
 Shader & Graphics::getBlinnPhongShader()

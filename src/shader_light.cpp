@@ -571,7 +571,8 @@ struct Texture createTextureFromData(aiTexture* embTex, TEXTURE_TYPE t, bool fli
 	return tex;
 }
 
-Light::Light(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec) :
+Light::Light(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec) :
+	shadow_quality(quality),
 	position(pos),
 	ambientStrength(amb),
 	diffuseStrength(diff),
@@ -590,8 +591,8 @@ Light::~Light()
 	glDeleteTextures(1, &icon.id);
 }
 
-PointLight::PointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq) :
-	Light(pos, amb, diff, spec),
+PointLight::PointLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq) :
+	Light(quality, pos, amb, diff, spec),
 	kc(aKc),
 	kl(aKl),
 	kq(aKq),
@@ -649,8 +650,9 @@ float PointLight::getKq()
 	return kq;
 }
 
-DirectionalLight::DirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir) :
-	Light(pos, amb, diff, spec),
+DirectionalLight::DirectionalLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float orthoDim) :
+	Light(quality, pos, amb, diff, spec),
+	orthoDimension(orthoDim),
 	direction(glm::normalize(dir)),
 	shaderIcon("shaders/light/directional/vertex.glsl", "shaders/light/directional/geometry.glsl", "shaders/light/directional/fragment.glsl"),
 	shaderDirection("shaders/light/directional/vertex_direction.glsl", "shaders/light/directional/geometry_direction.glsl", "shaders/light/directional/fragment_direction.glsl")
@@ -705,7 +707,7 @@ void DirectionalLight::draw()
 	glBindVertexArray(0);
 }
 
-void DirectionalLight::draw(float orthoDim)
+void DirectionalLight::drawDebug()
 {
 	glBindVertexArray(vao);
 
@@ -723,7 +725,7 @@ void DirectionalLight::draw(float orthoDim)
 	shaderDirection.setMatrix("proj", proj);
 	shaderDirection.setVec3f("direction", direction);
 	shaderDirection.setVec3f("right", glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f))));
-	shaderDirection.setFloat("boxDim", orthoDim);
+	shaderDirection.setFloat("boxDim", orthoDimension);
 	// wireframe on
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glLineWidth(1.5f);
@@ -749,8 +751,18 @@ void DirectionalLight::setDirection(glm::vec3 dir)
 	direction = glm::normalize(dir);
 }
 
-SpotLight::SpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle) :
-	Light(pos, amb, diff, spec),
+float DirectionalLight::getOrthoDimension()
+{
+	return orthoDimension;
+}
+
+void DirectionalLight::setOrthoDimension(float dimension)
+{
+	orthoDimension = dimension;
+}
+
+SpotLight::SpotLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle) :
+	Light(quality, pos, amb, diff, spec),
 	direction(dir),
 	cutOff(glm::radians(innerAngle)),
 	outerCutOff(glm::radians(outerAngle)),
@@ -880,4 +892,14 @@ void Light::setViewMatrix(glm::mat4 m)
 void Light::setProjMatrix(glm::mat4 m)
 {
 	proj = m;
+}
+
+SHADOW_QUALITY Light::getShadowQuality()
+{
+	return shadow_quality;
+}
+
+void Light::setShadowQuality(SHADOW_QUALITY quality)
+{
+	shadow_quality = quality;
 }

@@ -108,11 +108,21 @@ enum class LIGHT_TYPE
 	SPOT
 };
 
+enum class SHADOW_QUALITY
+{
+	OFF = 0,
+	TINY = 256,
+	SMALL = 512,
+	MED = 1024,
+	HIGH = 2048,
+	ULTRA = 4096
+};
+
 class Light
 {
 	public:
 
-		Light(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec);
+		Light(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec);
 		virtual ~Light();
 		virtual void draw() = 0;
 		glm::vec3 getPosition();
@@ -127,9 +137,12 @@ class Light
 		void setViewMatrix(glm::mat4 m);
 		void setProjMatrix(glm::mat4 m);
 		virtual LIGHT_TYPE getType() = 0;
+		void setShadowQuality(SHADOW_QUALITY quality);
+		SHADOW_QUALITY getShadowQuality();
 
 	protected:
 
+		SHADOW_QUALITY shadow_quality;
 		glm::vec3 ambientStrength;
 		glm::vec3 diffuseStrength;
 		glm::vec3 specularStrength;
@@ -149,7 +162,7 @@ class PointLight : public Light
 {
 	public:
 
-		PointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq);
+		PointLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq);
 		virtual void draw() override;
 		float getKc();
 		float getKl();
@@ -184,15 +197,18 @@ class DirectionalLight : public Light
 {
 	public:
 
-		DirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir);
+		DirectionalLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float orthoDim = 10.0f);
 		virtual void draw() override;
-		void draw(float orthoDim);
+		void drawDebug();
 		glm::vec3 getDirection();
 		void setDirection(glm::vec3 dir);
+		void setOrthoDimension(float dimension);
+		float getOrthoDimension();
 		virtual LIGHT_TYPE getType() override;
 
 	private:
 
+		float orthoDimension;
 		glm::vec3 direction;
 		Shader shaderIcon;
 		Shader shaderDirection;
@@ -202,7 +218,7 @@ class SpotLight : public Light
 {
 	public:
 
-		SpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
+		SpotLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle);
 		virtual void draw() override;
 		glm::vec3 getDirection();
 		void setDirection(glm::vec3 dir);

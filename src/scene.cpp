@@ -46,22 +46,22 @@ void Scene::addCamera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 pos, glm::vec3
 	cameras.push_back(std::make_shared<Camera>(type, scrDim, pos, target, up, fov, near, far));
 }
 
-void Scene::addPointLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq)
+void Scene::addPointLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq)
 {
-	pLights.push_back(std::make_shared<PointLight>(pos, amb, diff, spec, aKc, aKl, aKq));
-	pLights.at(pLights.size() - 1)->setModelMatrix(glm::mat4(1.0f));
+	pLights.push_back(std::make_shared<PointLight>(quality, pos, amb, diff, spec, aKc, aKl, aKq));
+	pLights[pLights.size() - 1]->setModelMatrix(glm::mat4(1.0f));
 }
 
-void Scene::addDirectionalLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir)
+void Scene::addDirectionalLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float orthoDim)
 {
-	dLights.push_back(std::make_shared<DirectionalLight>(pos, amb, diff, spec, dir));
-	dLights.at(dLights.size() - 1)->setModelMatrix(glm::mat4(1.0f));
+	dLights.push_back(std::make_shared<DirectionalLight>(quality, pos, amb, diff, spec, dir, orthoDim));
+	dLights[dLights.size() - 1]->setModelMatrix(glm::mat4(1.0f));
 }
 
-void Scene::addSpotLight(glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle)
+void Scene::addSpotLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, glm::vec3 dir, float innerAngle, float outerAngle)
 {
-	sLights.push_back(std::make_shared<SpotLight>(pos, amb, diff, spec, dir, innerAngle, outerAngle));
-	sLights.at(sLights.size() - 1)->setModelMatrix(glm::mat4(1.0f));
+	sLights.push_back(std::make_shared<SpotLight>(quality, pos, amb, diff, spec, dir, innerAngle, outerAngle));
+	sLights[sLights.size() - 1]->setModelMatrix(glm::mat4(1.0f));
 }
 
 void Scene::setSkybox(std::vector<std::string> & textures, bool flip)
@@ -142,7 +142,7 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 		{
 			dLights[i]->setViewMatrix(activeCamera->getViewMatrix());
 			dLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
-			dLights[i]->draw(graphics->getOrthoDimension());
+			dLights[i]->drawDebug();
 		}
 		for(int i{0}; i < sLights.size(); ++i)
 		{

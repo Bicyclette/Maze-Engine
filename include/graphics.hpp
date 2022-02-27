@@ -14,21 +14,15 @@
 #include "shader_light.hpp"
 #include "helpers.hpp"
 
-enum class SHADOW_QUALITY
-{
-	OFF = 0,
-	TINY = 256,
-	SMALL = 512,
-	MED = 1024,
-	HIGH = 2048,
-	ULTRA = 4096
-};
-
 class Graphics
 {
 	public:
 
 		Graphics(int width, int height);
+		void setNearPlane(float nearPlane);
+		void setFarPlane(float farPlane);
+		void setShadows(bool s);
+		bool shadowsOn();
 		void setBloomEffect(bool b);
 		bool bloomOn();
 		float getBloomSigma();
@@ -37,14 +31,11 @@ class Graphics
 		void setBloomSize(int size);
 		void setSSAOEffect(bool ao);
 		bool ssaoOn();
-		void setShadowQuality(SHADOW_QUALITY quality);
-		SHADOW_QUALITY getShadowQuality();
-		void setLightView(glm::mat4 view);
-		glm::mat4 & getLightView();
-		glm::mat4 & getOrthoProjection();
-		float getOrthoDimension();
+		void setStdShadowQuality(SHADOW_QUALITY quality, int index);
+		void setOmniShadowQuality(SHADOW_QUALITY quality, int index);
+		glm::mat4 getOrthoProjection(float orthoDimension);
 		glm::mat4 & getOmniPerspProjection();
-		glm::mat4 getSpotPerspProjection(float outerCutOff);
+		glm::mat4 getSpotPerspProjection(float outerCutOff, float shadowQuality);
 		Shader & getBlinnPhongShader();
 		Shader & getPBRShader();
 		Shader & getShadowMappingShader();
@@ -82,13 +73,13 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
 
+		float near;
+		float far;
+		bool shadows;
 		bool bloomEffect;
 		float bloomSigma;
 		int bloomSize;
 		bool ssaoEffect;
-		SHADOW_QUALITY shadowQuality;
-		float orthoDimension;
-		glm::mat4 orthoProjection; // for directional light
 		glm::mat4 omniPerspProjection; // for point lights
 		GLuint aoNoiseTexture;
 		std::vector<glm::vec3> aoKernel;

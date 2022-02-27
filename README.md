@@ -80,7 +80,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 **Graphics**
 * Transparency
-* Remove global shadowmap resolution
 
 **Audio**
 * Add collection of audio elements for the scene class.

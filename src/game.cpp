@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-/*
+
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -41,7 +41,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addPointLight(glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(1.0f, 0.9f, 0.6f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(-3.5f, 2.0f, -5.75f), glm::vec3(0.025f), glm::vec3(1.0f, 0.9f, 0.6f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 
 	scenes[scenes.size()-1]->addObject("assets/character/ground.glb", glm::mat4(1.0f));
 	scenes[scenes.size()-1]->addObject("assets/character/campfire.glb", glm::mat4(1.0f));
@@ -82,8 +82,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-*/
 
+/*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
 
@@ -93,11 +93,11 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 50.0f, -40.0f), glm::vec3(0.025f), glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(1.0f), glm::vec3(1.5f, -1.0f, -0.15f));
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-5.0f, 20.0f, -20.0f), glm::vec3(0.025f), glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(1.0f), glm::vec3(1.0f, -1.5f, -0.15f), 50.0f);
 
 	scenes[0]->addObject("assets/car/ground.glb", glm::mat4(1.0f));
 	scenes[0]->addObject("assets/car/chassis.glb", glm::mat4(1.0f), "assets/car/chassis_collision_shape.glb");
@@ -123,9 +123,9 @@ Game::Game(int clientWidth, int clientHeight) :
 	};
 	std::array<bool, 4> frontWheel{false, false, true, true};
 	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
-	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.75f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
+	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.5f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
 	vehicles.push_back(v);
-
+*/
 /*	
 	// create emission scene
 	scenes.push_back(std::make_shared<Scene>("emission", 0));
@@ -140,7 +140,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 50.0f, -40.0f), glm::vec3(0.025f), glm::vec3(0.75f, 0.75f, 0.75f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f));
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(0.75f, 0.75f, 0.75f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f), 30.0f);
 
 	scenes[0]->addObject("assets/lightsaber/lightsaber.glb", glm::mat4(1.0f));
 
@@ -161,10 +161,10 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.75f));
-	scenes[scenes.size()-1]->addPointLight(glm::vec3(-4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
-	scenes[scenes.size()-1]->addPointLight(glm::vec3(4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
-	scenes[scenes.size()-1]->addPointLight(glm::vec3(0.0f, 2.0f, 10.0f), glm::vec3(0.025f), glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.75f), 10.0f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(-4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 2.0f, 10.0f), glm::vec3(0.025f), glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
 
 	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/podracer.gltf", glm::mat4(1.0f));
 	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/ground.glb", glm::mat4(1.0f));
@@ -206,7 +206,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 
 	if(activeScene < scenes.size())
 	{
-		if(graphics->getShadowQuality() != SHADOW_QUALITY::OFF)
+		if(graphics->shadowsOn())
 		{
 			s.use();
 			s.setInt("shadowOn", 1);
@@ -504,17 +504,19 @@ void Game::vehicleUpdateUpVector()
 
 void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 {
-	glViewport(0, 0, static_cast<int>(graphics->getShadowQuality()), static_cast<int>(graphics->getShadowQuality()));
 	graphics->getShadowMappingShader().use();
 	graphics->getShadowMappingShader().setInt("computeWorldPos", 0);
 	graphics->getShadowMappingShader().setInt("omniDepthRendering", 0);
 	graphics->getShadowMappingShader().setInt("omnilightFragDepth", 0);
-	graphics->getShadowMappingShader().setMatrix("proj", graphics->getOrthoProjection());
 
 	// render directional depth maps
 	int sLightsOffset{0};
 	for(int i{0}; i < scenes[index]->getDLights().size(); ++i, ++sLightsOffset)
 	{
+		glViewport(0, 0,
+				static_cast<int>(scenes[index]->getDLights()[i]->getShadowQuality()),
+				static_cast<int>(scenes[index]->getDLights()[i]->getShadowQuality()));
+		graphics->setStdShadowQuality(scenes[index]->getDLights()[i]->getShadowQuality(), i);
 		graphics->getStdDepthFBO(i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -523,6 +525,7 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
+		graphics->getShadowMappingShader().setMatrix("proj", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()));
 
 		// draw scene
 		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
@@ -530,6 +533,10 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 
 	for(int i{0}; i < scenes[index]->getSLights().size(); ++i)
 	{
+		glViewport(0, 0,
+				static_cast<int>(scenes[index]->getSLights()[i]->getShadowQuality()),
+				static_cast<int>(scenes[index]->getSLights()[i]->getShadowQuality()));
+		graphics->setStdShadowQuality(scenes[index]->getSLights()[i]->getShadowQuality(), i + scenes[index]->getDLights().size());
 		graphics->getStdDepthFBO(sLightsOffset + i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -558,7 +565,6 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 
 void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 {
-	glViewport(0, 0, static_cast<int>(graphics->getShadowQuality()), static_cast<int>(graphics->getShadowQuality()));
 	graphics->getShadowMappingShader().use();
 	graphics->getShadowMappingShader().setInt("computeWorldPos", 1);
 	graphics->getShadowMappingShader().setInt("omniDepthRendering", 1);
@@ -568,6 +574,10 @@ void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 	std::vector<glm::mat4> omnilightViews;
 	for(int i{0}; i < scenes[index]->getPLights().size(); ++i)
 	{
+		glViewport(0, 0,
+				static_cast<int>(scenes[index]->getPLights()[i]->getShadowQuality()),
+				static_cast<int>(scenes[index]->getPLights()[i]->getShadowQuality()));
+		graphics->setOmniShadowQuality(scenes[index]->getPLights()[i]->getShadowQuality(), i);
 		graphics->getOmniDepthFBO(i)->bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -647,7 +657,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 		glActiveTexture(GL_TEXTURE0 + textureOffset);
 		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
 		s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
-		s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection() * lightView);
+		s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()) * lightView);
 		depthMapIndex++;
 		textureOffset++;
 	}
