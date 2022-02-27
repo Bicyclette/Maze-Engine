@@ -60,6 +60,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![physics debug draw](engine_imgs/btIDebugDraw.gif)
 ### Vehicle controller
 ![vehicle](engine_imgs/btRaycastVehicle.gif)
+![vehicle night](engine_imgs/car_night.gif)
 ### Bloom
 ![car](engine_imgs/car_bloom.png)
 ![bloom green](engine_imgs/green_lightsaber.png)

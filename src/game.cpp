@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-
+/*
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,8 +82,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
+*/
 
-/*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
 
@@ -93,11 +93,13 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-5.0f, 20.0f, -20.0f), glm::vec3(0.025f), glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(1.0f), glm::vec3(1.0f, -1.5f, -0.15f), 50.0f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-5.0f, 20.0f, -20.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f), glm::vec3(1.0f, -1.5f, -0.15f), 50.0f);
+	scenes[scenes.size()-1]->addSpotLight(SHADOW_QUALITY::HIGH, glm::vec3(1.9684f, 2.1581f, -5.6881f), glm::vec3(0.025f), glm::vec3(70.f, 70.f, 70.f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f), 25.0f, 30.0f);
+	scenes[scenes.size()-1]->addSpotLight(SHADOW_QUALITY::HIGH, glm::vec3(-1.9684f, 2.1581f, -5.6881f), glm::vec3(0.025f), glm::vec3(70.f, 70.f, 70.f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f), 25.0f, 30.0f);
 
 	scenes[0]->addObject("assets/car/ground.glb", glm::mat4(1.0f));
 	scenes[0]->addObject("assets/car/chassis.glb", glm::mat4(1.0f), "assets/car/chassis_collision_shape.glb");
@@ -125,7 +127,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
 	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.5f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
 	vehicles.push_back(v);
-*/
+
 /*	
 	// create emission scene
 	scenes.push_back(std::make_shared<Scene>("emission", 0));
@@ -200,6 +202,17 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	{
 		character->get()->getAnimator()->updateAnimation(delta);
 	}
+
+	// update vehicle spotlights
+	glm::mat4 vehicleModel;
+	vehicles[0]->vehicle->getRigidBody()->getCenterOfMassTransform().getOpenGLMatrix(glm::value_ptr(vehicleModel));
+	glm::vec3 spot1 = glm::vec3(vehicleModel * glm::vec4(1.9684f, 2.1581f, -5.6881f, 1.0f));
+	glm::vec3 spot2 = glm::vec3(vehicleModel * glm::vec4(-1.9684f, 2.1581f, -5.6881f, 1.0f));
+	glm::vec3 d1 = glm::vec3(vehicleModel * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
+	scenes[activeScene]->getSLights()[0]->setPosition(spot1);
+	scenes[activeScene]->getSLights()[0]->setDirection(d1);
+	scenes[activeScene]->getSLights()[1]->setPosition(spot2);
+	scenes[activeScene]->getSLights()[1]->setDirection(d1);
 
 	// get shader
 	Shader s = graphics->getPBRShader();
