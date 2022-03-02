@@ -5,6 +5,7 @@ out vec4 fragColor;
 uniform sampler2D scene;
 uniform sampler2D bloom;
 uniform int bloomEffect;
+uniform int tone_mapping; // 0 = Reinhard, 1 = ACES
 
 in vec2 texCoords;
 
@@ -42,8 +43,10 @@ void main()
 	vec3 color = sceneColor + bloomColor;
 
 	// tone mapping
-	//color = ACES_tone_mapping(color);
-	color = reinhard(color);
+	if(tone_mapping == 0)
+		color = reinhard(color);
+	else if(tone_mapping == 1)
+		color = ACES_tone_mapping(color);
 
 	// vignette effect
 	vec3 vignette = vec3(1.0f);

@@ -155,6 +155,13 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 			sLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
 			sLights[i]->draw();
 		}
+
+		for(int i{0}; i < sound_source.size(); ++i)
+		{
+			sound_source[i].setViewMatrix(activeCamera->getViewMatrix());
+			sound_source[i].setProjMatrix(activeCamera->getProjectionMatrix());
+			sound_source[i].draw();
+		}
 	}
 
 	struct IBL_DATA iblData;
@@ -241,9 +248,9 @@ void Scene::addAudioFile(std::string file)
 	audio.load_sound(file);
 }
 
-void Scene::addSoundSource(glm::vec3 position, float volume, bool loop)
+void Scene::addSoundSource(glm::vec3 position, glm::vec3 direction, float inner_angle, float outer_angle, float volume, bool loop)
 {
-	sound_source.emplace_back(position, volume, loop);
+	sound_source.emplace_back(position, direction, inner_angle, outer_angle, volume, loop);
 }
 
 void Scene::playSound(int source_index, int audio_index)

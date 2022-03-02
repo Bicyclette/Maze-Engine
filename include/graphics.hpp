@@ -14,6 +14,12 @@
 #include "shader_light.hpp"
 #include "helpers.hpp"
 
+enum class TONE_MAPPING
+{
+	REINHARD = 0,
+	ACES = 1
+};
+
 class Graphics
 {
 	public:
@@ -31,6 +37,8 @@ class Graphics
 		void setBloomSize(int size);
 		void setSSAOEffect(bool ao);
 		bool ssaoOn();
+		void set_tone_mapping(TONE_MAPPING tone);
+		TONE_MAPPING get_tone_mapping();
 		void setStdShadowQuality(SHADOW_QUALITY quality, int index);
 		void setOmniShadowQuality(SHADOW_QUALITY quality, int index);
 		glm::mat4 getOrthoProjection(float orthoDimension);
@@ -73,6 +81,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
 
+		TONE_MAPPING tone_mapping;
 		float near;
 		float far;
 		bool shadows;

@@ -1,6 +1,7 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
+	tone_mapping(TONE_MAPPING::REINHARD),
 	near(0.1f),
 	far(100.0f),
 	shadows(true),
@@ -237,6 +238,16 @@ void Graphics::setSSAOEffect(bool ao)
 bool Graphics::ssaoOn()
 {
 	return ssaoEffect;
+}
+
+void Graphics::set_tone_mapping(TONE_MAPPING tone)
+{
+	tone_mapping = tone;
+}
+
+TONE_MAPPING Graphics::get_tone_mapping()
+{
+	return tone_mapping;
 }
 
 void Graphics::setStdShadowQuality(SHADOW_QUALITY quality, int index)
