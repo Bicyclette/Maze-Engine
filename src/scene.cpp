@@ -84,6 +84,11 @@ void Scene::addLightning(glm::vec3 from, glm::vec3 to, int step, glm::vec3 color
 	lightning.push_back(std::make_unique<Lightning>(from, to, step, color, intensity, arcs, dynamic, refreshInterval));
 }
 
+void Scene::addVehicle(std::shared_ptr<Vehicle> vehicle)
+{
+	vehicles.push_back(vehicle);
+}
+
 std::vector<std::unique_ptr<Lightning>> & Scene::getLightnings()
 {
 	return lightning;
@@ -91,7 +96,7 @@ std::vector<std::unique_ptr<Lightning>> & Scene::getLightnings()
 
 void Scene::setGridAxis(int gridDim)
 {
-	gridAxis = std::make_unique<GridAxis>(8);
+	gridAxis = std::make_unique<GridAxis>(gridDim);
 }
 
 void Scene::setActiveCamera(int index)
@@ -224,4 +229,29 @@ std::vector<std::shared_ptr<Object>> Scene::getObjects()
 std::shared_ptr<Character> Scene::getCharacter()
 {
 	return character;
+}
+
+std::vector<std::shared_ptr<Vehicle>> & Scene::getVehicles()
+{
+	return vehicles;
+}
+
+void Scene::addAudioFile(std::string file)
+{
+	audio.load_sound(file);
+}
+
+void Scene::addSoundSource(glm::vec3 position, float volume, bool loop)
+{
+	sound_source.emplace_back(position, volume, loop);
+}
+
+void Scene::playSound(int source_index, int audio_index)
+{
+	sound_source[source_index].play_sound(audio.sounds[audio_index]);
+}
+
+void Scene::stopSound(int source_index, int audio_index)
+{
+	sound_source[source_index].stop_sound();
 }

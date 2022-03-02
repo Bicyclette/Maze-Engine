@@ -1,6 +1,7 @@
 #include "camera.hpp"
 
 Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 camTarget, glm::vec3 camUp, float camFov, float near, float far) :
+	orientation(glm::normalize(camTarget - camPos)),
 	minDistanceFromCharacter(7.0f),
 	maxDistanceFromCharacter(20.0f),
 	distanceFromCharacter(minDistanceFromCharacter),
@@ -8,7 +9,15 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 	lookAbove(glm::vec3(0.0f, 3.0f, 0.0f)),
 	minDistanceFromVehicle(20.0f),
 	maxDistanceFromVehicle(30.0f),
-	distanceFromVehicle(minDistanceFromVehicle)
+	distanceFromVehicle(minDistanceFromVehicle),
+	m_listener(camPos, std::array<float, 6>{
+				orientation.x,
+				orientation.y,
+				orientation.z,
+				camUp.x,
+				camUp.y,
+				camUp.z
+			})
 {
 	float aspectRatio = static_cast<float>(scrDim.x) / static_cast<float>(scrDim.y);
 	camType = type;
@@ -16,6 +25,7 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 	fov = camFov;
 	speed = 6.0f;
 	position = camPos;
+	previousPosition = position;
 	target = camTarget;
 	glm::vec3 dist = target - position;
 	distanceFromTarget = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z);
@@ -31,6 +41,7 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 
 void Camera::updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, glm::vec3 vehicleUp, float steering, float steeringIncrement, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
 {
+	previousPosition = position;
 	target = vehiclePos + vehicleUp * 2.5f;
 	glm::vec3 offset = -(glm::normalize(vehicleDirection) * distanceFromVehicle);
 	offset = offset + vehicleUp * 12.0f * (distanceFromVehicle / minDistanceFromVehicle);
@@ -51,6 +62,7 @@ void Camera::updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, 
 
 void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
 {
+	previousPosition = position;
 	target = characterPos + recenterTarget;
 	position = target - (glm::normalize(characterDirection) * distanceFromCharacter) + lookAbove * (distanceFromCharacter / minDistanceFromCharacter);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -67,6 +79,7 @@ void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirecti
 
 void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
 {
+	previousPosition = position;
 	if(inputs.test(1) && !inputs.test(4)) // middle mouse button
 	{
 		tumble(mouse);
@@ -83,6 +96,9 @@ void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3>
 	}
 
 	view = glm::lookAt(position, target, up);
+
+	// update listener data
+	updateListener();
 }
 
 void Camera::updateProjectionMatrix(int w, int h)
@@ -203,6 +219,11 @@ glm::vec3 Camera::getUp()
 	return up;
 }
 
+glm::vec3 Camera::getOrientation()
+{
+	return orientation;
+}
+
 void Camera::setProjection(glm::ivec2 scrDim, float near, float far)
 {
 	screenDim = scrDim;
@@ -215,4 +236,19 @@ void Camera::setProjection(glm::ivec2 scrDim, float near, float far)
 CAM_TYPE Camera::getType()
 {
 	return camType;
+}
+
+void Camera::updateListener()
+{
+	orientation = glm::normalize(target - position);
+	m_listener.set_position(position);
+	m_listener.set_orientation(std::array<float, 6>{
+				orientation.x,
+				orientation.y,
+				orientation.z,
+				up.x,
+				up.y,
+				up.z
+				});
+	m_listener.set_velocity(position - previousPosition);
 }

@@ -12,6 +12,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "audio.hpp"
 
 enum class CAM_TYPE
 {
@@ -37,6 +38,7 @@ class Camera
 		glm::vec3 getPosition();
 		glm::vec3 getRight();
 		glm::vec3 getUp();
+		glm::vec3 getOrientation();
 		void setProjection(glm::ivec2 scrDim, float near, float far);
 		CAM_TYPE getType();
 
@@ -46,6 +48,7 @@ class Camera
 		void tumble(const std::array<int, 3> & m);
 		void zoom(const std::array<int, 3> & m, float delta);
 		void track(const std::array<int, 3> & m, float delta);
+		void updateListener();
 
 		CAM_TYPE camType;
 
@@ -53,13 +56,17 @@ class Camera
 		float speed;
 		float distanceFromTarget;
 
+		glm::vec3 previousPosition;
 		glm::vec3 position;
 		glm::vec3 target;
+		glm::vec3 orientation;
 		glm::vec3 up;
 		glm::vec3 right;
 
 		glm::vec3 upShift;
 		glm::vec3 rightShift;
+
+		Listener m_listener;
 
 		glm::ivec2 screenDim;
 		glm::mat4 view;

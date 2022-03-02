@@ -74,9 +74,15 @@ void Audio::load_sound(std::string file_path)
 // ##################################################
 // ##################################################
 
-Source::Source()
+Source::Source(glm::vec3 position, float volume, bool loop) :
+	m_position(position),
+	m_volume(volume),
+	m_loop(loop)
 {
 	alGenSources(1, &source_id);
+	set_position(m_position);
+	set_volume(m_volume);
+	set_looping(loop);
 }
 
 Source::~Source()
@@ -85,17 +91,40 @@ Source::~Source()
 	alDeleteSources(1, &source_id);
 }
 
-void Source::set_volume(int volume)
+void Source::set_volume(float volume)
 {
-	alSourcef(source_id, AL_GAIN, static_cast<float>(volume) / 100.0f);
+	m_volume = volume;
+	alSourcef(source_id, AL_GAIN, m_volume);
+}
+
+float Source::get_volume()
+{
+	return m_volume;
 }
 
 void Source::set_looping(bool loop)
 {
-	if(loop)
+	m_loop = loop;
+	if(m_loop)
 		alSourcei(source_id, AL_LOOPING, AL_TRUE);
 	else
 		alSourcei(source_id, AL_LOOPING, AL_FALSE);
+}
+
+bool Source::get_looping()
+{
+	return m_loop;
+}
+
+void Source::set_position(glm::vec3 position)
+{
+	m_position = position;
+	alSource3f(source_id, AL_POSITION, position.x, position.y, position.z);
+}
+
+glm::vec3 Source::get_position()
+{
+	return m_position;
 }
 
 void Source::stop_sound()
@@ -121,4 +150,64 @@ float Source::get_elapsed_time() const
 	ALfloat elapsed_time = 0.0f;
 	alGetSourcef(source_id, AL_SEC_OFFSET, &elapsed_time);
 	return static_cast<float>(elapsed_time);
+}
+
+// ##################################################
+// ##################################################
+// ##################################################
+
+Listener::Listener(glm::vec3 position, std::array<float, 6> orientation) :
+	m_position(position),
+	m_orientation(orientation)
+{
+	alListener3f(AL_POSITION, m_position.x, m_position.y, m_position.z);
+	alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+	ALfloat data[] = {
+		m_orientation[0],
+		m_orientation[1],
+		m_orientation[2],
+		m_orientation[3],
+		m_orientation[4],
+		m_orientation[5]};
+	alListenerfv(AL_ORIENTATION, data);
+}
+
+glm::vec3 Listener::get_position()
+{
+	return m_position;
+}
+
+void Listener::set_position(glm::vec3 position)
+{
+	m_position = position;
+	alListener3f(AL_POSITION, m_position.x, m_position.y, m_position.z);
+}
+
+std::array<float, 6> Listener::get_orientation()
+{
+	return m_orientation;
+}
+
+void Listener::set_orientation(std::array<float, 6> orientation)
+{
+	m_orientation = orientation;
+	ALfloat data[] = {
+		m_orientation[0],
+		m_orientation[1],
+		m_orientation[2],
+		m_orientation[3],
+		m_orientation[4],
+		m_orientation[5]};
+	alListenerfv(AL_ORIENTATION, data);
+}
+
+glm::vec3 Listener::get_velocity()
+{
+	return m_velocity;
+}
+
+void Listener::set_velocity(glm::vec3 velocity)
+{
+	m_velocity = velocity;
+	alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
 }

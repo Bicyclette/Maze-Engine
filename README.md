@@ -70,6 +70,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ### Lightning
 ![podracer lightning](engine_imgs/podracer_lightning1.png)
 ![podracer lightning anim](engine_imgs/lightning.gif)
+### 3D audio
+![audio](engine_imgs/audio.png)
 
 ## TO DO
 **AI**
@@ -81,9 +83,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 **Graphics**
 * Transparency
-
-**Audio**
-* Add collection of audio elements for the scene class.
 
 **UI**
 * OpenGL based user interface (buttons, menus, layout).

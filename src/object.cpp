@@ -329,15 +329,15 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	// material
 	aiMaterial* mesh_material = scene->mMaterials[mesh->mMaterialIndex];
     
-	aiString material_name;
-	aiColor4D color_diffuse;
-	aiColor3D color_specular;
-	aiColor3D color_ambient;
+	aiString material_name{"material_name"};
+	aiColor4D color_diffuse{0.0f, 0.0f, 0.0f, 1.0f};
+	aiColor3D color_specular{0.0f, 0.0f, 0.0f};
+	aiColor3D color_ambient{0.0f, 0.0f, 0.0f};
 	aiColor3D color_emissive{0.0f, 0.0f, 0.0f};
-	float opacity;
-	float shininess;
-	float roughness;
-	float metallic;
+	float opacity{1.0f};
+	float shininess{1.0f};
+	float roughness{0.5f};
+	float metallic{0.0f};
 	float emission_intensity{0.0f};
 	std::vector<Texture> textures;
 

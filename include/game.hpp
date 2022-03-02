@@ -11,7 +11,6 @@
 #include "scene.hpp"
 #include "graphics.hpp"
 #include "color.hpp"
-#include "worldPhysics.hpp"
 #include "character.hpp"
 
 class Game
@@ -52,7 +51,6 @@ class Game
 		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
-		std::vector<std::shared_ptr<Vehicle>> vehicles;
 
 	private: // render passes
 
@@ -62,6 +60,5 @@ class Game
 		void ssaoPass(int index, int width, int height, float delta);
 		void colorMultisamplePass(int index, int width, int height, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
 };
-
 
 #endif

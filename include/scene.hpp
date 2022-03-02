@@ -16,6 +16,7 @@
 #include "particle.hpp"
 #include "audio.hpp"
 #include "lightning.hpp"
+#include "worldPhysics.hpp"
 
 class Scene
 {
@@ -35,6 +36,7 @@ class Scene
 		void setIBL(std::string texture, bool flip, int clientWidth, int clientHeight);
 		void addParticlesEmitter(glm::vec3 pos, int emitRate, float maxLifetime, ParticleEmitter::DIRECTION direction_type, float speed, glm::vec3 direction_vector = glm::vec3(0.0f));
 		void addLightning(glm::vec3 from, glm::vec3 to, int step, glm::vec3 color, float intensity, std::vector<float> & arcs, bool dynamic, float refreshInterval);
+		void addVehicle(std::shared_ptr<Vehicle> vehicle);
 		std::vector<std::unique_ptr<Lightning>> & getLightnings();
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
@@ -48,6 +50,13 @@ class Scene
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
 		std::vector<std::shared_ptr<Object>> getObjects();
 		std::shared_ptr<Character> getCharacter();
+		std::vector<std::shared_ptr<Vehicle>> & getVehicles();
+
+		// sound management
+		void addAudioFile(std::string file);
+		void addSoundSource(glm::vec3 position, float volume = 1.0f, bool loop = false);
+		void playSound(int source_index, int audio_index);
+		void stopSound(int source_index, int audio_index);
 
 	private:
 
@@ -59,6 +68,9 @@ class Scene
 
 		std::vector<std::shared_ptr<Object>> objects;
 		std::shared_ptr<Character> character;
+		std::vector<std::shared_ptr<Vehicle>> vehicles;
+		Audio audio; // collection of audio files
+		std::vector<Source> sound_source; // collection of sound emitters
 
 		std::vector<std::shared_ptr<PointLight>> pLights;
 		std::vector<std::shared_ptr<DirectionalLight>> dLights;

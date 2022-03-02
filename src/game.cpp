@@ -83,7 +83,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
 */
-
+/*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
 
@@ -93,7 +93,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::VEHICLE, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
@@ -126,8 +126,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	std::array<bool, 4> frontWheel{false, false, true, true};
 	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
 	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.5f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
-	vehicles.push_back(v);
-
+	scenes[scenes.size()-1]->addVehicle(v);
+*/
 /*	
 	// create emission scene
 	scenes.push_back(std::make_shared<Scene>("emission", 0));
@@ -177,6 +177,30 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 */
+
+	// create audio scene
+	scenes.push_back(std::make_shared<Scene>("audio", 0));
+
+	camPos = glm::vec3(0.0f, 5.0f, 5.0f);
+	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
+	
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.25f), 20.0f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 2.5f, 5.0f), glm::vec3(0.025f), glm::vec3(1.75f, 1.5f, 0.9f)*2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+
+	scenes[0]->addObject("assets/radio/radio.glb", glm::mat4(1.0f));
+	scenes[0]->addAudioFile("assets/radio/cantina.wav");
+	scenes[0]->addSoundSource(glm::vec3(-0.2f, 2.2f, 0.3f), 10.0f, true);
+	scenes[0]->playSound(0, 0);
+
+	//scenes[scenes.size()-1]->setIBL("assets/HDRIs/stadium.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setGridAxis(20);
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -204,8 +228,9 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	}
 
 	// update vehicle spotlights
+	/*
 	glm::mat4 vehicleModel;
-	vehicles[0]->vehicle->getRigidBody()->getCenterOfMassTransform().getOpenGLMatrix(glm::value_ptr(vehicleModel));
+	scenes[0]->getVehicles()[0]->vehicle->getRigidBody()->getCenterOfMassTransform().getOpenGLMatrix(glm::value_ptr(vehicleModel));
 	glm::vec3 spot1 = glm::vec3(vehicleModel * glm::vec4(1.9684f, 2.1581f, -5.6881f, 1.0f));
 	glm::vec3 spot2 = glm::vec3(vehicleModel * glm::vec4(-1.9684f, 2.1581f, -5.6881f, 1.0f));
 	glm::vec3 d1 = glm::vec3(vehicleModel * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
@@ -213,7 +238,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	scenes[activeScene]->getSLights()[0]->setDirection(d1);
 	scenes[activeScene]->getSLights()[1]->setPosition(spot2);
 	scenes[activeScene]->getSLights()[1]->setDirection(d1);
-
+	*/
 	// get shader
 	Shader s = graphics->getPBRShader();
 
@@ -352,7 +377,7 @@ void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs
 			scenes[index]->getActiveCamera()->updateViewMatrix(character->getPosition(), character->getDirection(), inputs, mouse, delta);
 		else if(type == CAM_TYPE::VEHICLE)
 		{
-			std::shared_ptr<Vehicle> & vehicle{vehicles[activeVehicle]};
+			std::shared_ptr<Vehicle> & vehicle{scenes[index]->getVehicles()[activeVehicle]};
 			btRaycastVehicle * raycastVehicle = vehicle->vehicle;
 			btVector3 position = raycastVehicle->getChassisWorldTransform().getOrigin();
 			glm::vec3 pos(position.x(), position.y(), position.z());
@@ -487,32 +512,32 @@ void Game::characterDoActionIdle()
 
 void Game::vehicleDrive(bool forward)
 {
-	worldPhysics[activeScene]->vehicleDrive(vehicles[activeVehicle], forward);
+	worldPhysics[activeScene]->vehicleDrive(scenes[activeScene]->getVehicles()[activeVehicle], forward);
 }
 
 void Game::vehicleDriveReset()
 {
-	worldPhysics[activeScene]->vehicleDriveReset(vehicles[activeVehicle]);
+	worldPhysics[activeScene]->vehicleDriveReset(scenes[activeScene]->getVehicles()[activeVehicle]);
 }
 
 void Game::vehicleSteering(VEHICLE_STEERING dir)
 {
-	worldPhysics[activeScene]->vehicleSteering(vehicles[activeVehicle], dir);
+	worldPhysics[activeScene]->vehicleSteering(scenes[activeScene]->getVehicles()[activeVehicle], dir);
 }
 
 void Game::vehicleSteeringReset()
 {
-	worldPhysics[activeScene]->vehicleSteeringReset(vehicles[activeVehicle]);
+	worldPhysics[activeScene]->vehicleSteeringReset(scenes[activeScene]->getVehicles()[activeVehicle]);
 }
 
 void Game::vehicleSetWheelTransform()
 {
-	worldPhysics[activeScene]->setVehicleWheelTransform(vehicles[activeVehicle]);
+	worldPhysics[activeScene]->setVehicleWheelTransform(scenes[activeScene]->getVehicles()[activeVehicle]);
 }
 
 void Game::vehicleUpdateUpVector()
 {
-	worldPhysics[activeScene]->updateVehicleUpVector(vehicles[activeVehicle]);
+	worldPhysics[activeScene]->updateVehicleUpVector(scenes[activeScene]->getVehicles()[activeVehicle]);
 }
 
 void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
