@@ -60,7 +60,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![physics debug draw](engine_imgs/btIDebugDraw.gif)
 ### Vehicle controller
 ![vehicle](engine_imgs/btRaycastVehicle.gif)
-![vehicle night](engine_imgs/car_night.gif)
+![vehicle night](engine_imgs/car.gif)
 ### Bloom
 ![car](engine_imgs/car_bloom.png)
 ![bloom green](engine_imgs/green_lightsaber.png)
@@ -68,8 +68,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![bloom purple](engine_imgs/purple_lightsaber.png)
 ![bloom purple](engine_imgs/red_lightsaber.png)
 ### Lightning
-![podracer back](engine_imgs/podracer_back.png)
-![podracer front](engine_imgs/podracer.png)
+![podracer](engine_imgs/podracer.png)
 ![podracer lightning anim](engine_imgs/podracer_lightning.gif)
 ### 3D audio
 ![audio](engine_imgs/3D_audio.png)
