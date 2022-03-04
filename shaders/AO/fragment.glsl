@@ -1,6 +1,6 @@
 #version 460 core
 
-out float fragColor;
+out vec4 fragColor;
 
 uniform sampler2D positionBuffer;
 uniform sampler2D normalBuffer;
@@ -45,6 +45,9 @@ void main()
 		float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragPos.z - sampleDepth));
 		occlusion += ((sampleDepth >= samplePos.z + bias) ? 1.0f : 0.0f) * rangeCheck;
 	}
+
 	occlusion = 1.0f - (occlusion / 32.0f);
-	fragColor = pow(occlusion, 2.0f);
+	occlusion = pow(occlusion, 2.0f);
+
+	fragColor = vec4(vec3(occlusion), 1.0f);
 }

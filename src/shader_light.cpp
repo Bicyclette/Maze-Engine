@@ -303,51 +303,51 @@ void Shader::setLighting(std::vector<std::shared_ptr<PointLight>> & pLights, std
 
 	for(int i{0}; i < pCount; ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i) + "].type"), static_cast<int>(pLights.at(i)->getType()));
-		setFloat(std::string("light[" + std::to_string(i) + "].kc"), pLights.at(i)->getKc());
-		setFloat(std::string("light[" + std::to_string(i) + "].kl"), pLights.at(i)->getKl());
-		setFloat(std::string("light[" + std::to_string(i) + "].kq"), pLights.at(i)->getKq());
-		setVec3f(std::string("light[" + std::to_string(i) + "].position"), pLights.at(i)->getPosition());
+		setInt(std::string("light[" + std::to_string(i) + "].type"), static_cast<int>(pLights[i]->getType()));
+		setFloat(std::string("light[" + std::to_string(i) + "].kc"), pLights[i]->getKc());
+		setFloat(std::string("light[" + std::to_string(i) + "].kl"), pLights[i]->getKl());
+		setFloat(std::string("light[" + std::to_string(i) + "].kq"), pLights[i]->getKq());
+		setVec3f(std::string("light[" + std::to_string(i) + "].position"), pLights[i]->getPosition());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i) + "].ambientStrength"), pLights.at(i)->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i) + "].diffuseStrength"), pLights.at(i)->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i) + "].specularStrength"), pLights.at(i)->getSpecularStrength());
+			setVec3f(std::string("light[" + std::to_string(i) + "].ambientStrength"), pLights[i]->getAmbientStrength());
+			setVec3f(std::string("light[" + std::to_string(i) + "].diffuseStrength"), pLights[i]->getDiffuseStrength());
+			setVec3f(std::string("light[" + std::to_string(i) + "].specularStrength"), pLights[i]->getSpecularStrength());
 		}
-		else if(type == SHADER_TYPE::PBR)
-			setVec3f(std::string("light[" + std::to_string(i) + "].color"), pLights.at(i)->getDiffuseStrength());
+		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
+			setVec3f(std::string("light[" + std::to_string(i) + "].color"), pLights[i]->getDiffuseStrength());
 	}
 
 	for(int i{0}; i < dLights.size(); ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i + dOffset) + "].type"), static_cast<int>(dLights.at(i)->getType()));
-		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].position"), dLights.at(i)->getPosition());
-		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].direction"), dLights.at(i)->getDirection());
+		setInt(std::string("light[" + std::to_string(i + dOffset) + "].type"), static_cast<int>(dLights[i]->getType()));
+		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].position"), dLights[i]->getPosition());
+		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].direction"), dLights[i]->getDirection());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].ambientStrength"), dLights.at(i)->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].diffuseStrength"), dLights.at(i)->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].specularStrength"), dLights.at(i)->getSpecularStrength());
+			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].ambientStrength"), dLights[i]->getAmbientStrength());
+			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].diffuseStrength"), dLights[i]->getDiffuseStrength());
+			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].specularStrength"), dLights[i]->getSpecularStrength());
 		}
-		else if(type == SHADER_TYPE::PBR)
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].color"), dLights.at(i)->getDiffuseStrength());
+		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
+			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].color"), dLights[i]->getDiffuseStrength());
 	}
 
 	for(int i{0}; i < sLights.size(); ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i + sOffset) + "].type"), static_cast<int>(sLights.at(i)->getType()));
-		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].cutOff"), cos(sLights.at(i)->getCutOff()));
-		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].outerCutOff"), cos(sLights.at(i)->getOuterCutOff()));
-		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].position"), sLights.at(i)->getPosition());
-		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].direction"), sLights.at(i)->getDirection());
+		setInt(std::string("light[" + std::to_string(i + sOffset) + "].type"), static_cast<int>(sLights[i]->getType()));
+		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].cutOff"), cos(sLights[i]->getCutOff()));
+		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].outerCutOff"), cos(sLights[i]->getOuterCutOff()));
+		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].position"), sLights[i]->getPosition());
+		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].direction"), sLights[i]->getDirection());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].ambientStrength"), sLights.at(i)->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].diffuseStrength"), sLights.at(i)->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].specularStrength"), sLights.at(i)->getSpecularStrength());
+			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].ambientStrength"), sLights[i]->getAmbientStrength());
+			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].diffuseStrength"), sLights[i]->getDiffuseStrength());
+			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].specularStrength"), sLights[i]->getSpecularStrength());
 		}
-		else if(type == SHADER_TYPE::PBR)
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].color"), sLights.at(i)->getDiffuseStrength());
+		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
+			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].color"), sLights[i]->getDiffuseStrength());
 	}
 }
 

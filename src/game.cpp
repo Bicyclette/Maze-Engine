@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-/*
+
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,7 +82,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-*/
+
 /*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
@@ -93,7 +93,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::VEHICLE, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
@@ -128,7 +128,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.5f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
 	scenes[scenes.size()-1]->addVehicle(v);
 */
-/*	
+/*
 	// create emission scene
 	scenes.push_back(std::make_shared<Scene>("emission", 0));
 
@@ -142,11 +142,10 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(0.75f, 0.75f, 0.75f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f), 30.0f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f), 30.0f);
 
 	scenes[0]->addObject("assets/lightsaber/lightsaber.glb", glm::mat4(1.0f));
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/evening_meadow_2k.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 */
 /*
@@ -163,21 +162,18 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.75f), 10.0f);
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(-4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(4.0f, 3.0f, -3.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f) * 2.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 2.0f, 10.0f), glm::vec3(0.025f), glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), 1.0f, 0.07f, 0.017f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.5f, 1.2f, 0.9f) * 0.5f, glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.5f), 10.0f);
 
-	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/podracer.gltf", glm::mat4(1.0f));
-	scenes[0]->addObject("/home/mathias/CGI/Blender/podracers/anakin/ground.glb", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/pod/pod.gltf", glm::mat4(1.0f));
+	scenes[0]->addObject("assets/pod/ground.gltf", glm::mat4(1.0f));
 	
 	std::vector<float> arcs{0.1f, 0.01f, 0.18f, 0.01f};
-	scenes[0]->addLightning(glm::vec3(0.97563f, 1.5146f, 1.9529f), glm::vec3(-0.97563f, 1.5146f, 1.9529f), 30, glm::vec3(0.79f, 0.017f, 0.8f), 10.0f, arcs, true, 0.25f);
+	scenes[0]->addLightning(glm::vec3(0.98188f, 1.5146f, 0.45293f), glm::vec3(-0.98188f, 1.5146f, 0.45293f), 30, glm::vec3(0.79f, 0.017f, 0.8f), 10.0f, arcs, true, 0.25f);
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 */
-
+/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -187,24 +183,25 @@ Game::Game(int clientWidth, int clientHeight) :
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camRight = glm::normalize(glm::cross(camDir, camUp));
 	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.025f), glm::vec3(1.75f, 1.5f, 0.9f)*4.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
 
 	scenes[0]->addObject("assets/radio/radio.glb", glm::mat4(1.0f));
 	scenes[0]->addAudioFile("assets/radio/cantina.wav");
 	scenes[0]->addSoundSource(glm::vec3(-0.2f, 2.4f, 0.5f), glm::vec3(-0.25f, 0.0f, 1.0f), 90.0f, 360.0f, 10.0f, false);
 	scenes[0]->playSound(0, 0);
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/stadium.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
+*/
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// update physics
 	if(!worldPhysics.empty())
@@ -240,6 +237,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 	*/
 	// get shader
 	Shader s = graphics->getPBRShader();
+	//Shader s = graphics->getBlinnPhongShader();
 
 	if(activeScene < scenes.size())
 	{
@@ -271,9 +269,13 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			if(graphics->bloomOn())
 				bloomPass(width, height);
 
+			// VOLUMETRICS PASS
+			if(graphics->volumetricLightingOn())
+				volumetricsPass(activeScene, width, height, delta);
+
 			// BIND TO DEFAULT FRAMEBUFFER
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// DRAW FINAL IMAGE QUAD
 			graphics->getFinalShader().use();
@@ -309,7 +311,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			graphics->getMultisampleFBO()->bind();
 
 			// draw scene
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			s.setVec3f("cam.viewPos", scenes[activeScene]->getActiveCamera()->getPosition());
 			s.setMatrix("view", scenes[activeScene]->getActiveCamera()->getViewMatrix());
 			s.setMatrix("proj", scenes[activeScene]->getActiveCamera()->getProjectionMatrix());
@@ -326,9 +328,13 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			if(graphics->bloomOn())
 				bloomPass(width, height);
 
+			// VOLUMETRICS PASS
+			if(graphics->volumetricLightingOn())
+				volumetricsPass(activeScene, width, height, delta);
+
 			// bind to default framebuffer
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// draw final image quad
 			graphics->getFinalShader().use();
@@ -648,9 +654,10 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 
 	// get shader
 	Shader s = graphics->getPBRShader();
+	//Shader s = graphics->getBlinnPhongShader();
 
 	// draw scene
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	s.use();
 	s.setInt("pointLightCount", scenes[index]->getPLights().size());
 	s.setVec3f("cam.viewPos", scenes[index]->getActiveCamera()->getPosition());
@@ -833,6 +840,10 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 
 	// render ambient occlusion data
 	graphics->getAOFBO(0)->bind();
+	glViewport(0, 0, width, height);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	graphics->getAOShader().use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position
@@ -854,11 +865,94 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	graphics->getQuadMesh()->draw(graphics->getAOShader());
 
 	graphics->getAOFBO(1)->bind();
+	glViewport(0, 0, width, height);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	
 	graphics->getAOBlurShader().use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(0)->getAttachments()[0].id); // raw AO
 	graphics->getAOBlurShader().setInt("aoInput", 0);
 	graphics->getQuadMesh()->draw(graphics->getAOBlurShader());
+
+	// reset clear color
+	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
+}
+
+void Game::volumetricsPass(int index, int width, int height, float delta)
+{
+	graphics->getVolumetricsFBO()->bind();
+	glViewport(0, 0, width, height);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// get shader
+	Shader & s = graphics->getVolumetricLightingShader();
+	
+	// set shader data
+	s.use();
+	s.setInt("pointLightCount", scenes[index]->getPLights().size());
+	s.setVec3f("cam.viewPos", scenes[index]->getActiveCamera()->getPosition());
+	s.setFloat("cam.near_plane", scenes[index]->getActiveCamera()->getNearPlane());
+	s.setFloat("cam.far_plane", scenes[index]->getActiveCamera()->getFarPlane());
+	glActiveTexture(GL_TEXTURE0 + 10);
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position of each fragment
+	s.setInt("fragPosition", 10);
+	s.setMatrix("cam.inv_view", glm::inverse(scenes[index]->getActiveCamera()->getViewMatrix()));
+	s.setMatrix("cam.inv_proj", glm::inverse(scenes[index]->getActiveCamera()->getProjectionMatrix()));
+	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
+
+	// set shadow maps (point first, dir second and spot last)
+	int nbPLights = scenes[index]->getPLights().size();
+	int nbDLights = scenes[index]->getDLights().size();
+	int nbSLights = scenes[index]->getSLights().size();
+
+	for(int i{0}; i < nbPLights; ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments()[0].id);
+		s.setInt("omniDepthMap[" + std::to_string(i) + "]", i);
+		s.setMatrix("light[" + std::to_string(i) + "].lightSpaceMatrix", glm::mat4(1.0f));
+	}
+	// "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
+	// "black screen, or your clear color. Also, following draw calls may cause invalid "
+	// "operation. Better to uniform all unused sampler types with some random texture index."
+	for(int i{nbPLights}; i < 10; ++i)
+	{
+		s.setInt("omniDepthMap[" + std::to_string(i) + "]", nbPLights);
+	}
+
+	for(int i{0}; i < nbDLights; ++i)
+	{
+		glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
+		glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
+		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glActiveTexture(GL_TEXTURE0 + nbPLights + i);
+		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(i)->getAttachments()[0].id);
+		s.setInt("depthMap[" + std::to_string(i) + "]", nbPLights + i);
+		s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()) * lightView);
+	}
+
+	for(int i{0}; i < nbSLights; ++i)
+	{
+		float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
+		glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();
+		glm::vec3 lightTarget = lightPosition + scenes[index]->getSLights()[i]->getDirection();
+		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 spotProj = glm::perspective(
+					outerCutOff * 2.0f, 1.0f,
+					scenes[index]->getActiveCamera()->getNearPlane(),
+					scenes[index]->getActiveCamera()->getFarPlane()
+					);
+
+		glActiveTexture(GL_TEXTURE0 + nbPLights + nbDLights + i);
+		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(nbDLights + i)->getAttachments()[0].id);
+		s.setInt("depthMap[" + std::to_string(nbDLights + i) + "]", nbPLights + nbDLights + i);
+		s.setMatrix("light[" + std::to_string(i + nbPLights + nbDLights) + "].lightSpaceMatrix", spotProj * lightView);
+	}
+	
+	graphics->getQuadMesh()->draw(s);
 
 	// reset clear color
 	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);

@@ -9,6 +9,7 @@ Graphics::Graphics(int width, int height) :
 	bloomSigma(4.0f),
 	bloomSize(15),
 	ssaoEffect{true},
+	volumetricsOn{true},
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -79,6 +80,7 @@ Graphics::Graphics(int width, int height) :
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 		},
+	volumetrics{std::make_unique<Framebuffer>(true, false, true)},
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
@@ -90,6 +92,7 @@ Graphics::Graphics(int width, int height) :
 	tentBlur("shaders/tentBlur/vertex.glsl", "shaders/tentBlur/fragment.glsl", SHADER_TYPE::BLUR),
 	downSample("shaders/downSampling/vertex.glsl", "shaders/downSampling/fragment.glsl", SHADER_TYPE::SAMPLING),
 	upSample("shaders/upSampling/vertex.glsl", "shaders/upSampling/fragment.glsl", SHADER_TYPE::SAMPLING),
+	volumetricLighting("shaders/volumetrics/vertex.glsl", "shaders/volumetrics/fragment.glsl", SHADER_TYPE::VOLUMETRIC_LIGHTING),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
 	// Generic Multisample FBO
@@ -114,7 +117,7 @@ Graphics::Graphics(int width, int height) :
 
 	// AMBIENT OCCLUSION
 	for(int i{0}; i < 2; ++i)
-		AOBuffer[i]->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
+		AOBuffer[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 	std::default_random_engine generator;
@@ -161,6 +164,9 @@ Graphics::Graphics(int width, int height) :
 		upSampling[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 	}
+
+	// VOLUMETRICS FBO
+	volumetrics->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -238,6 +244,16 @@ void Graphics::setSSAOEffect(bool ao)
 bool Graphics::ssaoOn()
 {
 	return ssaoEffect;
+}
+
+void Graphics::setVolumetricLighting(bool v)
+{
+	volumetricsOn = v;
+}
+
+bool Graphics::volumetricLightingOn()
+{
+	return volumetricsOn;
 }
 
 void Graphics::set_tone_mapping(TONE_MAPPING tone)
@@ -332,6 +348,11 @@ Shader & Graphics::getUpSamplingShader()
 	return upSample;
 }
 
+Shader & Graphics::getVolumetricLightingShader()
+{
+	return volumetricLighting;
+}
+
 Shader & Graphics::getFinalShader()
 {
 	return end;
@@ -380,6 +401,11 @@ std::unique_ptr<Framebuffer> & Graphics::getPingPongFBO(int index)
 std::unique_ptr<Framebuffer> & Graphics::getUpSamplingFBO(int index)
 {
 	return upSampling[index];
+}
+
+std::unique_ptr<Framebuffer> & Graphics::getVolumetricsFBO()
+{
+	return volumetrics;
 }
 
 std::unique_ptr<Mesh> & Graphics::getQuadMesh()
@@ -435,12 +461,13 @@ void Graphics::resizeScreen(int width, int height)
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 	};
+	volumetrics = std::make_unique<Framebuffer>(true, false, true);
 	
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
 
-	for(int i{0}; i < 2; ++i)
+	for(int i{0}; i < 3; ++i)
 		normal[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// SSAO G-BUFFER FBO
@@ -451,7 +478,7 @@ void Graphics::resizeScreen(int width, int height)
 
 	// AMBIENT OCCLUSION BUFFER
 	for(int i{0}; i < 2; ++i)
-		AOBuffer[i]->addSingleColorTextureAttachment(GL_RED, GL_NEAREST, width, height);
+		AOBuffer[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// bloom ping pong FBOs
 	for(int i{1}; i <= 6; ++i)
@@ -469,6 +496,9 @@ void Graphics::resizeScreen(int width, int height)
 		upSampling[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 	}
+
+	// VOLUMETRICS FBO
+	volumetrics->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()

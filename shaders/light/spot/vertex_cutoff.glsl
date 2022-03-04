@@ -20,9 +20,10 @@ out VS_OUT
 
 void main()
 {
-	vs_out.direction = proj * view * model * vec4(direction, 0.0f);
-	vs_out.right = proj * view * model * vec4(right, 0.0f);
-	vs_out.up = proj * view * model * vec4(cross(right, direction), 0.0f);
+	mat4 MVP = proj * view * model;
+	vs_out.direction = MVP * vec4(direction, 0.0f);
+	vs_out.right = MVP * vec4(right, 0.0f);
+	vs_out.up = MVP * vec4(cross(right, direction), 0.0f);
 	vs_out.cutOff = cutOff;
-	gl_Position = proj * view * model * vec4(aPos, 1.0f);
+	gl_Position = MVP * vec4(aPos, 1.0f);
 }

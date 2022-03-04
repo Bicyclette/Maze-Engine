@@ -68,11 +68,12 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![bloom purple](engine_imgs/purple_lightsaber.png)
 ![bloom purple](engine_imgs/red_lightsaber.png)
 ### Lightning
-![podracer lightning](engine_imgs/podracer_lightning1.png)
-![podracer lightning anim](engine_imgs/lightning.gif)
+![podracer back](engine_imgs/podracer_back.png)
+![podracer front](engine_imgs/podracer.png)
+![podracer lightning anim](engine_imgs/podracer_lightning.gif)
 ### 3D audio
-![audio](engine_imgs/audio.png)
-![audio](engine_imgs/audio_debug.png)
+![audio](engine_imgs/3D_audio.png)
+![audio](engine_imgs/3D_audio_close_up.png)
 
 ## TO DO
 **AI**
@@ -83,7 +84,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Podracer vehicle controller
 
 **Graphics**
-* Transparency
+* Volumetric lighting
+* Ordered transparency
 
 **UI**
 * OpenGL based user interface (buttons, menus, layout).

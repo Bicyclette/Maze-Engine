@@ -1,6 +1,6 @@
 #version 460 core
 
-out float fragColor;
+out vec4 fragColor;
 
 uniform sampler2D aoInput;
 
@@ -19,5 +19,5 @@ void main()
 			result += texture(aoInput, texCoords + offset).r;
 		}
 	}
-	fragColor = result / 16.0f;
+	fragColor = vec4(vec3(result / 16.0f), 1.0f);
 }
