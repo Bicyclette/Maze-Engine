@@ -148,7 +148,7 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setGridAxis(8);
 */
-
+/*
 	// create podracer scene
 	scenes.push_back(std::make_shared<Scene>("podracer", 0));
 
@@ -172,8 +172,8 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
+*/
 
-/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -196,7 +196,6 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
-*/
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
