@@ -187,14 +187,14 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*5.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
 
 	scenes[0]->addObject("assets/radio/radio.glb", glm::mat4(1.0f));
 	scenes[0]->addAudioFile("assets/radio/cantina.wav");
 	scenes[0]->addSoundSource(glm::vec3(-0.2f, 2.4f, 0.5f), glm::vec3(-0.25f, 0.0f, 1.0f), 90.0f, 360.0f, 10.0f, false);
 	scenes[0]->playSound(0, 0);
 
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 }
 

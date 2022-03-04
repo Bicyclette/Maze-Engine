@@ -116,7 +116,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 			vehicleCallback(client, game);
 
 		// draw scene
-		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, false, false);
+		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, true, false);
 
 		client->resetEvents();
 		SDL_GL_SwapWindow(client->getWindowPtr());
