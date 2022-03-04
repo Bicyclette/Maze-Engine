@@ -71,7 +71,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![podracer](engine_imgs/podracer.png)
 ![podracer lightning anim](engine_imgs/podracer_lightning.gif)
 ### 3D audio
-![audio](engine_imgs/3D_audio.png)
+![audio](engine_imgs/audio_debug.png)
 ![audio](engine_imgs/3D_audio_close_up.png)
 
 ## TO DO
