@@ -1,6 +1,6 @@
 #version 460 core
 
-out vec4 color;
+layout (location = 0) out vec4 color;
 
 struct Light
 {
@@ -16,11 +16,11 @@ struct Camera
 	vec3 viewPos;
 	float near_plane;
 	float far_plane;
-	mat4 inv_view;
-	mat4 inv_proj;
+	mat4 inv_viewProj;
+	sampler2D depthMap;
 };
 
-uniform	sampler2D fragPosition; // world
+uniform int N; // raymarching steps
 uniform Camera cam;
 uniform int lightCount;
 uniform Light light[10];
@@ -32,9 +32,6 @@ in VS_OUT
 {
 	vec2 texCoords;
 } fs_in;
-
-const float PI = 3.14159265359;
-const float G_SCATTERING = 0.5f;
 
 float fetchShadow(vec4 fragPosLightSpace, vec3 lightDir, int l)
 {
@@ -75,47 +72,44 @@ float fetchOmniShadow(vec3 fragPos, vec3 lightPos, int l)
 	return shadow;
 }
 
-// Henyey-greenstein phase function
-float computeScattering(float lightDotView)
+float linearizeDepth(float depth)
 {
-	float result = 1.0f - G_SCATTERING * G_SCATTERING;
-	result /= (4.0f * PI * pow(1.0f + G_SCATTERING * G_SCATTERING - (2.0f * G_SCATTERING) * lightDotView, 1.5f));
-	return result;
+	float z_n = 2.0 * depth -1.0;
+	return 2.0 * cam.near_plane * cam.far_plane / (cam.far_plane + cam.near_plane - z_n * (cam.far_plane - cam.near_plane));
 }
 
-vec3 depthToWorldPosition(sampler2D shadowMap)
+vec4 depthToWorldPosition(sampler2D shadowMap)
 {
 	// get fragment depth range = [0 - 1]
 	float fragDepth = texture(shadowMap, fs_in.texCoords).r;
 	// clip space coordinates
-	vec2 clipXY = fs_in.texCoords * 2.0 - 1.0;
-	vec4 clip_space_coords = vec4(clipXY, fragDepth * 2.0 - 1.0, 1.0);
-	// view space coordinates
-	vec4 view_space_coords = cam.inv_proj * clip_space_coords;
-	view_space_coords /= view_space_coords.w;
+	vec2 uv = fs_in.texCoords;
+	vec4 clip;
+	clip.x = 2.0 * uv.x - 1.0;
+	clip.y = 2.0 * uv.y - 1.0;
+	clip.z = 2.0 * fragDepth - 1.0;
+	clip.w = 1.0;
 	// world space coordinates
-	vec4 fragWorldPos = cam.inv_view * view_space_coords;
-
-	return fragWorldPos.xyz;
+	vec4 fragWorldPos = cam.inv_viewProj * clip;
+	return fragWorldPos /= fragWorldPos.w;
 }
 
 void main()
 {
-	vec3 worldCoords = texture(fragPosition, fs_in.texCoords).xyz;
-	vec4 fragWorldPos = vec4(worldCoords, 1.0f);
+	vec4 fragWorldPos = depthToWorldPosition(cam.depthMap);
 
 	// (camera -> fragment) world vector
 	vec3 rayWorld = fragWorldPos.xyz - cam.viewPos;
 
-	// ray marching with 10 steps
-	vec3 step = rayWorld / 10.0f;
-	
+	// ray marching step vector
+	vec3 step = rayWorld / N;
+
+	float fog = 0.0f;
 	for(int i = 0; i < lightCount; ++i)
 	{
 		if(light[i].type == 0) // omni
 		{
-			vec3 lightDirection = fragWorldPos.xyz - light[i].position;
-			for(int j = 0; j <= 10; ++j)
+			for(int j = 0; j <= N; ++j)
 			{
 				vec3 currentWorldSpacePosition = cam.viewPos + step * j;
 				// sample cube shadow map in light view space
@@ -123,13 +117,13 @@ void main()
 				float shadow = fetchOmniShadow(currentLightSpacePosition.xyz, light[i].position, i);
 				if(shadow == 0.0f)
 				{
-					color += vec4(computeScattering(dot(rayWorld, lightDirection)) * light[i].color, 0.0f);
+					//fog += 1.0/N;
 				}
 			}
 		}
-		else // not omni
+		if(light[i].type != 0)// not omni
 		{
-			for(int j = 0; j <= 10; ++j)
+			for(int j = 0; j <= N; ++j)
 			{
 				vec3 currentWorldSpacePosition = cam.viewPos + step * j;
 				// sample shadow map in light view space
@@ -138,10 +132,10 @@ void main()
 				float shadow = fetchShadow(currentLightSpacePosition, light[i].direction, i);
 				if(shadow == 0.0f)
 				{
-					color += vec4(computeScattering(dot(rayWorld, light[i].direction)) * light[i].color, 0.0f);
+					fog += 1.0/N;
 				}
 			}
 		}
 	}
-	color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	color = vec4(vec3(fog), 1.0f);
 }

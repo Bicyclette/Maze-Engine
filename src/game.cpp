@@ -187,7 +187,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*5.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+	//scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*4.5f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.25f), 10.0f);
 
 	scenes[0]->addObject("assets/radio/radio.glb", glm::mat4(1.0f));
 	scenes[0]->addAudioFile("assets/radio/cantina.wav");
@@ -292,6 +293,17 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			{
 				graphics->getFinalShader().setInt("bloomEffect", 0);
 			}
+			if(graphics->volumetricLightingOn())
+			{
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
+				graphics->getFinalShader().setInt("volumetrics", 2);
+				graphics->getFinalShader().setInt("volumetricsOn", 1);
+			}
+			else
+			{
+				graphics->getFinalShader().setInt("volumetricsOn", 0);
+			}
 			graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
 			graphics->getQuadMesh()->draw(graphics->getFinalShader());
 		}
@@ -350,6 +362,17 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 			else
 			{
 				graphics->getFinalShader().setInt("bloomEffect", 0);
+			}
+			if(graphics->volumetricLightingOn())
+			{
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
+				graphics->getFinalShader().setInt("volumetrics", 2);
+				graphics->getFinalShader().setInt("volumetricsOn", 1);
+			}
+			else
+			{
+				graphics->getFinalShader().setInt("volumetricsOn", 0);
 			}
 			graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
 			graphics->getQuadMesh()->draw(graphics->getFinalShader());
@@ -894,11 +917,13 @@ void Game::volumetricsPass(int index, int width, int height, float delta)
 	s.setVec3f("cam.viewPos", scenes[index]->getActiveCamera()->getPosition());
 	s.setFloat("cam.near_plane", scenes[index]->getActiveCamera()->getNearPlane());
 	s.setFloat("cam.far_plane", scenes[index]->getActiveCamera()->getFarPlane());
+	glm::mat4 inv_viewProj = glm::inverse(scenes[index]->getActiveCamera()->getProjectionMatrix() * scenes[index]->getActiveCamera()->getViewMatrix());
+	s.setMatrix("cam.inv_viewProj", inv_viewProj);
 	glActiveTexture(GL_TEXTURE0 + 10);
-	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position of each fragment
-	s.setInt("fragPosition", 10);
-	s.setMatrix("cam.inv_view", glm::inverse(scenes[index]->getActiveCamera()->getViewMatrix()));
-	s.setMatrix("cam.inv_proj", glm::inverse(scenes[index]->getActiveCamera()->getProjectionMatrix()));
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[2].id); // depth of each fragment
+	s.setInt("cam.depthMap", 10);
+	s.setInt("N", 500);
+	
 	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 
 	// set shadow maps (point first, dir second and spot last)

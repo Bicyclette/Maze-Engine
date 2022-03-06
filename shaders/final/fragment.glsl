@@ -5,6 +5,8 @@ out vec4 fragColor;
 uniform sampler2D scene;
 uniform sampler2D bloom;
 uniform int bloomEffect;
+uniform sampler2D volumetrics;
+uniform int volumetricsOn;
 uniform int tone_mapping; // 0 = Reinhard, 1 = ACES
 
 in vec2 texCoords;
@@ -58,7 +60,7 @@ void main()
 	fragColor = gammaCorrection(vec4(color, 1.0));
 
 	// show scene data (if one GBufferFBO's attachment was sent on scene uniform) or AO data
-	//fragColor = texture(scene, texCoords);
+	//fragColor = texture(volumetrics, texCoords);
 	//fragColor = vec4(vec3(texture(scene, texCoords).r), 1.0f);
 	//fragColor = texture(bloom, texCoords);
 }
