@@ -54,7 +54,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 ## DEMO
 ### Character controller
-![explorer camera](engine_imgs/character_controller.gif)
+![explorer camera](engine_imgs/regular_cam.gif)
 ### Third person camera
 ![third person camera](engine_imgs/third_person.gif)
 ### Bullet physics debug draw
