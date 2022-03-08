@@ -78,6 +78,7 @@ set(HEADERS
 	include/particle.hpp
 	include/audio.hpp
 	include/vehicle.hpp
+    include/editorUI.hpp
 	include/rapidxml.hpp
 	include/lightning.hpp
 	include/helpers.hpp

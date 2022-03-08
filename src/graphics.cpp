@@ -467,7 +467,7 @@ void Graphics::resizeScreen(int width, int height)
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
 
-	for(int i{0}; i < 3; ++i)
+	for(int i{0}; i < 2; ++i)
 		normal[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// SSAO G-BUFFER FBO

@@ -10,6 +10,7 @@
 #include "window.hpp"
 #include "game.hpp"
 #include "framebuffer.hpp"
+#include "editorUI.hpp"
 
 void characterMovements(std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game, float delta)
 {
@@ -83,8 +84,73 @@ void vehicleCallback(std::unique_ptr<WindowManager> & client, std::unique_ptr<Ga
 	game->vehicleUpdateUpVector();
 }
 
+void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game)
+{
+    // ImGui frame init code
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(client->getWindowPtr());
+    ImGui::NewFrame();
+
+    // >>>>>>>>>> IMGUI
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::Begin("shadows");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.shadows, 1);
+    ImGui::RadioButton("OFF", &settings.shadows, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(150, 0));
+    ImGui::Begin("bloom");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.bloom, 1);
+    ImGui::RadioButton("OFF", &settings.bloom, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(300, 0));
+    ImGui::Begin("AO");
+    ImGui::SetWindowSize(ImVec2(100, 80));
+    ImGui::RadioButton("ON", &settings.AO, 1);
+    ImGui::RadioButton("OFF", &settings.AO, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(0, 80));
+    ImGui::Begin("TONE MAPPING");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
+    ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
+    ImGui::End();
+    // <<<<<<<<<< IMGUI
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    // change engine states
+    if(settings.shadows == 1)
+        game->getGraphics()->setShadows(true);
+    else
+        game->getGraphics()->setShadows(false);
+    if(settings.bloom == 1)
+        game->getGraphics()->setBloomEffect(true);
+    else
+        game->getGraphics()->setBloomEffect(false);
+    if(settings.AO == 1)
+        game->getGraphics()->setSSAOEffect(true);
+    else
+        game->getGraphics()->setSSAOEffect(false);
+    if(settings.tone_mapping == 0)
+        game->getGraphics()->set_tone_mapping(TONE_MAPPING::REINHARD);
+    else
+        game->getGraphics()->set_tone_mapping(TONE_MAPPING::ACES);
+}
+
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 {
+    // IMGUI data
+    EDITOR_UI_SETTINGS editor_settings;
+    
+    // start
+    bool debug{true};
+    bool debugPhysics{false};
 	game->setActiveScene(0);
 	//game->setActiveVehicle(0);
 
@@ -116,7 +182,11 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 			vehicleCallback(client, game);
 
 		// draw scene
-		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, false, false);
+		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, debug, debugPhysics);
+
+        // draw editor UI
+        if(debug)
+            editorUI(editor_settings, client, game);
 
 		client->resetEvents();
 		SDL_GL_SwapWindow(client->getWindowPtr());
