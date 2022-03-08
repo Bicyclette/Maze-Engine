@@ -24,6 +24,15 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, std::string collis
 	}
 
 	objects.push_back(obj);
+
+    std::vector<std::shared_ptr<Mesh>> & meshes{obj->getMeshes()};
+    for(auto mesh : meshes)
+    {
+        if(mesh->getMaterial().opaque == 1)
+            opaqueMesh.push_back(std::make_pair(mesh, obj));
+        else
+            transparentMesh.push_back(std::make_pair(mesh, obj));
+    }
 }
 
 void Scene::addObject(std::shared_ptr<Object> obj)
@@ -128,7 +137,7 @@ std::string & Scene::getName()
 	return name;
 }
 
-void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float delta, DRAWING_MODE mode, bool debug)
+void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode, bool debug)
 {
 	if(debug)
 	{
@@ -178,13 +187,48 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float de
 		shader.setInt("IBL", 0);
 	}
 
-	for(int i{0}; i < objects.size(); ++i)
-	{
-		if(ibl)
-			objects[i]->draw(shader, &iblData, mode);
-		else
-			objects[i]->draw(shader, nullptr, mode);
-	}
+    if(drawType == DRAW_TYPE::BOTH)
+    {
+	    for(int i{0}; i < objects.size(); ++i)
+	    {
+		    if(ibl)
+			    objects[i]->draw(shader, &iblData, mode);
+		    else
+			    objects[i]->draw(shader, nullptr, mode);
+	    }
+    }
+
+    else if(drawType == DRAW_TYPE::OPAQUE)
+    {
+        shader.use();
+        shader.setInt("animated", 0);
+        for(auto mesh : opaqueMesh)
+        {
+            shader.setMatrix("model", mesh.second->getModel());
+            if(shader.getType() == SHADER_TYPE::SHADOWS && mesh.first->getMaterial().color_emissive != glm::vec3(0.0f))
+            {
+                continue;
+            }
+            mesh.first->draw(shader, &iblData, mesh.second->getInstancing(), mesh.second->getInstanceModel().size(), mode);
+        }
+    }
+    else
+    {
+        shader.use();
+        shader.setInt("animated", 0);
+        
+        Scene::sortCamPos = activeCamera->getPosition();
+        qsort(transparentMesh.data(), transparentMesh.size(), sizeof(std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>), sortTransparentMesh);
+        for(auto mesh : transparentMesh)
+        {
+            shader.setMatrix("model", mesh.second->getModel());
+            if(shader.getType() == SHADER_TYPE::SHADOWS && mesh.first->getMaterial().color_emissive != glm::vec3(0.0f))
+            {
+                continue;
+            }
+            mesh.first->draw(shader, &iblData, mesh.second->getInstancing(), mesh.second->getInstanceModel().size(), mode);
+        }
+    }
 	
 	if(character && character->sceneID == ID)
 	{
@@ -261,4 +305,18 @@ void Scene::playSound(int source_index, int audio_index)
 void Scene::stopSound(int source_index, int audio_index)
 {
 	sound_source[source_index].stop_sound();
+}
+
+int Scene::sortTransparentMesh(const void * a, const void * b)
+{
+    std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>> meshA{*static_cast<const std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>*>(a)};
+    std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>> meshB{*static_cast<const std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>*>(b)};
+    float distanceA = glm::length(meshA.first->getCenter() - Scene::sortCamPos);
+    float distanceB = glm::length(meshB.first->getCenter() - Scene::sortCamPos);
+    if(distanceA < distanceB)
+        return 1;
+    else if(distanceA > distanceB)
+        return -1;
+    else
+        return 0;
 }

@@ -36,10 +36,15 @@ void main()
 {
 	vec3 sceneColor = texture(scene, texCoords).rgb;
 	vec3 bloomColor = vec3(0.0f);
+    vec3 volumetricColor = vec3(0.0f);
 	if(bloomEffect == 1)
 	{
 		bloomColor = texture(bloom, texCoords).rgb;
 	}
+    if(volumetricsOn == 1)
+    {
+        volumetricColor = texture(volumetrics, texCoords).rgb;
+    }
 
 	// gather colors
 	vec3 color = sceneColor + bloomColor;

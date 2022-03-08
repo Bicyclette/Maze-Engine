@@ -87,6 +87,7 @@ struct Texture
 
 struct Material
 {
+    int opaque;
 	float opacity;
     glm::vec3 color_diffuse;
 	glm::vec3 color_specular;

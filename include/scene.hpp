@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <cstdlib>
 #include "skybox.hpp"
 #include "camera.hpp"
 #include "color.hpp"
@@ -17,6 +18,13 @@
 #include "audio.hpp"
 #include "lightning.hpp"
 #include "worldPhysics.hpp"
+
+enum class DRAW_TYPE
+{
+    OPAQUE,
+    TRANSPARENT,
+    BOTH
+};
 
 class Scene
 {
@@ -44,7 +52,7 @@ class Scene
 		std::vector<std::shared_ptr<Camera>> & getCameras();
 		std::shared_ptr<Camera> & getActiveCamera();
 		std::string & getName();
-		void draw(Shader & shader, std::unique_ptr<Graphics> & graphics, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
+		void draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
 		std::vector<std::shared_ptr<PointLight>> & getPLights();
 		std::vector<std::shared_ptr<DirectionalLight>> & getDLights();
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
@@ -58,6 +66,11 @@ class Scene
 		void playSound(int source_index, int audio_index);
 		void stopSound(int source_index, int audio_index);
 
+    public:
+        static inline glm::vec3 sortCamPos;
+    private:
+        static int sortTransparentMesh(const void * a, const void * b);
+
 	private:
 
 		int ID;
@@ -67,6 +80,8 @@ class Scene
 		std::vector<std::shared_ptr<Camera>> cameras;
 
 		std::vector<std::shared_ptr<Object>> objects;
+		std::vector<std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>> opaqueMesh;
+		std::vector<std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>> transparentMesh;
 		std::shared_ptr<Character> character;
 		std::vector<std::shared_ptr<Vehicle>> vehicles;
 		Audio audio; // collection of audio files

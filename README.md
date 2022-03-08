@@ -9,8 +9,9 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * skybox
 * shadow mapping
 * screen space ambient occlusion
-* bloom
+* bloom (xml data)
 * lightning
+* Ordered transparency (xml data)
 * vignette
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
@@ -84,7 +85,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 
 **Graphics**
 * Volumetric lighting
-* Ordered transparency
+* Motion blur
 
 **UI**
 * OpenGL based user interface (buttons, menus, layout).

@@ -61,7 +61,7 @@ class Mesh
 {
 	public:
 
-		Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m, std::string aName);
+		Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m, std::string aName, glm::vec3 center);
         ~Mesh();
 		std::string getName();
 		std::vector<Vertex> const& getVertices() const;
@@ -72,6 +72,7 @@ class Mesh
 		void recreate(std::vector<Vertex> aVertices, std::vector<int> aIndices, bool dynamicDraw);
 		void updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices);
 		bool getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out);
+        glm::vec3 getCenter();
 
 	private:
 
@@ -82,6 +83,7 @@ class Mesh
 		std::string name;
 		std::vector<Vertex> vertices;
 		std::vector<int> indices;
+        glm::vec3 m_center;
 		Material material;
 
 		void shaderProcessing(Shader & s, struct IBL_DATA * iblData); // set proper uniforms according to shader type

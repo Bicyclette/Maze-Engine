@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-/*
+
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,7 +82,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-*/
+
 /*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
@@ -173,7 +173,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
 */
-
+/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -197,6 +197,7 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
+*/
 }
 
 void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -241,142 +242,72 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 
 	if(activeScene < scenes.size())
 	{
-		if(graphics->shadowsOn())
-		{
-			s.use();
-			s.setInt("shadowOn", 1);
+	    s.use();
 
+		s.setInt("shadowOn", 0);
+        if(graphics->shadowsOn())
+        {
+			s.setInt("shadowOn", 1);
 			// SHADOW PASS : directional & spot light sources
 			directionalShadowPass(activeScene, delta, mode);
-			
 			// SHADOW PASS : point light sources
 			omnidirectionalShadowPass(activeScene, delta, mode);
+        }
 
-			// SSAO PASS
-			if(graphics->ssaoOn())
-				ssaoPass(activeScene, width, height, delta);
+		// SSAO PASS
+		if(graphics->ssaoOn())
+			ssaoPass(activeScene, width, height, delta);
 
-			// COLOR PASS : multisampling
-			colorMultisamplePass(activeScene, width, height, delta, mode, debug);
+		// COLOR PASS : multisampling
+		colorMultisamplePass(activeScene, width, height, delta, mode, debug);
 
-			// blit to normal framebuffer (resolve multisampling)
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
-			graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(0), width, height);
-			glReadBuffer(GL_COLOR_ATTACHMENT1);
-			graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(1), width, height);
+		// blit to normal framebuffer (resolve multisampling)
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(0), width, height);
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(1), width, height);
 
-			// BLOOM PASS
-			if(graphics->bloomOn())
-				bloomPass(width, height);
+		// BLOOM PASS
+		if(graphics->bloomOn())
+			bloomPass(width, height);
 
-			// VOLUMETRICS PASS
-			if(graphics->volumetricLightingOn())
-				volumetricsPass(activeScene, width, height, delta);
+		// VOLUMETRICS PASS
+		if(graphics->volumetricLightingOn() && graphics->shadowsOn())
+			volumetricsPass(activeScene, width, height, delta);
 
-			// BIND TO DEFAULT FRAMEBUFFER
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// BIND TO DEFAULT FRAMEBUFFER
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// DRAW FINAL IMAGE QUAD
-			graphics->getFinalShader().use();
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
-			graphics->getFinalShader().setInt("scene", 0);
-			if(graphics->bloomOn())
-			{
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(11)->getAttachments()[0].id);
-				graphics->getFinalShader().setInt("bloom", 1);
-				graphics->getFinalShader().setInt("bloomEffect", 1);
-			}
-			else
-			{
-				graphics->getFinalShader().setInt("bloomEffect", 0);
-			}
-			if(graphics->volumetricLightingOn())
-			{
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
-				graphics->getFinalShader().setInt("volumetrics", 2);
-				graphics->getFinalShader().setInt("volumetricsOn", 1);
-			}
-			else
-			{
-				graphics->getFinalShader().setInt("volumetricsOn", 0);
-			}
-			graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
-			graphics->getQuadMesh()->draw(graphics->getFinalShader());
+		// DRAW FINAL IMAGE QUAD
+		graphics->getFinalShader().use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
+		graphics->getFinalShader().setInt("scene", 0);
+		if(graphics->bloomOn())
+		{
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(11)->getAttachments()[0].id);
+			graphics->getFinalShader().setInt("bloom", 1);
+			graphics->getFinalShader().setInt("bloomEffect", 1);
 		}
 		else
 		{
-			s.use();
-			s.setInt("shadowOn", 0);
-
-			// SSAO PASS
-			if(graphics->ssaoOn())
-				ssaoPass(activeScene, width, height, delta);
-
-			// render to multisample framebuffer
-			s.use();
-			glViewport(0, 0, width, height);
-			graphics->getMultisampleFBO()->bind();
-
-			// draw scene
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			s.setVec3f("cam.viewPos", scenes[activeScene]->getActiveCamera()->getPosition());
-			s.setMatrix("view", scenes[activeScene]->getActiveCamera()->getViewMatrix());
-			s.setMatrix("proj", scenes[activeScene]->getActiveCamera()->getProjectionMatrix());
-			s.setLighting(scenes[activeScene]->getPLights(), scenes[activeScene]->getDLights(), scenes[activeScene]->getSLights());
-			scenes[activeScene]->draw(s, graphics, delta, mode, debug);
-			
-			// blit to normal framebuffer (resolve multisampling)
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
-			graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(0), width, height);
-			glReadBuffer(GL_COLOR_ATTACHMENT1);
-			graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(1), width, height);
-
-			// BLOOM PASS
-			if(graphics->bloomOn())
-				bloomPass(width, height);
-
-			// VOLUMETRICS PASS
-			if(graphics->volumetricLightingOn())
-				volumetricsPass(activeScene, width, height, delta);
-
-			// bind to default framebuffer
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			// draw final image quad
-			graphics->getFinalShader().use();
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, graphics->getNormalFBO(0)->getAttachments()[0].id);
-			graphics->getFinalShader().setInt("scene", 0);
-			if(graphics->bloomOn())
-			{
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, graphics->getUpSamplingFBO(11)->getAttachments()[0].id);
-				graphics->getFinalShader().setInt("bloom", 1);
-				graphics->getFinalShader().setInt("bloomEffect", 1);
-			}
-			else
-			{
-				graphics->getFinalShader().setInt("bloomEffect", 0);
-			}
-			if(graphics->volumetricLightingOn())
-			{
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
-				graphics->getFinalShader().setInt("volumetrics", 2);
-				graphics->getFinalShader().setInt("volumetricsOn", 1);
-			}
-			else
-			{
-				graphics->getFinalShader().setInt("volumetricsOn", 0);
-			}
-			graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
-			graphics->getQuadMesh()->draw(graphics->getFinalShader());
+			graphics->getFinalShader().setInt("bloomEffect", 0);
 		}
+		if(graphics->volumetricLightingOn())
+		{
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
+			graphics->getFinalShader().setInt("volumetrics", 2);
+			graphics->getFinalShader().setInt("volumetricsOn", 1);
+		}
+		else
+		{
+			graphics->getFinalShader().setInt("volumetricsOn", 0);
+		}
+		graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
+		graphics->getQuadMesh()->draw(graphics->getFinalShader());
 	}
 	else
 	{
@@ -595,7 +526,7 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		graphics->getShadowMappingShader().setMatrix("proj", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()));
 
 		// draw scene
-		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
 	}
 
 	for(int i{0}; i < scenes[index]->getSLights().size(); ++i)
@@ -624,7 +555,7 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		graphics->getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -663,7 +594,7 @@ void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		omnilightViews.clear();
 
 		// draw scene
-		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, delta, mode);
+		scenes[index]->draw(graphics->getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -691,23 +622,15 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	glBindTexture(GL_TEXTURE_2D, graphics->getAOFBO(1)->getAttachments()[0].id);
 	s.setInt("ssao", 14);
 	s.setVec2f("viewport", glm::vec2(width, height));
-
-	// set shadow maps (point first, dir second and spot last)
+	
+    // set shadow maps (point first, dir second and spot last)
 	int nbPLights = scenes[index]->getPLights().size();
 	int nbDLights = scenes[index]->getDLights().size();
 	int nbSLights = scenes[index]->getSLights().size();
 
 	int textureOffset{5};
-
-	for(int i{0}; i < nbPLights; ++i)
-	{
-		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments()[0].id);
-		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
-		s.setMatrix("light[" + std::to_string(i) + "].lightSpaceMatrix", glm::mat4(1.0f));
-		textureOffset++;
-	}
-	// "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
+	
+    // "you have to uniform all elements in samplerCube array. Otherwise, there will be a"
 	// "black screen, or your clear color. Also, following draw calls may cause invalid "
 	// "operation. Better to uniform all unused sampler types with some random texture index."
 	for(int i{nbPLights}; i < 10; ++i)
@@ -715,42 +638,55 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 		s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
 	}
 
-	int depthMapIndex{0};
-	for(int i{0}; i < nbDLights; ++i)
-	{
-		glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
-		glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
-		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+    if(graphics->shadowsOn())
+    {
+	    for(int i{0}; i < nbPLights; ++i)
+	    {
+	    	glActiveTexture(GL_TEXTURE0 + textureOffset);
+	    	glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->getOmniDepthFBO(i)->getAttachments()[0].id);
+	    	s.setInt("omniDepthMap[" + std::to_string(i) + "]", textureOffset);
+	    	s.setMatrix("light[" + std::to_string(i) + "].lightSpaceMatrix", glm::mat4(1.0f));
+	    	textureOffset++;
+	    }
 
-		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
-		s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
-		s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()) * lightView);
-		depthMapIndex++;
-		textureOffset++;
-	}
+	    int depthMapIndex{0};
+	    for(int i{0}; i < nbDLights; ++i)
+	    {
+		    glm::vec3 lightPosition = scenes[index]->getDLights()[i]->getPosition();
+		    glm::vec3 lightTarget = lightPosition + scenes[index]->getDLights()[i]->getDirection();
+		    glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
-	for(int i{0}; i < nbSLights; ++i)
-	{
-		float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
-		glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();
-		glm::vec3 lightTarget = lightPosition + scenes[index]->getSLights()[i]->getDirection();
-		glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 spotProj = glm::perspective(
-					outerCutOff * 2.0f, 1.0f,
+		    glActiveTexture(GL_TEXTURE0 + textureOffset);
+		    glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
+		    s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
+		    s.setMatrix("light[" + std::to_string(i + nbPLights) + "].lightSpaceMatrix", graphics->getOrthoProjection(scenes[index]->getDLights()[i]->getOrthoDimension()) * lightView);
+		    depthMapIndex++;
+		    textureOffset++;
+	    }
+
+	    for(int i{0}; i < nbSLights; ++i)
+	    {
+		    float outerCutOff = scenes[index]->getSLights()[i]->getOuterCutOff();
+		    glm::vec3 lightPosition = scenes[index]->getSLights()[i]->getPosition();
+		    glm::vec3 lightTarget = lightPosition + scenes[index]->getSLights()[i]->getDirection();
+		    glm::mat4 lightView = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+		    glm::mat4 spotProj = glm::perspective(
+                    outerCutOff * 2.0f, 1.0f,
 					scenes[index]->getActiveCamera()->getNearPlane(),
 					scenes[index]->getActiveCamera()->getFarPlane()
 					);
 
-		glActiveTexture(GL_TEXTURE0 + textureOffset);
-		glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
-		s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
-		s.setMatrix("light[" + std::to_string(i + nbPLights + nbDLights) + "].lightSpaceMatrix", spotProj * lightView);
-		depthMapIndex++;
-		textureOffset++;
-	}
+		    glActiveTexture(GL_TEXTURE0 + textureOffset);
+		    glBindTexture(GL_TEXTURE_2D, graphics->getStdDepthFBO(depthMapIndex)->getAttachments()[0].id);
+		    s.setInt("depthMap[" + std::to_string(depthMapIndex) + "]", textureOffset);
+		    s.setMatrix("light[" + std::to_string(i + nbPLights + nbDLights) + "].lightSpaceMatrix", spotProj * lightView);
+		    depthMapIndex++;
+		    textureOffset++;
+	    }
+    }
 
-	scenes[index]->draw(s, graphics, delta, mode, debug);
+	scenes[index]->draw(s, graphics, DRAW_TYPE::OPAQUE, delta, mode, debug);
+	scenes[index]->draw(s, graphics, DRAW_TYPE::TRANSPARENT, delta, mode, debug);
 }
 
 void Game::bloomPass(int width, int height)
@@ -858,7 +794,7 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	graphics->getGBufferShader().use();
 	graphics->getGBufferShader().setMatrix("view", scenes[index]->getActiveCamera()->getViewMatrix());
 	graphics->getGBufferShader().setMatrix("proj", scenes[index]->getActiveCamera()->getProjectionMatrix());
-	scenes[index]->draw(graphics->getGBufferShader(), graphics, delta);
+	scenes[index]->draw(graphics->getGBufferShader(), graphics, DRAW_TYPE::BOTH, delta);
 
 	// render ambient occlusion data
 	graphics->getAOFBO(0)->bind();
@@ -922,7 +858,7 @@ void Game::volumetricsPass(int index, int width, int height, float delta)
 	glActiveTexture(GL_TEXTURE0 + 10);
 	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[2].id); // depth of each fragment
 	s.setInt("cam.depthMap", 10);
-	s.setInt("N", 500);
+	s.setInt("N", 100);
 	
 	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 

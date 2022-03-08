@@ -1,10 +1,11 @@
 #include "mesh.hpp"
 
-Mesh::Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m, std::string aName) :
+Mesh::Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m, std::string aName, glm::vec3 center) :
 	name(aName),
 	vertices(aVertices),
 	indices(aIndices),
-	material(m)
+	material(m),
+    m_center(center)
 {
 	// VAO
 	glGenVertexArrays(1, &vao);
@@ -74,6 +75,11 @@ std::vector<int> const& Mesh::getIndices() const
 Material & Mesh::getMaterial()
 {
 	return material;
+}
+
+glm::vec3 Mesh::getCenter()
+{
+    return m_center;
 }
 
 void Mesh::bindVAO() const

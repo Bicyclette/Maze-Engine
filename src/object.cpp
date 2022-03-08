@@ -87,6 +87,11 @@ std::vector<glm::mat4> & Object::getInstanceModel()
 	return instanceModel;
 }
 
+std::vector<std::shared_ptr<Mesh>> & Object::getMeshes()
+{
+    return meshes;
+}
+
 void Object::draw(Shader& shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 {
 	shader.use();
@@ -101,11 +106,6 @@ void Object::draw(Shader& shader, struct IBL_DATA * iblData, DRAWING_MODE mode)
 			continue;
 		meshes[i]->draw(shader, iblData, instancing, instanceModel.size(), mode);
 	}
-}
-
-std::vector<std::shared_ptr<Mesh>>& Object::getMeshes()
-{
-    return meshes;
 }
 
 void Object::setInstancing(const std::vector<glm::mat4> & models)
@@ -158,6 +158,11 @@ void Object::resetInstancing()
 	glDeleteBuffers(1, &instanceVBO);
 	instanceModel.clear();
 	instancing = false;
+}
+
+bool Object::getInstancing()
+{
+    return instancing;
 }
 
 void Object::load(const std::string & path)
@@ -264,6 +269,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<Vertex> vertices;
 	std::vector<int> indices;
 	struct Material material;
+    glm::vec3 center = glm::vec3(0.0f);
 	std::string meshName(mesh->mName.C_Str());
 	
 	// vertices
@@ -309,7 +315,10 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 			v_tex_coords = glm::vec2(0.0f, 0.0f);
 
 		vertices.push_back(Vertex(v_pos, v_norm, v_tex_coords, v_tangent, v_bTangent));
+        center += v_pos;
 	}
+
+    center /= static_cast<float>(nb_vertices);
 
 	// indices
 	int nb_faces = mesh->mNumFaces;
@@ -334,7 +343,8 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	aiColor3D color_specular{0.0f, 0.0f, 0.0f};
 	aiColor3D color_ambient{0.0f, 0.0f, 0.0f};
 	aiColor3D color_emissive{0.0f, 0.0f, 0.0f};
-	float opacity{1.0f};
+	int opaque{1};
+    float opacity{1.0f};
 	float shininess{1.0f};
 	float roughness{0.5f};
 	float metallic{0.0f};
@@ -370,7 +380,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
 	mesh_material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic);
 
-	//########## START GET EMISSION INTENSITY ##########
+	//########## START GET EMISSION INTENSITY & OPAQUE DATA ##########
 	std::string file{fullPath.substr(0, fullPath.find_last_of('.')) + ".xml"};
 	std::ifstream metadata{file};
 	if(!metadata.fail())
@@ -389,16 +399,19 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 			{
 				attr = attr->next_attribute();
 				emission_intensity = atof(attr->value());
+				attr = attr->next_attribute();
+				opaque = atoi(attr->value());
 			}
 		}
 	}
-	//########## END GET EMISSION INTENSITY ##########
+	//########## END GET EMISSION INTENSITY & OPAQUE DATA ##########
 
 	material.textures = textures;
     material.color_diffuse = glm::vec3(color_diffuse.r, color_diffuse.g, color_diffuse.b);
     material.color_specular = glm::vec3(color_specular.r, color_specular.g, color_specular.b);
     material.color_ambient = glm::vec3(color_ambient.r, color_ambient.g, color_ambient.b);
     material.color_emissive = glm::vec3(color_emissive.r, color_emissive.g, color_emissive.b);
+	material.opaque = opaque;
 	material.opacity = opacity;
 	material.shininess = shininess;
 	material.roughness = roughness;
@@ -406,7 +419,7 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
 	material.emission_intensity = emission_intensity;
 
 	// pack everything
-    return std::make_shared<Mesh>(vertices, indices, material, meshName);
+    return std::make_shared<Mesh>(vertices, indices, material, meshName, center);
 }
 
 std::vector<struct Texture> Object::loadMaterialTextures(

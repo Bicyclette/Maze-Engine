@@ -41,6 +41,7 @@ class Object
         std::vector<std::shared_ptr<Mesh>>& getMeshes();
 		void setInstancing(const std::vector<glm::mat4> & models);
 		void resetInstancing();
+        bool getInstancing();
 		std::string getName();
 		glm::mat4 getModel();
 		void setModel(glm::mat4 & matrix);
@@ -48,7 +49,7 @@ class Object
 		void setCollisionShape(std::string & collisionFilePath, glm::mat4 & aModel);
 		std::shared_ptr<Object> getCollisionShape();
 		std::vector<glm::mat4> & getInstanceModel();
-		
+
 	protected:
 
 		virtual void load(const std::string & path);

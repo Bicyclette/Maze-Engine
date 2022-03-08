@@ -183,7 +183,7 @@ Graphics::Graphics(int width, int height) :
 	}};
 
 	quadMaterial.opacity = 1.0f;
-	quad = std::make_unique<Mesh>(vertices, indices, quadMaterial, "final image");
+	quad = std::make_unique<Mesh>(vertices, indices, quadMaterial, "final image", glm::vec3(0.0f));
 }
 
 void Graphics::setNearPlane(float nearPlane)

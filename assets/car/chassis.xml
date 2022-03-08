@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Collection>
-	<Material name="lights.001" emission_intensity="10.0">
+	<Material name="lights.001" emission_intensity="10.0" opaque="1">
+	</Material>
+	<Material name="glass.001" emission_intensity="0.0" opaque="0">
 	</Material>
 </Collection>
