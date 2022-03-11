@@ -18,7 +18,7 @@ class Game
 	public:
 
 		Game(int clientWidth, int clientHeight);
-		void draw(float& delta, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false, bool debugPhysics = false);
+		void draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false, bool debugPhysics = false);
 		void resizeScreen(int clientWidth, int clientHeight);
 		void updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
 		std::unique_ptr<Graphics> & getGraphics();
@@ -59,7 +59,7 @@ class Game
 		void bloomPass(int width, int height);
 		void ssaoPass(int index, int width, int height, float delta);
 		void colorMultisamplePass(int index, int width, int height, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
-		void volumetricsPass(int index, int width, int height, float delta);
+		void volumetricsPass(int index, int width, int height, float delta, double elapsedTime);
 };
 
 #endif

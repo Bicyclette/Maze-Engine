@@ -47,7 +47,7 @@ void main()
     }
 
 	// gather colors
-	vec3 color = sceneColor + bloomColor;
+	vec3 color = sceneColor + bloomColor + volumetricColor;
 
 	// tone mapping
 	if(tone_mapping == 0)

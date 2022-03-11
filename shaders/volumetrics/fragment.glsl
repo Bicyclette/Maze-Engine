@@ -8,6 +8,9 @@ struct Light
 	vec3 position;
 	vec3 direction;
 	vec3 color;
+    float kc;
+    float kl;
+    float kq;
 	mat4 lightSpaceMatrix;
 };
 
@@ -20,7 +23,9 @@ struct Camera
 	sampler2D depthMap;
 };
 
+uniform float time;
 uniform int N; // raymarching steps
+uniform sampler2D worldPosMap;
 uniform Camera cam;
 uniform int lightCount;
 uniform Light light[10];
@@ -28,10 +33,16 @@ uniform sampler2D depthMap[10];
 uniform samplerCube omniDepthMap[10];
 uniform int pointLightCount;
 
+uniform float tau;
+uniform float phi;
+uniform float fog_gain;
+
 in VS_OUT
 {
 	vec2 texCoords;
 } fs_in;
+
+const float PI = 3.14159f;
 
 float fetchShadow(vec4 fragPosLightSpace, vec3 lightDir, int l)
 {
@@ -94,48 +105,105 @@ vec4 depthToWorldPosition(sampler2D shadowMap)
 	return fragWorldPos /= fragWorldPos.w;
 }
 
+float getFragVisibility(vec3 worldPos, int id)
+{
+    Light l = light[id];
+    vec4 lightPos = l.lightSpaceMatrix * vec4(worldPos, 1.0f);
+    //if(l.type != 0)
+        return 1.0f - fetchShadow(lightPos, l.direction, id);
+    //else
+        //return 1.0f - fetchOmniShadow(lightPos.xyz, l.position, id);
+}
+
+float dither_pattern[16] = float[16] (
+	0.0f, 0.5f, 0.125f, 0.625f,
+	0.75f, 0.22f, 0.875f, 0.375f,
+	0.1875f, 0.6875f, 0.0625f, 0.5625,
+	0.9375f, 0.4375f, 0.8125f, 0.3125
+);
+
+float tri( float x ){ 
+  return abs( fract(x) - .5 );
+}
+
+vec3 tri3( vec3 p ){
+ 
+  return vec3( 
+      tri( p.z + tri( p.y * 1. ) ), 
+      tri( p.z + tri( p.x * 1. ) ), 
+      tri( p.y + tri( p.x * 1. ) )
+  );
+
+}
+
+// Taken from https://www.shadertoy.com/view/4ts3z2
+// By NIMITZ  (twitter: @stormoid)
+float triNoise3d(in vec3 p, in float spd, in float time)
+{
+    float z=1.4;
+	float rz = 0.;
+    vec3 bp = p;
+	for (float i=0.; i<=3.; i++ )
+	{
+        vec3 dg = tri3(bp*2.);
+        p += (dg+time*spd);
+
+        bp *= 1.8;
+		z *= 1.5;
+		p *= 1.2;
+        //p.xz*= m2;
+        
+        rz+= (tri(p.z+tri(p.x+tri(p.y))))/z;
+        bp += 0.14;
+	}
+	return rz;
+}
+
+float sample_fog(vec3 pos) {
+	return triNoise3d(pos * 2.2 / 8, 0.075, time)*fog_gain;
+}
+
 void main()
 {
-	vec4 fragWorldPos = depthToWorldPosition(cam.depthMap);
+    float fragDepth = texture(cam.depthMap, fs_in.texCoords).r;
+	vec4 fragWorldPos = texture(worldPosMap, fs_in.texCoords);
 
-	// (camera -> fragment) world vector
-	vec3 rayWorld = fragWorldPos.xyz - cam.viewPos;
+	// (fragment -> camera) world space vector
+	vec3 rayFrag2Cam_world = cam.viewPos - fragWorldPos.xyz;
+    float rayFrag2Cam_world_size = length(rayFrag2Cam_world);
 
-	// ray marching step vector
-	vec3 step = rayWorld / N;
+	// ray marching step
+	float step = rayFrag2Cam_world_size / N;
+    // ray marching direction
+    vec3 raymarching_dir = normalize(rayFrag2Cam_world);
 
-	float fog = 0.0f;
-	for(int i = 0; i < lightCount; ++i)
-	{
-		if(light[i].type == 0) // omni
-		{
-			for(int j = 0; j <= N; ++j)
-			{
-				vec3 currentWorldSpacePosition = cam.viewPos + step * j;
-				// sample cube shadow map in light view space
-				vec4 currentLightSpacePosition = light[i].lightSpaceMatrix * vec4(currentWorldSpacePosition, 1.0f);
-				float shadow = fetchOmniShadow(currentLightSpacePosition.xyz, light[i].position, i);
-				if(shadow == 0.0f)
-				{
-					//fog += 1.0/N;
-				}
-			}
-		}
-		if(light[i].type != 0)// not omni
-		{
-			for(int j = 0; j <= N; ++j)
-			{
-				vec3 currentWorldSpacePosition = cam.viewPos + step * j;
-				// sample shadow map in light view space
-				vec4 currentLightSpacePosition = light[i].lightSpaceMatrix * vec4(currentWorldSpacePosition, 1.0f);
-				currentLightSpacePosition /= currentLightSpacePosition.w;
-				float shadow = fetchShadow(currentLightSpacePosition, light[i].direction, i);
-				if(shadow == 0.0f)
-				{
-					fog += 1.0/N;
-				}
-			}
-		}
-	}
-	color = vec4(vec3(fog), 1.0f);
+    vec3 accumFog = vec3(0.0f);
+    float light_contribution = 0.0f;
+    float ratio = 0.0f;
+    for(int i = 0; i < lightCount; ++i)
+    {
+        for(int j = 0; j < N; ++j)
+        {
+            float dither_value = dither_pattern[ (int(gl_FragCoord.x) % 4)* 4 + (int(gl_FragCoord.y) % 4) ];
+            vec3 current_position_world = fragWorldPos.xyz + dither_value * (raymarching_dir * step * j);
+            float visibility = getFragVisibility(current_position_world, i);
+            ratio += visibility;
+            float d = length(current_position_world - light[i].position);
+            float d_rcp = 1.0f/d;
+            float fog = sample_fog(current_position_world);
+            if(light[i].type != 0)
+                light_contribution += fog * tau * (visibility * (phi * 0.25 * (1.0f/PI)) * d_rcp) * step;
+            else
+            {
+                float intensity = 1.0 / (light[i].kc + light[i].kl * d + light[i].kq * (d*d));
+                float ambient_fog_intensity = mix(1.0, 0.0, min(length(cam.viewPos - current_position_world), 10.0)/10.0);
+                float ambient_fog = 0.15 * fog * ambient_fog_intensity;
+                light_contribution += fog * tau * intensity * (visibility * (phi * 0.25 * (1.0f/PI)) * d_rcp * d_rcp + ambient_fog) * step;
+            }
+        }
+        accumFog += min(1.0, light_contribution) * light[i].color;
+        light_contribution = 0.0f;
+        ratio = 0.0f;
+    }
+	color = vec4(accumFog, min(1.0f, fragDepth));
 }

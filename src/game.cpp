@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-
+/*
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,7 +82,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-
+*/
 /*
 	// create car scene
 	scenes.push_back(std::make_shared<Scene>("car scene", 0));
@@ -198,9 +198,29 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 */
+	// create sponza scene
+	scenes.push_back(std::make_shared<Scene>("sponza", 0));
+
+	camPos = glm::vec3(0.0f, 5.0f, 5.0f);
+	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
+	
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-30.0f, 30.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.125f), 20.0f);
+	//scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::ULTRA, glm::vec3(-10.0f, 15.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+
+	scenes[0]->addObject("/home/bicyclette/CGI/sponza-atrium-3/untitled.gltf", glm::mat4(1.0f));
+
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setGridAxis(20);
 }
 
-void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
+void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -273,7 +293,7 @@ void Game::draw(float& delta, int width, int height, DRAWING_MODE mode, bool deb
 
 		// VOLUMETRICS PASS
 		if(graphics->volumetricLightingOn() && graphics->shadowsOn())
-			volumetricsPass(activeScene, width, height, delta);
+			volumetricsPass(activeScene, width, height, delta, elapsedTime);
 
 		// BIND TO DEFAULT FRAMEBUFFER
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -837,7 +857,7 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
 }
 
-void Game::volumetricsPass(int index, int width, int height, float delta)
+void Game::volumetricsPass(int index, int width, int height, float delta, double elapsedTime)
 {
 	graphics->getVolumetricsFBO()->bind();
 	glViewport(0, 0, width, height);
@@ -858,7 +878,14 @@ void Game::volumetricsPass(int index, int width, int height, float delta)
 	glActiveTexture(GL_TEXTURE0 + 10);
 	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[2].id); // depth of each fragment
 	s.setInt("cam.depthMap", 10);
+	glActiveTexture(GL_TEXTURE0 + 11);
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[3].id); // world position of each fragment
+	s.setInt("worldPosMap", 11);
 	s.setInt("N", 100);
+	s.setFloat("time", elapsedTime);
+	s.setFloat("tau", graphics->getVolumetricTau());
+	s.setFloat("phi", graphics->getVolumetricPhi());
+	s.setFloat("fog_gain", graphics->getVolumetricFogGain());
 	
 	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 

@@ -1,7 +1,7 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
-	tone_mapping(TONE_MAPPING::REINHARD),
+	tone_mapping(TONE_MAPPING::ACES),
 	near(0.1f),
 	far(100.0f),
 	shadows(true),
@@ -10,6 +10,9 @@ Graphics::Graphics(int width, int height) :
 	bloomSize(15),
 	ssaoEffect{true},
 	volumetricsOn{true},
+    volumetric_tau{0.3f},
+    volumetric_phi{2.0f},
+    fog_gain{3.0f},
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -111,6 +114,7 @@ Graphics::Graphics(int width, int height) :
 
 	// SSAO G-BUFFER FBO
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height, GL_NEAREST);
+	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH, width, height);
@@ -254,6 +258,36 @@ void Graphics::setVolumetricLighting(bool v)
 bool Graphics::volumetricLightingOn()
 {
 	return volumetricsOn;
+}
+
+float Graphics::getVolumetricTau()
+{
+    return volumetric_tau;
+}
+
+void Graphics::setVolumetricTau(float tau)
+{
+    volumetric_tau = tau;
+}
+
+float Graphics::getVolumetricPhi()
+{
+    return volumetric_phi;
+}
+
+void Graphics::setVolumetricFogGain(float gain)
+{
+    fog_gain = gain;
+}
+
+float Graphics::getVolumetricFogGain()
+{
+    return fog_gain;
+}
+
+void Graphics::setVolumetricPhi(float phi)
+{
+    volumetric_phi = phi;
 }
 
 void Graphics::set_tone_mapping(TONE_MAPPING tone)
@@ -472,6 +506,7 @@ void Graphics::resizeScreen(int width, int height)
 
 	// SSAO G-BUFFER FBO
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height, GL_NEAREST);
+	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	GBuffer->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH, width, height);

@@ -12,7 +12,8 @@ layout (location = 7) in mat4 instanceModel;
 out VS_OUT
 {
 	vec3 normal;
-	vec3 fragPos;
+	vec3 fragPosView;
+    vec3 fragPosWorld;
 } vs_out;
 
 uniform mat4 model;
@@ -47,12 +48,14 @@ void main()
 	{
 		gl_Position = proj * view * instanceModel * position;
 		vs_out.normal = vec3(transpose(inverse(view * instanceModel)) * normal);
-		vs_out.fragPos = vec3(view * instanceModel * position);
+		vs_out.fragPosView = vec3(view * instanceModel * position);
+		vs_out.fragPosWorld = vec3(instanceModel * position);
 	}
 	else
 	{
 		gl_Position = proj * view * model * position;
 		vs_out.normal = vec3(transpose(inverse(view * model)) * normal);
-		vs_out.fragPos = vec3(view * model * position);
+		vs_out.fragPosView = vec3(view * model * position);
+		vs_out.fragPosWorld = vec3(model * position);
 	}
 }

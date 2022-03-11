@@ -39,6 +39,12 @@ class Graphics
 		bool ssaoOn();
 		void setVolumetricLighting(bool v);
 		bool volumetricLightingOn();
+        void setVolumetricTau(float);
+        float getVolumetricTau();
+        void setVolumetricPhi(float);
+        float getVolumetricPhi();
+        void setVolumetricFogGain(float);
+        float getVolumetricFogGain();
 		void set_tone_mapping(TONE_MAPPING tone);
 		TONE_MAPPING get_tone_mapping();
 		void setStdShadowQuality(SHADOW_QUALITY quality, int index);
@@ -79,7 +85,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 2> normal; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 10> omniDepth; // for omnidirectional shadow mapping
 		std::array<std::unique_ptr<Framebuffer>, 10> stdDepth; // for directional and spotlight shadow mapping
-		std::unique_ptr<Framebuffer> GBuffer; // position + normal + color
+		std::unique_ptr<Framebuffer> GBuffer; // view position + normal + view depth + world position
 		std::array<std::unique_ptr<Framebuffer>, 2> AOBuffer; // single color component (RED) for ambient occlusion data
 		std::array<std::unique_ptr<Framebuffer>, 6> downSampling; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
@@ -95,6 +101,9 @@ class Graphics
 		int bloomSize;
 		bool ssaoEffect;
 		bool volumetricsOn;
+        float volumetric_phi;
+        float volumetric_tau;
+        float fog_gain;
 		glm::mat4 omniPerspProjection; // for point lights
 		GLuint aoNoiseTexture;
 		std::vector<glm::vec3> aoKernel;

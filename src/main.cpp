@@ -114,11 +114,22 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(0, 80));
-    ImGui::Begin("TONE MAPPING");
+    ImGui::Begin("tone mapping");
     ImGui::SetWindowSize(ImVec2(150, 80));
     ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
     ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
     ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(150, 80));
+    ImGui::Begin("volumetrics");
+    ImGui::SetWindowSize(ImVec2(150, 160));
+    ImGui::RadioButton("ON", &settings.volumetrics, 1);
+    ImGui::RadioButton("OFF", &settings.volumetrics, 0);
+    ImGui::InputFloat("tau", &settings.tau, 0.05f);
+    ImGui::InputFloat("phi", &settings.phi, 1.0f);
+    ImGui::InputFloat("fog_gain", &settings.fog_gain, 0.05f);
+    ImGui::End();
+
     // <<<<<<<<<< IMGUI
 
     ImGui::Render();
@@ -141,6 +152,14 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
         game->getGraphics()->set_tone_mapping(TONE_MAPPING::REINHARD);
     else
         game->getGraphics()->set_tone_mapping(TONE_MAPPING::ACES);
+    if(settings.volumetrics == 0)
+        game->getGraphics()->setVolumetricLighting(false);
+    else
+        game->getGraphics()->setVolumetricLighting(true);
+
+    game->getGraphics()->setVolumetricTau(settings.tau);
+    game->getGraphics()->setVolumetricPhi(settings.phi);
+    game->getGraphics()->setVolumetricFogGain(settings.fog_gain);
 }
 
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
@@ -155,8 +174,8 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 	//game->setActiveVehicle(0);
 
 	// >>>>>>>>>>>>>>>>>>>> create collection of characters
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-	game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
+	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+	//game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
 	// <<<<<<<<<<<<<<<<<<<< create collection of characters
 
 	// delta
@@ -182,7 +201,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 			vehicleCallback(client, game);
 
 		// draw scene
-		game->draw(delta, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, debug, debugPhysics);
+		game->draw(delta, currentFrame, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, debug, debugPhysics);
 
         // draw editor UI
         if(debug)
