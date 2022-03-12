@@ -748,6 +748,45 @@ void WorldPhysics::updateVehicleUpVector(std::shared_ptr<Vehicle> & v)
 	v->up = glm::normalize(up);
 }
 
+void WorldPhysics::addSliderConstraint(int rbIndexA, int rbIndexB, float lowerLinLimit, float upperLinLimit, float lowerAngLimit, float upperAngLimit)
+{
+    btRigidBody * rbA = rigidBodies[rbIndexA];
+    btRigidBody * rbB = rigidBodies[rbIndexB];
+    rbA->setActivationState(DISABLE_DEACTIVATION);
+    rbB->setActivationState(DISABLE_DEACTIVATION);
+
+    btTransform trA, trB;
+    trA = btTransform::getIdentity();
+    trB = btTransform::getIdentity();
+
+    btSliderConstraint * constraint = new btSliderConstraint(*rbA, *rbB, trA, trB, true);
+    constraint->setLowerLinLimit(lowerLinLimit);
+    constraint->setUpperLinLimit(upperLinLimit);
+    constraint->setLowerAngLimit(lowerAngLimit);
+    constraint->setUpperAngLimit(upperAngLimit);
+
+    dynamicsWorld->addConstraint(constraint);
+}
+
+void WorldPhysics::applyImpulse(int rbIndex, btVector3 impulse, btVector3 relPos)
+{
+    btRigidBody * rb = rigidBodies[rbIndex];
+    rb->applyImpulse(impulse, relPos);
+}
+
+float WorldPhysics::getDistance(btVector3 from, btVector3 to)
+{
+    btCollisionWorld::ClosestRayResultCallback firstHit(from, to);
+    firstHit.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+    dynamicsWorld->rayTest(from, to, firstHit);
+    if(firstHit.hasHit())
+    {
+        btVector3 hit = from.lerp(to, firstHit.m_closestHitFraction);
+        return (hit - from).length();
+    }
+    return 0.0f;
+}
+
 // ######################################################################
 // ######################################################################
 // ######################################################################

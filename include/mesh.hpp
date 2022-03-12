@@ -73,6 +73,8 @@ class Mesh
 		void updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices);
 		bool getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out);
         glm::vec3 getCenter();
+        glm::vec3 getCenterUpdate();
+        void setCenterUpdate(glm::vec3 center);
 
 	private:
 
@@ -84,6 +86,7 @@ class Mesh
 		std::vector<Vertex> vertices;
 		std::vector<int> indices;
         glm::vec3 m_center;
+        glm::vec3 m_center_update;
 		Material material;
 
 		void shaderProcessing(Shader & s, struct IBL_DATA * iblData); // set proper uniforms according to shader type

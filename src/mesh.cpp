@@ -5,7 +5,8 @@ Mesh::Mesh(std::vector<Vertex> aVertices, std::vector<int> aIndices, Material m,
 	vertices(aVertices),
 	indices(aIndices),
 	material(m),
-    m_center(center)
+    m_center(center),
+    m_center_update(center)
 {
 	// VAO
 	glGenVertexArrays(1, &vao);
@@ -80,6 +81,16 @@ Material & Mesh::getMaterial()
 glm::vec3 Mesh::getCenter()
 {
     return m_center;
+}
+
+glm::vec3 Mesh::getCenterUpdate()
+{
+    return m_center_update;
+}
+
+void Mesh::setCenterUpdate(glm::vec3 center)
+{
+    m_center_update = center;
 }
 
 void Mesh::bindVAO() const

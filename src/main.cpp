@@ -84,7 +84,7 @@ void vehicleCallback(std::unique_ptr<WindowManager> & client, std::unique_ptr<Ga
 	game->vehicleUpdateUpVector();
 }
 
-void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game)
+void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game, bool & debugPhysics)
 {
     // ImGui frame init code
     ImGui_ImplOpenGL3_NewFrame();
@@ -114,20 +114,34 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(0, 80));
+    ImGui::Begin("volumetrics");
+    ImGui::SetWindowSize(ImVec2(210, 160));
+    ImGui::RadioButton("ON", &settings.volumetrics, 1);
+    ImGui::RadioButton("OFF", &settings.volumetrics, 0);
+    ImGui::InputFloat("tau", &settings.tau, 0.05f);
+    ImGui::InputFloat("phi", &settings.phi, 1.0f);
+    ImGui::InputFloat("fog_gain", &settings.fog_gain, 0.05f);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(210, 80));
     ImGui::Begin("tone mapping");
     ImGui::SetWindowSize(ImVec2(150, 80));
     ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
     ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(150, 80));
-    ImGui::Begin("volumetrics");
-    ImGui::SetWindowSize(ImVec2(150, 160));
-    ImGui::RadioButton("ON", &settings.volumetrics, 1);
-    ImGui::RadioButton("OFF", &settings.volumetrics, 0);
-    ImGui::InputFloat("tau", &settings.tau, 0.05f);
-    ImGui::InputFloat("phi", &settings.phi, 1.0f);
-    ImGui::InputFloat("fog_gain", &settings.fog_gain, 0.05f);
+    ImGui::SetNextWindowPos(ImVec2(210, 160));
+    ImGui::Begin("motion blur");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.motion_blur, 1);
+    ImGui::RadioButton("OFF", &settings.motion_blur, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(0, 240));
+    ImGui::Begin("show physics");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.show_physics, 1);
+    ImGui::RadioButton("OFF", &settings.show_physics, 0);
     ImGui::End();
 
     // <<<<<<<<<< IMGUI
@@ -160,6 +174,11 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     game->getGraphics()->setVolumetricTau(settings.tau);
     game->getGraphics()->setVolumetricPhi(settings.phi);
     game->getGraphics()->setVolumetricFogGain(settings.fog_gain);
+
+    if(settings.show_physics == 1)
+        debugPhysics = true;
+    else
+        debugPhysics = false;
 }
 
 void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
@@ -168,6 +187,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
     EDITOR_UI_SETTINGS editor_settings;
     
     // start
+    DRAWING_MODE draw_mode{DRAWING_MODE::SOLID};
     bool debug{true};
     bool debugPhysics{false};
 	game->setActiveScene(0);
@@ -201,11 +221,11 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 			vehicleCallback(client, game);
 
 		// draw scene
-		game->draw(delta, currentFrame, client->getWidth(), client->getHeight(), DRAWING_MODE::SOLID, debug, debugPhysics);
+		game->draw(delta, currentFrame, client->getWidth(), client->getHeight(), draw_mode, debug, debugPhysics);
 
         // draw editor UI
         if(debug)
-            editorUI(editor_settings, client, game);
+            editorUI(editor_settings, client, game, debugPhysics);
 
 		client->resetEvents();
 		SDL_GL_SwapWindow(client->getWindowPtr());

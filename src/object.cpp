@@ -65,6 +65,11 @@ glm::mat4 Object::getModel()
 void Object::setModel(glm::mat4 & matrix)
 {
 	model = matrix;
+    for(auto m : meshes)
+    {
+        glm::vec4 c = model * glm::vec4(m->getCenter(), 1.0f);
+        m->setCenterUpdate(glm::vec3(c.x, c.y, c.z));
+    }
 }
 
 struct AABB Object::getAABB()

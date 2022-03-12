@@ -12,6 +12,7 @@ struct EDITOR_UI_SETTINGS
     float phi{2.0f};
     float fog_gain{3.0f};
     int motion_blur{1};
+    int show_physics{0};
 };
 
 #endif

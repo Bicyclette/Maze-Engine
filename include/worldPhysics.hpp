@@ -16,6 +16,7 @@
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 #include "vehicle.hpp"
 
 enum class COLLISION_SHAPE
@@ -92,6 +93,10 @@ class WorldPhysics
 		void vehicleSteeringReset(std::shared_ptr<Vehicle> & v);
 		void setVehicleWheelTransform(std::shared_ptr<Vehicle> & v);
 		void updateVehicleUpVector(std::shared_ptr<Vehicle> & v);
+
+        void addSliderConstraint(int rbIndexA, int rbIndexB, float lowerLinLimit, float upperLinLimit, float lowerAngLimit, float upperAngLimit);
+        void applyImpulse(int rbIndex, btVector3 impulse, btVector3 relPos);
+        float getDistance(btVector3 from, btVector3 to);
 
 	private:
 		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);

@@ -84,96 +84,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
 */
 /*
-	// create car scene
-	scenes.push_back(std::make_shared<Scene>("car scene", 0));
-
-	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
-	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 500.0f);
-	
-	scenes[scenes.size()-1]->setActiveCamera(0);
-
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-5.0f, 20.0f, -20.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f), glm::vec3(1.0f, -1.5f, -0.15f), 50.0f);
-	scenes[scenes.size()-1]->addSpotLight(SHADOW_QUALITY::HIGH, glm::vec3(1.9684f, 2.1581f, -5.6881f), glm::vec3(0.025f), glm::vec3(70.f, 70.f, 70.f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f), 25.0f, 30.0f);
-	scenes[scenes.size()-1]->addSpotLight(SHADOW_QUALITY::HIGH, glm::vec3(-1.9684f, 2.1581f, -5.6881f), glm::vec3(0.025f), glm::vec3(70.f, 70.f, 70.f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f), 25.0f, 30.0f);
-
-	scenes[0]->addObject("assets/car/ground.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("assets/car/chassis.glb", glm::mat4(1.0f), "assets/car/chassis_collision_shape.glb");
-	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
-	scenes[0]->addObject("assets/car/wheel.glb", glm::mat4(1.0f));
-
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/sky.hdr", true, clientWidth, clientHeight);
-	scenes[scenes.size()-1]->setGridAxis(8);
-
-	// set physics properties for scene
-	worldPhysics.push_back(std::make_unique<WorldPhysics>());
-	scene_objects = scenes[0]->getObjects();
-	worldPhysics[0]->addRigidBody(scene_objects[0], glm::mat4(1.0f), btScalar(0.0), btScalar(1.0), COLLISION_SHAPE::TRIANGLE);
-	worldPhysics[0]->addRigidBody(scene_objects[1], glm::mat4(1.0f), btScalar(1.0f), btScalar(0.15f), COLLISION_SHAPE::CONVEX_HULL);
-	std::array<float, 6> drive_steer_brake{2.5f, 0.05f, 0.9f, 0.025f, 0.5f, 0.01f};
-	std::vector<btVector3> connectionPoint{
-		btVector3(2.25f, 1.0f, 3.25f),
-		btVector3(-2.25f, 1.0f, 3.25f),
-		btVector3(2.25f, 1.0f, -4.0f),
-		btVector3(-2.25f, 1.0f, -4.0f)
-	};
-	std::array<bool, 4> frontWheel{false, false, true, true};
-	std::vector<std::shared_ptr<Object>> wheel{scene_objects[2], scene_objects[3], scene_objects[4], scene_objects[5]};
-	std::shared_ptr<Vehicle> v = worldPhysics[0]->addVehicle(drive_steer_brake, 5.0f, 7.0f, 0.25f, 0.5f, 2.5f, 0.25f, 2.0f, 0.85f, btVector3(1.0f, 0.0f, 0.0f), connectionPoint, frontWheel, 1, wheel, glm::vec3(0.0f, 1.0f, 0.0f));
-	scenes[scenes.size()-1]->addVehicle(v);
-*/
-/*
-	// create emission scene
-	scenes.push_back(std::make_shared<Scene>("emission", 0));
-
-	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
-	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
-	
-	scenes[scenes.size()-1]->setActiveCamera(0);
-
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.025f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f), glm::vec3(0.25f, -1.0f, -0.15f), 30.0f);
-
-	scenes[0]->addObject("assets/lightsaber/lightsaber.glb", glm::mat4(1.0f));
-
-	scenes[scenes.size()-1]->setGridAxis(8);
-*/
-/*
-	// create podracer scene
-	scenes.push_back(std::make_shared<Scene>("podracer", 0));
-
-	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
-	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 1000.0f);
-	
-	scenes[scenes.size()-1]->setActiveCamera(0);
-
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.025f), glm::vec3(1.5f, 1.2f, 0.9f) * 0.5f, glm::vec3(1.0f), glm::vec3(0.0, -1.0f, -0.5f), 10.0f);
-
-	scenes[0]->addObject("assets/pod/pod.gltf", glm::mat4(1.0f));
-	scenes[0]->addObject("assets/pod/ground.gltf", glm::mat4(1.0f));
-	
-	std::vector<float> arcs{0.1f, 0.01f, 0.18f, 0.01f};
-	scenes[0]->addLightning(glm::vec3(0.98188f, 1.5146f, 0.45293f), glm::vec3(-0.98188f, 1.5146f, 0.45293f), 30, glm::vec3(0.79f, 0.017f, 0.8f), 10.0f, arcs, true, 0.25f);
-
-	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
-	scenes[scenes.size()-1]->setGridAxis(8);
-*/
-/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -198,6 +108,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 */
+
 	// create sponza scene
 	scenes.push_back(std::make_shared<Scene>("sponza", 0));
 
@@ -244,21 +155,8 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		character->get()->getAnimator()->updateAnimation(delta);
 	}
 
-	// update vehicle spotlights
-	/*
-	glm::mat4 vehicleModel;
-	scenes[0]->getVehicles()[0]->vehicle->getRigidBody()->getCenterOfMassTransform().getOpenGLMatrix(glm::value_ptr(vehicleModel));
-	glm::vec3 spot1 = glm::vec3(vehicleModel * glm::vec4(1.9684f, 2.1581f, -5.6881f, 1.0f));
-	glm::vec3 spot2 = glm::vec3(vehicleModel * glm::vec4(-1.9684f, 2.1581f, -5.6881f, 1.0f));
-	glm::vec3 d1 = glm::vec3(vehicleModel * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
-	scenes[activeScene]->getSLights()[0]->setPosition(spot1);
-	scenes[activeScene]->getSLights()[0]->setDirection(d1);
-	scenes[activeScene]->getSLights()[1]->setPosition(spot2);
-	scenes[activeScene]->getSLights()[1]->setDirection(d1);
-	*/
 	// get shader
 	Shader s = graphics->getPBRShader();
-	//Shader s = graphics->getBlinnPhongShader();
 
 	if(activeScene < scenes.size())
 	{
@@ -627,7 +525,6 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 
 	// get shader
 	Shader s = graphics->getPBRShader();
-	//Shader s = graphics->getBlinnPhongShader();
 
 	// draw scene
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
