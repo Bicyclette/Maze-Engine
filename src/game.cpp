@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-/*
+
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,7 +82,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-*/
+
 /*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
@@ -108,11 +108,11 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 */
-
+/*
 	// create sponza scene
 	scenes.push_back(std::make_shared<Scene>("sponza", 0));
 
-	camPos = glm::vec3(0.0f, 5.0f, 5.0f);
+	camPos = glm::vec3(5.0f, 5.0f, 0.0f);
 	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
 	camDir = glm::normalize(camTarget - camPos);
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -122,13 +122,13 @@ Game::Game(int clientWidth, int clientHeight) :
 	
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
-	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::ULTRA, glm::vec3(-30.0f, 30.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.125f), 20.0f);
-	//scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::ULTRA, glm::vec3(-10.0f, 15.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
+	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(-5.0f, 20.0f, -7.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*8.0f, glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.0f), 20.0f);
 
 	scenes[0]->addObject("/home/bicyclette/CGI/sponza-atrium-3/untitled.gltf", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
+*/
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -172,18 +172,15 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 			omnidirectionalShadowPass(activeScene, delta, mode);
         }
 
+        // FILL G-BUFFER
+        GBufferPass(activeScene, width, height, delta);
+
 		// SSAO PASS
 		if(graphics->ssaoOn())
 			ssaoPass(activeScene, width, height, delta);
 
 		// COLOR PASS : multisampling
 		colorMultisamplePass(activeScene, width, height, delta, mode, debug);
-
-		// blit to normal framebuffer (resolve multisampling)
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(0), width, height);
-		glReadBuffer(GL_COLOR_ATTACHMENT1);
-		graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(1), width, height);
 
 		// BLOOM PASS
 		if(graphics->bloomOn())
@@ -216,7 +213,7 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		if(graphics->volumetricLightingOn())
 		{
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO()->getAttachments()[0].id);
+			glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(4)->getAttachments()[0].id);
 			graphics->getFinalShader().setInt("volumetrics", 2);
 			graphics->getFinalShader().setInt("volumetricsOn", 1);
 		}
@@ -604,6 +601,12 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 
 	scenes[index]->draw(s, graphics, DRAW_TYPE::OPAQUE, delta, mode, debug);
 	scenes[index]->draw(s, graphics, DRAW_TYPE::TRANSPARENT, delta, mode, debug);
+
+    // blit to normal framebuffer (resolve multisampling)
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(0), width, height);
+	glReadBuffer(GL_COLOR_ATTACHMENT1);
+	graphics->getMultisampleFBO()->blitFramebuffer(graphics->getNormalFBO(1), width, height);
 }
 
 void Game::bloomPass(int width, int height)
@@ -665,6 +668,7 @@ void Game::bloomPass(int width, int height)
 	for(int i{0}; i < 6; ++i)
 	{
 		upSampling.use();
+        upSampling.setInt("merge_to_current_FBO", 0);
 		int factor = std::pow(2, 5-i);
 		glViewport(0, 0, width / factor, height / factor);
 		std::unique_ptr<Framebuffer> & mergeFBO = graphics->getUpSamplingFBO(i*2);
@@ -699,9 +703,8 @@ void Game::bloomPass(int width, int height)
 	}
 }
 
-void Game::ssaoPass(int index, int width, int height, float delta)
+void Game::GBufferPass(int index, int width, int height, float delta)
 {
-	// Fill G BUFFER
 	graphics->getGBufferFBO()->bind();
 	glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -712,32 +715,36 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	graphics->getGBufferShader().setMatrix("view", scenes[index]->getActiveCamera()->getViewMatrix());
 	graphics->getGBufferShader().setMatrix("proj", scenes[index]->getActiveCamera()->getProjectionMatrix());
 	scenes[index]->draw(graphics->getGBufferShader(), graphics, DRAW_TYPE::BOTH, delta);
+}
 
-	// render ambient occlusion data
+void Game::ssaoPass(int index, int width, int height, float delta)
+{
 	graphics->getAOFBO(0)->bind();
 	glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	graphics->getAOShader().use();
+    Shader & AOShader{graphics->getAOShader()};
+	AOShader.use();
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position
-	graphics->getAOShader().setInt("positionBuffer", 0);
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[0].id); // position (view space)
+	AOShader.setInt("positionBuffer", 0);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[1].id); // normal
-	graphics->getAOShader().setInt("normalBuffer", 1);
+	AOShader.setInt("normalBuffer", 1);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, graphics->getAONoiseTexture()); // noise texture
-	graphics->getAOShader().setInt("noiseTexture", 2);
-	std::vector<glm::vec3> aoKernel{graphics->getAOKernel()};
-	for(int i{0}; i < 32; ++i)
-		graphics->getAOShader().setVec3f("samples[" + std::to_string(i) + "]", aoKernel[i]);
-	graphics->getAOShader().setFloat("radius", 1.0f);
-	graphics->getAOShader().setFloat("bias", 0.05f);
-	graphics->getAOShader().setMatrix("projection", scenes[index]->getActiveCamera()->getProjectionMatrix());
-	graphics->getAOShader().setFloat("screenWidth", static_cast<float>(width));
-	graphics->getAOShader().setFloat("screenHeight", static_cast<float>(height));
-	graphics->getQuadMesh()->draw(graphics->getAOShader());
+	AOShader.setInt("noiseTexture", 2);
+    AOShader.setInt("kernelSize", graphics->getAOSampleCount());
+	std::vector<glm::vec3> & aoKernel{graphics->getAOKernel()};
+	for(int i{0}; i < graphics->getAOSampleCount(); ++i)
+		AOShader.setVec3f("samples[" + std::to_string(i) + "]", aoKernel[i]);
+	AOShader.setFloat("radius", graphics->getAORadius());
+	AOShader.setFloat("bias", 0.05f);
+	AOShader.setMatrix("projection", scenes[index]->getActiveCamera()->getProjectionMatrix());
+	AOShader.setFloat("screenWidth", static_cast<float>(width));
+	AOShader.setFloat("screenHeight", static_cast<float>(height));
+	graphics->getQuadMesh()->draw(AOShader);
 
 	graphics->getAOFBO(1)->bind();
 	glViewport(0, 0, width, height);
@@ -756,13 +763,26 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 
 void Game::volumetricsPass(int index, int width, int height, float delta, double elapsedTime)
 {
-	graphics->getVolumetricsFBO()->bind();
-	glViewport(0, 0, width, height);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+    // Downsample GBuffer frag world pos map (subsample by 2)
+	graphics->getVolumetricsFBO(0)->bind();
+	glViewport(0, 0, width/2, height/2);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// get shader
-	Shader & s = graphics->getVolumetricLightingShader();
+    Shader VLDownSample = graphics->getVolumetricDownSamplingShader();
+    VLDownSample.use();
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[3].id); // frag world position
+    VLDownSample.setInt("fragWorldPos", 0);
+	
+    graphics->getQuadMesh()->draw(VLDownSample);
+
+    // Render volumetric lighting
+	graphics->getVolumetricsFBO(1)->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Shader s = graphics->getVolumetricLightingShader();
 	
 	// set shader data
 	s.use();
@@ -776,9 +796,9 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
 	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[2].id); // depth of each fragment
 	s.setInt("cam.depthMap", 10);
 	glActiveTexture(GL_TEXTURE0 + 11);
-	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[3].id); // world position of each fragment
+	glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(0)->getAttachments()[0].id); // world position of each fragment
 	s.setInt("worldPosMap", 11);
-	s.setInt("N", 100);
+	s.setInt("N", 50);
 	s.setFloat("time", elapsedTime);
 	s.setFloat("tau", graphics->getVolumetricTau());
 	s.setFloat("phi", graphics->getVolumetricPhi());
@@ -837,6 +857,56 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
 	}
 	
 	graphics->getQuadMesh()->draw(s);
+
+    // Bilateral blur
+	graphics->getVolumetricsFBO(2)->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    Shader & bilateralBlur = graphics->getBilateralBlurShader();
+    bilateralBlur.use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(1)->getAttachments()[0].id);
+    bilateralBlur.setInt("image", 0);
+    bilateralBlur.setInt("kernelSize", 5);
+    bilateralBlur.setFloat("sigma", 1.5f);
+    bilateralBlur.setInt("direction", 0); // horizontal
+    graphics->getQuadMesh()->draw(bilateralBlur);
+	
+    graphics->getVolumetricsFBO(1)->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(2)->getAttachments()[0].id);
+    bilateralBlur.setInt("direction", 1); // vertical
+    graphics->getQuadMesh()->draw(bilateralBlur);
+		
+    // Upsample result to screen resolution
+	graphics->getVolumetricsFBO(3)->bind();
+	glViewport(0, 0, width, height);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Shader & VLUpSample = graphics->getUpSamplingShader();
+    VLUpSample.use();
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(1)->getAttachments()[0].id);
+    VLUpSample.setInt("low_res", 0);
+    glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(1)->getAttachments()[0].id);
+    VLUpSample.setInt("high_res", 1);
+    VLUpSample.setInt("merge_to_current_FBO", 1);
+	
+    graphics->getQuadMesh()->draw(VLUpSample);
+    
+    // Tent filter upsampling
+	graphics->getVolumetricsFBO(4)->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+    Shader & tentBlur = graphics->getTentBlurShader();
+    tentBlur.use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(3)->getAttachments()[0].id);
+	tentBlur.setInt("image", 0);
+	graphics->getQuadMesh()->draw(tentBlur);
 
 	// reset clear color
 	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);

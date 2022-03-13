@@ -71,10 +71,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ### Lightning
 ![podracer](engine_imgs/podracer.png)
 ![podracer lightning anim](engine_imgs/podracer_lightning.gif)
-### Volumetric Lighting (work in progress)
-![sponza1](engine_imgs/volume_lighting_4.png)
-![sponza2](engine_imgs/volume_lighting_5.png)
-![sponza3](engine_imgs/volume_lighting_7.png)
+### Volumetric Lighting
+![sponza](engine_imgs/volume_lighting_9.png)
 ### 3D audio
 ![audio](engine_imgs/audio_debug.png)
 ![audio](engine_imgs/3D_audio_close_up.png)
@@ -84,12 +82,9 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Pathfinding
 * Navmesh
 
-**Physics**
-* Podracer vehicle controller
-
 **Graphics**
-* Volumetric lighting
 * Motion blur
+* OIT
 
 **UI**
 * OpenGL based user interface (buttons, menus, layout).
@@ -99,4 +94,5 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Write documentation/how-to
 
 ## BUGS
+* if/else statement not working (volumetric shader: switch between light types)
 * Wheels of vehicle controller rotate in wrong direction

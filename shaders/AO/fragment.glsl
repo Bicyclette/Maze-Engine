@@ -2,13 +2,16 @@
 
 out vec4 fragColor;
 
+const int MAX_KERNEL_SIZE = 128;
+
 uniform sampler2D positionBuffer;
 uniform sampler2D normalBuffer;
 uniform sampler2D noiseTexture;
 
 uniform float radius;
 uniform float bias;
-uniform vec3 samples[32];
+uniform int kernelSize;
+uniform vec3 samples[MAX_KERNEL_SIZE];
 uniform mat4 projection;
 
 uniform float screenWidth;
@@ -29,7 +32,7 @@ void main()
 	mat3 TBN = mat3(tangent, bitangent, normal);
 
 	float occlusion = 0.0f;
-	for(int i = 0; i < 32; ++i)
+	for(int i = 0; i < kernelSize; ++i)
 	{
 		// get sample position
 		vec3 samplePos = TBN * samples[i]; // from tangent to view-space
@@ -46,7 +49,7 @@ void main()
 		occlusion += ((sampleDepth >= samplePos.z + bias) ? 1.0f : 0.0f) * rangeCheck;
 	}
 
-	occlusion = 1.0f - (occlusion / 32.0f);
+	occlusion = 1.0f - (occlusion / kernelSize);
 	occlusion = pow(occlusion, 2.0f);
 
 	fragColor = vec4(vec3(occlusion), 1.0f);

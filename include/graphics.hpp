@@ -37,6 +37,10 @@ class Graphics
 		void setBloomSize(int size);
 		void setSSAOEffect(bool ao);
 		bool ssaoOn();
+        int getAOSampleCount();
+        void setAOSampleCount(int samples);
+        float getAORadius();
+        void setAORadius(float radius);
 		void setVolumetricLighting(bool v);
 		bool volumetricLightingOn();
         void setVolumetricTau(float);
@@ -63,6 +67,8 @@ class Graphics
 		Shader & getUpSamplingShader();
 		Shader & getDownSamplingShader();
 		Shader & getVolumetricLightingShader();
+        Shader & getVolumetricDownSamplingShader();
+        Shader & getBilateralBlurShader();
 		Shader & getFinalShader();
 		std::unique_ptr<Framebuffer> & getMultisampleFBO();
 		std::unique_ptr<Framebuffer> & getNormalFBO(int index);
@@ -73,7 +79,7 @@ class Graphics
 		std::unique_ptr<Framebuffer> & getDownSamplingFBO(int index);
 		std::unique_ptr<Framebuffer> & getPingPongFBO(int index);
 		std::unique_ptr<Framebuffer> & getUpSamplingFBO(int index);
-		std::unique_ptr<Framebuffer> & getVolumetricsFBO();
+		std::unique_ptr<Framebuffer> & getVolumetricsFBO(int index);
 		std::unique_ptr<Mesh> & getQuadMesh();
 		void resizeScreen(int width, int height);
 		std::vector<glm::vec3> & getAOKernel();
@@ -90,7 +96,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 6> downSampling; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
-		std::unique_ptr<Framebuffer> volumetrics; // hdr color, no multisampling
+        std::array<std::unique_ptr<Framebuffer>, 5> volumetrics; // hdr color, no multisampling
 
 		TONE_MAPPING tone_mapping;
 		float near;
@@ -100,6 +106,8 @@ class Graphics
 		float bloomSigma;
 		int bloomSize;
 		bool ssaoEffect;
+        int ssaoSampleCount;
+        float ssaoRadius;
 		bool volumetricsOn;
         float volumetric_phi;
         float volumetric_tau;
@@ -119,6 +127,8 @@ class Graphics
 		Shader downSample;
 		Shader upSample;
 		Shader volumetricLighting;
+		Shader VLDownSample;
+        Shader bilateralBlur;
 		Shader end;
 
 		std::unique_ptr<Mesh> quad;

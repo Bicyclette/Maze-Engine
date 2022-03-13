@@ -329,11 +329,11 @@ void main()
 		vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-		ambient = (kD * diffuse + specular * metallic) * ao * 0.4;
+		ambient = (kD * diffuse + specular * metallic) * ao * 0.33;
 	}
 	else if(IBL == 0)
 	{
-		ambient = albedo * ao * 0.4;
+		ambient = albedo * ao * 0.33;
 	}
     vec3 color = ambient + Lo;
     fragColor = vec4(color, alpha);

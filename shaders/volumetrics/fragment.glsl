@@ -202,6 +202,7 @@ void main()
             }
         }
         accumFog += min(1.0, light_contribution) * light[i].color;
+        accumFog = (light[i].type == 0) ? accumFog * ratio/N : accumFog;
         light_contribution = 0.0f;
         ratio = 0.0f;
     }

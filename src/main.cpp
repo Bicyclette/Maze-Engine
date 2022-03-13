@@ -84,7 +84,7 @@ void vehicleCallback(std::unique_ptr<WindowManager> & client, std::unique_ptr<Ga
 	game->vehicleUpdateUpVector();
 }
 
-void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game, bool & debugPhysics)
+void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game, bool & debugPhysics, float & delta)
 {
     // ImGui frame init code
     ImGui_ImplOpenGL3_NewFrame();
@@ -107,10 +107,24 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(300, 0));
-    ImGui::Begin("AO");
-    ImGui::SetWindowSize(ImVec2(100, 80));
-    ImGui::RadioButton("ON", &settings.AO, 1);
-    ImGui::RadioButton("OFF", &settings.AO, 0);
+    ImGui::Begin("tone mapping");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
+    ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(450, 0));
+    ImGui::Begin("motion blur");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.motion_blur, 1);
+    ImGui::RadioButton("OFF", &settings.motion_blur, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(600, 0));
+    ImGui::Begin("show physics");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.show_physics, 1);
+    ImGui::RadioButton("OFF", &settings.show_physics, 0);
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(0, 80));
@@ -124,24 +138,19 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(210, 80));
-    ImGui::Begin("tone mapping");
-    ImGui::SetWindowSize(ImVec2(150, 80));
-    ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
-    ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
+    ImGui::Begin("AO");
+    ImGui::SetWindowSize(ImVec2(210, 160));
+    ImGui::RadioButton("ON", &settings.AO, 1);
+    ImGui::RadioButton("OFF", &settings.AO, 0);
+    ImGui::InputFloat("radius", &settings.AORadius, 0.05f);
+    ImGui::InputInt("samples", &settings.AOSamples, 1);
     ImGui::End();
-    
-    ImGui::SetNextWindowPos(ImVec2(210, 160));
-    ImGui::Begin("motion blur");
-    ImGui::SetWindowSize(ImVec2(150, 80));
-    ImGui::RadioButton("ON", &settings.motion_blur, 1);
-    ImGui::RadioButton("OFF", &settings.motion_blur, 0);
-    ImGui::End();
-    
-    ImGui::SetNextWindowPos(ImVec2(0, 240));
-    ImGui::Begin("show physics");
-    ImGui::SetWindowSize(ImVec2(150, 80));
-    ImGui::RadioButton("ON", &settings.show_physics, 1);
-    ImGui::RadioButton("OFF", &settings.show_physics, 0);
+
+    ImGui::SetNextWindowPos(ImVec2(client->getWidth()-50, 0));
+    ImGui::Begin("FPS");
+    ImGui::SetWindowSize(ImVec2(50, 60));
+    int fps = static_cast<int>(1.0f/delta);
+    ImGui::Text(std::to_string(fps).c_str());
     ImGui::End();
 
     // <<<<<<<<<< IMGUI
@@ -159,7 +168,11 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     else
         game->getGraphics()->setBloomEffect(false);
     if(settings.AO == 1)
+    {
         game->getGraphics()->setSSAOEffect(true);
+        game->getGraphics()->setAORadius(settings.AORadius);
+        game->getGraphics()->setAOSampleCount(settings.AOSamples);
+    }
     else
         game->getGraphics()->setSSAOEffect(false);
     if(settings.tone_mapping == 0)
@@ -225,7 +238,7 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 
         // draw editor UI
         if(debug)
-            editorUI(editor_settings, client, game, debugPhysics);
+            editorUI(editor_settings, client, game, debugPhysics, delta);
 
 		client->resetEvents();
 		SDL_GL_SwapWindow(client->getWindowPtr());

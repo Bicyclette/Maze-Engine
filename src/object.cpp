@@ -417,8 +417,8 @@ std::shared_ptr<Mesh> Object::getMesh(aiMesh* mesh, const aiScene* scene)
     material.color_ambient = glm::vec3(color_ambient.r, color_ambient.g, color_ambient.b);
     material.color_emissive = glm::vec3(color_emissive.r, color_emissive.g, color_emissive.b);
 	material.opaque = opaque;
-	material.opacity = opacity;
-	material.shininess = shininess;
+    material.opacity = opacity;
+    material.shininess = shininess;
 	material.roughness = roughness;
 	material.metallic = metallic;
 	material.emission_intensity = emission_intensity;
