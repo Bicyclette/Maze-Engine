@@ -89,7 +89,6 @@ Graphics::Graphics(int width, int height) :
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true),
-        std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true)
     },
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
@@ -180,7 +179,7 @@ Graphics::Graphics(int width, int height) :
 	}
 
 	// VOLUMETRICS FBO
-    for(int i{0}; i < 5; ++i)
+    for(int i{0}; i < 4; ++i)
     {
         if(i < 3)
 	        volumetrics[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/2, height/2);
@@ -543,8 +542,7 @@ void Graphics::resizeScreen(int width, int height)
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 	};
-	volumetrics = std::array<std::unique_ptr<Framebuffer>, 5>{
-        std::make_unique<Framebuffer>(true, false, true),
+	volumetrics = std::array<std::unique_ptr<Framebuffer>, 4>{
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true),
@@ -587,7 +585,7 @@ void Graphics::resizeScreen(int width, int height)
 	}
 
 	// VOLUMETRICS FBO
-    for(int i{0}; i < 5; ++i)
+    for(int i{0}; i < 4; ++i)
     {
         if(i < 3)
 	        volumetrics[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/2, height/2);

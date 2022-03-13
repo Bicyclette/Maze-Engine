@@ -213,7 +213,7 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		if(graphics->volumetricLightingOn())
 		{
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(4)->getAttachments()[0].id);
+			glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(3)->getAttachments()[0].id);
 			graphics->getFinalShader().setInt("volumetrics", 2);
 			graphics->getFinalShader().setInt("volumetricsOn", 1);
 		}
@@ -896,18 +896,7 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
     VLUpSample.setInt("merge_to_current_FBO", 1);
 	
     graphics->getQuadMesh()->draw(VLUpSample);
-    
-    // Tent filter upsampling
-	graphics->getVolumetricsFBO(4)->bind();
-	glClear(GL_COLOR_BUFFER_BIT);
-	
-    Shader & tentBlur = graphics->getTentBlurShader();
-    tentBlur.use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, graphics->getVolumetricsFBO(3)->getAttachments()[0].id);
-	tentBlur.setInt("image", 0);
-	graphics->getQuadMesh()->draw(tentBlur);
 
-	// reset clear color
+    // reset clear color
 	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
 }

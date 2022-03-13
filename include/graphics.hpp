@@ -96,7 +96,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 6> downSampling; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
-        std::array<std::unique_ptr<Framebuffer>, 5> volumetrics; // hdr color, no multisampling
+        std::array<std::unique_ptr<Framebuffer>, 4> volumetrics; // hdr color, no multisampling
 
 		TONE_MAPPING tone_mapping;
 		float near;
