@@ -12,6 +12,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * bloom (xml data)
 * lightning
 * Ordered transparency (xml data)
+* volumetric lighting
 * vignette
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
