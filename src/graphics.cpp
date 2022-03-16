@@ -12,9 +12,6 @@ Graphics::Graphics(int width, int height) :
     ssaoSampleCount{32},
     ssaoRadius{1.0f},
 	volumetricsOn{false},
-    volumetric_tau{0.35f},
-    volumetric_phi{1.0f},
-    fog_gain{3.0f},
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -296,36 +293,6 @@ void Graphics::setVolumetricLighting(bool v)
 bool Graphics::volumetricLightingOn()
 {
 	return volumetricsOn;
-}
-
-float Graphics::getVolumetricTau()
-{
-    return volumetric_tau;
-}
-
-void Graphics::setVolumetricTau(float tau)
-{
-    volumetric_tau = tau;
-}
-
-float Graphics::getVolumetricPhi()
-{
-    return volumetric_phi;
-}
-
-void Graphics::setVolumetricFogGain(float gain)
-{
-    fog_gain = gain;
-}
-
-float Graphics::getVolumetricFogGain()
-{
-    return fog_gain;
-}
-
-void Graphics::setVolumetricPhi(float phi)
-{
-    volumetric_phi = phi;
 }
 
 void Graphics::set_tone_mapping(TONE_MAPPING tone)

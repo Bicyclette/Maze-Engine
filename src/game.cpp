@@ -83,7 +83,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
 */
-
+/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -107,8 +107,8 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
+*/
 
-/*
 	// create sponza scene
 	scenes.push_back(std::make_shared<Scene>("sponza", 0));
 
@@ -123,12 +123,14 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setActiveCamera(0);
 
 	scenes[scenes.size()-1]->addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(-5.0f, 20.0f, -7.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*8.0f, glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.0f), 20.0f);
+    scenes[scenes.size()-1]->getDLights()[0]->setVolumetric(true);
+    scenes[scenes.size()-1]->getDLights()[0]->setFog(true);
 
 	scenes[0]->addObject("/home/bicyclette/CGI/sponza-atrium-3/untitled.gltf", glm::mat4(1.0f));
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
-*/
+
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -816,10 +818,7 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
 	s.setInt("worldPosMap", 11);
 	s.setInt("N", 50);
 	s.setFloat("time", elapsedTime);
-	s.setFloat("tau", graphics->getVolumetricTau());
-	s.setFloat("phi", graphics->getVolumetricPhi());
-	s.setFloat("fog_gain", graphics->getVolumetricFogGain());
-	
+
 	s.setLighting(scenes[index]->getPLights(), scenes[index]->getDLights(), scenes[index]->getSLights());
 
 	// set shadow maps (point first, dir second and spot last)

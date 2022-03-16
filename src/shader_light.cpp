@@ -373,53 +373,78 @@ void Shader::setLighting(std::vector<std::shared_ptr<PointLight>> & pLights, std
 	int sOffset = pCount + dCount;
 	setInt("lightCount", lightCount);
 
+    std::string base;
 	for(int i{0}; i < pCount; ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i) + "].type"), static_cast<int>(pLights[i]->getType()));
-		setFloat(std::string("light[" + std::to_string(i) + "].kc"), pLights[i]->getKc());
-		setFloat(std::string("light[" + std::to_string(i) + "].kl"), pLights[i]->getKl());
-		setFloat(std::string("light[" + std::to_string(i) + "].kq"), pLights[i]->getKq());
-		setVec3f(std::string("light[" + std::to_string(i) + "].position"), pLights[i]->getPosition());
+        base = std::string("light[" + std::to_string(i) + "].");
+		setInt(std::string(base + "type"), static_cast<int>(pLights[i]->getType()));
+		setFloat(std::string(base + "kc"), pLights[i]->getKc());
+		setFloat(std::string(base + "kl"), pLights[i]->getKl());
+		setFloat(std::string(base + "kq"), pLights[i]->getKq());
+		setVec3f(std::string(base + "position"), pLights[i]->getPosition());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i) + "].ambientStrength"), pLights[i]->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i) + "].diffuseStrength"), pLights[i]->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i) + "].specularStrength"), pLights[i]->getSpecularStrength());
+			setVec3f(std::string(base + "ambientStrength"), pLights[i]->getAmbientStrength());
+			setVec3f(std::string(base + "diffuseStrength"), pLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "specularStrength"), pLights[i]->getSpecularStrength());
 		}
 		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
-			setVec3f(std::string("light[" + std::to_string(i) + "].color"), pLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "color"), pLights[i]->getDiffuseStrength());
+
+        // volumetric data
+        setInt(std::string(base + "isVolumetric"), (pLights[i]->getVolumetric()) ? 1 : 0);
+        setInt(std::string(base + "hasFog"), (pLights[i]->getFog()) ? 1 : 0);
+        setFloat(std::string(base + "fog_gain"), pLights[i]->getFogGain());
+        setFloat(std::string(base + "tau"), pLights[i]->get_tau());
+        setFloat(std::string(base + "phi"), pLights[i]->get_phi());
 	}
 
 	for(int i{0}; i < dLights.size(); ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i + dOffset) + "].type"), static_cast<int>(dLights[i]->getType()));
-		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].position"), dLights[i]->getPosition());
-		setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].direction"), dLights[i]->getDirection());
+        base = std::string("light[" + std::to_string(i + dOffset) + "].");
+		setInt(std::string(base + "type"), static_cast<int>(dLights[i]->getType()));
+		setVec3f(std::string(base + "position"), dLights[i]->getPosition());
+		setVec3f(std::string(base + "direction"), dLights[i]->getDirection());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].ambientStrength"), dLights[i]->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].diffuseStrength"), dLights[i]->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].specularStrength"), dLights[i]->getSpecularStrength());
+			setVec3f(std::string(base + "ambientStrength"), dLights[i]->getAmbientStrength());
+			setVec3f(std::string(base + "diffuseStrength"), dLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "specularStrength"), dLights[i]->getSpecularStrength());
 		}
 		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
-			setVec3f(std::string("light[" + std::to_string(i + dOffset) + "].color"), dLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "color"), dLights[i]->getDiffuseStrength());
+
+        // volumetric data
+        setInt(std::string(base + "isVolumetric"), (dLights[i]->getVolumetric()) ? 1 : 0);
+        setInt(std::string(base + "hasFog"), (dLights[i]->getFog()) ? 1 : 0);
+        setFloat(std::string(base + "fog_gain"), dLights[i]->getFogGain());
+        setFloat(std::string(base + "tau"), dLights[i]->get_tau());
+        setFloat(std::string(base + "phi"), dLights[i]->get_phi());
 	}
 
 	for(int i{0}; i < sLights.size(); ++i)
 	{
-		setInt(std::string("light[" + std::to_string(i + sOffset) + "].type"), static_cast<int>(sLights[i]->getType()));
-		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].cutOff"), cos(sLights[i]->getCutOff()));
-		setFloat(std::string("light[" + std::to_string(i + sOffset) + "].outerCutOff"), cos(sLights[i]->getOuterCutOff()));
-		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].position"), sLights[i]->getPosition());
-		setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].direction"), sLights[i]->getDirection());
+        base = std::string("light[" + std::to_string(i + sOffset) + "].");
+		setInt(std::string(base + "type"), static_cast<int>(sLights[i]->getType()));
+		setFloat(std::string(base + "cutOff"), cos(sLights[i]->getCutOff()));
+		setFloat(std::string(base + "outerCutOff"), cos(sLights[i]->getOuterCutOff()));
+		setVec3f(std::string(base + "position"), sLights[i]->getPosition());
+		setVec3f(std::string(base + "direction"), sLights[i]->getDirection());
 		if(type == SHADER_TYPE::BLINN_PHONG)
 		{
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].ambientStrength"), sLights[i]->getAmbientStrength());
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].diffuseStrength"), sLights[i]->getDiffuseStrength());
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].specularStrength"), sLights[i]->getSpecularStrength());
+			setVec3f(std::string(base + "ambientStrength"), sLights[i]->getAmbientStrength());
+			setVec3f(std::string(base + "diffuseStrength"), sLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "specularStrength"), sLights[i]->getSpecularStrength());
 		}
 		else if(type == SHADER_TYPE::PBR || type == SHADER_TYPE::VOLUMETRIC_LIGHTING)
-			setVec3f(std::string("light[" + std::to_string(i + sOffset) + "].color"), sLights[i]->getDiffuseStrength());
+			setVec3f(std::string(base + "color"), sLights[i]->getDiffuseStrength());
+
+        // volumetric data
+        setInt(std::string(base + "isVolumetric"), (sLights[i]->getVolumetric()) ? 1 : 0);
+        setInt(std::string(base + "hasFog"), (sLights[i]->getFog()) ? 1 : 0);
+        setFloat(std::string(base + "fog_gain"), sLights[i]->getFogGain());
+        setFloat(std::string(base + "tau"), sLights[i]->get_tau());
+        setFloat(std::string(base + "phi"), sLights[i]->get_phi());
 	}
 }
 
@@ -654,10 +679,14 @@ Light::Light(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 dif
 	position(pos),
 	ambientStrength(amb),
 	diffuseStrength(diff),
-	specularStrength(spec)
-{
-	model = glm::mat4(1.0f);
-}
+	specularStrength(spec),
+    model(glm::mat4(1.0f)),
+    m_volumetric(false),
+    m_fog(false),
+    m_fog_gain(3.0f),
+    m_tau(0.35f),
+    m_phi(1.0f)
+{}
 
 Light::~Light()
 {
@@ -980,4 +1009,54 @@ SHADOW_QUALITY Light::getShadowQuality()
 void Light::setShadowQuality(SHADOW_QUALITY quality)
 {
 	shadow_quality = quality;
+}
+        
+bool Light::getVolumetric()
+{
+    return m_volumetric;
+}
+
+void Light::setVolumetric(bool volumetric)
+{
+    m_volumetric = volumetric;
+}
+
+bool Light::getFog()
+{
+    return m_fog;
+}
+
+void Light::setFog(bool fog)
+{
+    m_fog = fog;
+}
+
+float Light::getFogGain()
+{
+    return m_fog_gain;
+}
+
+void Light::setFogGain(float fog_gain)
+{
+    m_fog_gain = fog_gain;
+}
+
+float Light::get_tau()
+{
+    return m_tau;
+}
+
+void Light::set_tau(float tau)
+{
+    m_tau = tau;
+}
+
+float Light::get_phi()
+{
+    return m_phi;
+}
+
+void Light::set_phi(float phi)
+{
+    m_phi = phi;
 }

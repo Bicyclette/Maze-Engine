@@ -44,12 +44,6 @@ class Graphics
         void setAORadius(float radius);
 		void setVolumetricLighting(bool v);
 		bool volumetricLightingOn();
-        void setVolumetricTau(float);
-        float getVolumetricTau();
-        void setVolumetricPhi(float);
-        float getVolumetricPhi();
-        void setVolumetricFogGain(float);
-        float getVolumetricFogGain();
 		void set_tone_mapping(TONE_MAPPING tone);
 		TONE_MAPPING get_tone_mapping();
 		void setStdShadowQuality(SHADOW_QUALITY quality, int index);
@@ -111,9 +105,6 @@ class Graphics
         int ssaoSampleCount;
         float ssaoRadius;
 		bool volumetricsOn;
-        float volumetric_phi;
-        float volumetric_tau;
-        float fog_gain;
 		glm::mat4 omniPerspProjection; // for point lights
 		GLuint aoNoiseTexture;
 		std::vector<glm::vec3> aoKernel;
@@ -131,8 +122,9 @@ class Graphics
 		Shader volumetricLighting;
 		Shader VLDownSample;
         Shader bilateralBlur;
-        Shader computeGaussianBlur;
 		Shader end;
+
+        Shader computeGaussianBlur; // compute shader test
 
 		std::unique_ptr<Mesh> quad;
 		Material quadMaterial;

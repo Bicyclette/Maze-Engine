@@ -145,6 +145,16 @@ class Light
 		virtual LIGHT_TYPE getType() = 0;
 		void setShadowQuality(SHADOW_QUALITY quality);
 		SHADOW_QUALITY getShadowQuality();
+        bool getVolumetric();
+        void setVolumetric(bool volumetric);
+        bool getFog();
+        void setFog(bool fog);
+        float getFogGain();
+        void setFogGain(float fog_gain);
+        float get_tau();
+        void set_tau(float tau);
+        float get_phi();
+        void set_phi(float phi);
 
 	protected:
 
@@ -160,6 +170,12 @@ class Light
 		
 		GLuint vao;
 		GLuint vbo;
+
+        bool m_volumetric;
+        bool m_fog;
+        float m_fog_gain;
+        float m_tau; // light collision probability
+        float m_phi; // light power
 		
 		struct Texture icon;
 };

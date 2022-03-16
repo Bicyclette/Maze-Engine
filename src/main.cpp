@@ -114,30 +114,27 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(450, 0));
+    ImGui::Begin("volumetrics");
+    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::RadioButton("ON", &settings.volumetrics, 1);
+    ImGui::RadioButton("OFF", &settings.volumetrics, 0);
+    ImGui::End();
+    
+    ImGui::SetNextWindowPos(ImVec2(600, 0));
     ImGui::Begin("motion blur");
     ImGui::SetWindowSize(ImVec2(150, 80));
     ImGui::RadioButton("ON", &settings.motion_blur, 1);
     ImGui::RadioButton("OFF", &settings.motion_blur, 0);
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(600, 0));
+    ImGui::SetNextWindowPos(ImVec2(750, 0));
     ImGui::Begin("show physics");
     ImGui::SetWindowSize(ImVec2(150, 80));
     ImGui::RadioButton("ON", &settings.show_physics, 1);
     ImGui::RadioButton("OFF", &settings.show_physics, 0);
-    ImGui::End();
-    
+    ImGui::End(); 
+
     ImGui::SetNextWindowPos(ImVec2(0, 80));
-    ImGui::Begin("volumetrics");
-    ImGui::SetWindowSize(ImVec2(210, 160));
-    ImGui::RadioButton("ON", &settings.volumetrics, 1);
-    ImGui::RadioButton("OFF", &settings.volumetrics, 0);
-    ImGui::InputFloat("tau", &settings.tau, 0.05f);
-    ImGui::InputFloat("phi", &settings.phi, 1.0f);
-    ImGui::InputFloat("fog_gain", &settings.fog_gain, 0.05f);
-    ImGui::End();
-    
-    ImGui::SetNextWindowPos(ImVec2(210, 80));
     ImGui::Begin("AO");
     ImGui::SetWindowSize(ImVec2(210, 160));
     ImGui::RadioButton("ON", &settings.AO, 1);
@@ -183,10 +180,6 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
         game->getGraphics()->setVolumetricLighting(false);
     else
         game->getGraphics()->setVolumetricLighting(true);
-
-    game->getGraphics()->setVolumetricTau(settings.tau);
-    game->getGraphics()->setVolumetricPhi(settings.phi);
-    game->getGraphics()->setVolumetricFogGain(settings.fog_gain);
 
     if(settings.show_physics == 1)
         debugPhysics = true;
