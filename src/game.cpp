@@ -27,7 +27,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-
+/*
 	// create test scene
 	scenes.push_back(std::make_shared<Scene>("test scene", 0));
 
@@ -82,8 +82,8 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
+*/
 
-/*
 	// create audio scene
 	scenes.push_back(std::make_shared<Scene>("audio", 0));
 
@@ -107,7 +107,7 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
-*/
+
 /*
 	// create sponza scene
 	scenes.push_back(std::make_shared<Scene>("sponza", 0));
@@ -616,6 +616,10 @@ void Game::bloomPass(int width, int height)
 	Shader & upSampling = graphics->getUpSamplingShader();
 	Shader & gaussianBlur = graphics->getGaussianBlurShader();
 	Shader & tentBlur = graphics->getTentBlurShader();
+	Shader & cGaussianBlur = graphics->getComputeGaussianBlurShader();
+    cGaussianBlur.use();
+    cGaussianBlur.setInt("blurSize", graphics->getBloomSize());
+	cGaussianBlur.setFloat("sigma", graphics->getBloomSigma());
 	
 	// downsampling and blurring
 	for(int i{0}; i < 6; ++i)
@@ -649,7 +653,7 @@ void Game::bloomPass(int width, int height)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, graphics->getDownSamplingFBO(i)->getAttachments()[0].id);
 		graphics->getQuadMesh()->draw(gaussianBlur);
-		
+
 		// apply vertical gaussian blur
 		std::unique_ptr<Framebuffer> & pong = graphics->getPingPongFBO(i*2+1);
 		pong->bind();
@@ -661,7 +665,19 @@ void Game::bloomPass(int width, int height)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO(i*2)->getAttachments()[0].id);
 		graphics->getQuadMesh()->draw(gaussianBlur);
-	}
+        /*
+        cGaussianBlur.use();
+		cGaussianBlur.setInt("direction", 0);
+        glBindImageTexture(0, graphics->getDownSamplingFBO(i)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+        glBindImageTexture(1, graphics->getPingPongFBO(i*2)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+        cGaussianBlur.dispatch(width/8, height/8, 1, GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+		cGaussianBlur.setInt("direction", 1);
+        glBindImageTexture(0, graphics->getPingPongFBO(i*2)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+        glBindImageTexture(1, graphics->getPingPongFBO(i*2+1)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+        cGaussianBlur.dispatch(width/8, height/8, 1, GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        */
+    }
 
 	// upsampling
 	firstIteration = true;

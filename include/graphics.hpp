@@ -11,6 +11,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "mesh.hpp"
 #include "framebuffer.hpp"
+#include "renderTexture.hpp"
 #include "shader_light.hpp"
 #include "helpers.hpp"
 
@@ -69,6 +70,7 @@ class Graphics
 		Shader & getVolumetricLightingShader();
         Shader & getVolumetricDownSamplingShader();
         Shader & getBilateralBlurShader();
+		Shader & getComputeGaussianBlurShader();
 		Shader & getFinalShader();
 		std::unique_ptr<Framebuffer> & getMultisampleFBO();
 		std::unique_ptr<Framebuffer> & getNormalFBO(int index);
@@ -129,6 +131,7 @@ class Graphics
 		Shader volumetricLighting;
 		Shader VLDownSample;
         Shader bilateralBlur;
+        Shader computeGaussianBlur;
 		Shader end;
 
 		std::unique_ptr<Mesh> quad;

@@ -48,6 +48,7 @@ set(SRCS
 	src/particle.cpp
 	src/audio.cpp
 	src/vehicle.cpp
+    src/renderTexture.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -78,6 +79,7 @@ set(HEADERS
 	include/particle.hpp
 	include/audio.hpp
 	include/vehicle.hpp
+    include/renderTexture.hpp
     include/editorUI.hpp
 	include/rapidxml.hpp
 	include/lightning.hpp

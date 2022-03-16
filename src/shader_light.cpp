@@ -109,6 +109,34 @@ Shader::Shader(const std::string & vertex_shader_file, const std::string & geome
 	f_shader_stream.close();
 }
 
+Shader::Shader(const std::string & compute_shader_file, SHADER_TYPE t) :
+	type(t)
+{
+	int cShader_codeLength;
+	char* cShaderCode;
+	std::ifstream c_shader_stream;
+
+    c_shader_stream.open(compute_shader_file, std::ifstream::binary);
+
+	// compute code length
+	c_shader_stream.seekg(0, c_shader_stream.end);
+	cShader_codeLength = c_shader_stream.tellg();
+	c_shader_stream.seekg(0, c_shader_stream.beg);
+	
+	// create array
+	cShaderCode = new char[cShader_codeLength + 1];
+	cShaderCode[cShader_codeLength] = '\0';
+	c_shader_stream.read(cShaderCode, cShader_codeLength);
+
+	if(!c_shader_stream)
+		std::cerr << "Error while trying to read the compute shader file !" << std::endl;
+
+	// Now compile the shader, create the shader program and link
+	compile(cShaderCode);
+	delete[](cShaderCode);
+	c_shader_stream.close();
+}
+
 Shader::~Shader()
 {
 	glDeleteShader(id);
@@ -257,6 +285,50 @@ void Shader::compile(const char * vertex_shader_code, const char * geometry_shad
 	id = shader_program;
 }
 
+void Shader::compile(const char * compute_shader_code)
+{
+	GLuint compute_shader, shader_program;
+	compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+	shader_program = glCreateProgram();
+
+	glShaderSource(compute_shader, 1, &compute_shader_code, nullptr);	
+	glCompileShader(compute_shader);
+	
+	// Check for errors
+	int success;
+	int logLength;
+	char* log;
+
+	glGetShaderiv(compute_shader, GL_COMPILE_STATUS, &success);
+	if(success == GL_FALSE)
+	{
+		glGetShaderiv(compute_shader, GL_INFO_LOG_LENGTH, &logLength);
+		log = new char[logLength];
+		glGetShaderInfoLog(compute_shader, logLength, nullptr, log);
+		std::cerr << "Error while compiling the compute shader : " << log << std::endl;
+		delete[](log);
+		glDeleteShader(compute_shader);
+	}
+	
+	// Final step
+	glAttachShader(shader_program, compute_shader);
+	glLinkProgram(shader_program);
+
+	glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+	if(success == GL_FALSE)
+	{
+		glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &logLength);
+		log = new char[logLength];
+		glGetProgramInfoLog(shader_program, logLength, nullptr, log);
+		std::cerr << "Error while linking shader into a program : " << log << std::endl;
+		delete[](log);
+		glDeleteShader(compute_shader);
+	}
+
+	glDetachShader(shader_program, compute_shader);
+	id = shader_program;
+}
+
 GLuint Shader::getId() const { return id; }
 
 SHADER_TYPE Shader::getType() { return type; }
@@ -354,6 +426,12 @@ void Shader::setLighting(std::vector<std::shared_ptr<PointLight>> & pLights, std
 void Shader::use() const
 {
 	glUseProgram(id);
+}
+
+void Shader::dispatch(int blocks_x, int blocks_y, int blocks_z, GLbitfield barriers)
+{
+    glDispatchCompute(blocks_x, blocks_y, blocks_z);
+    glMemoryBarrier(barriers);
 }
 
 struct Texture createTexture(const std::string & texPath, TEXTURE_TYPE t, bool flip)

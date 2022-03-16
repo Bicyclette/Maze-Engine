@@ -30,6 +30,7 @@ enum class SHADER_TYPE
 	BLUR,
 	SAMPLING,
 	VOLUMETRIC_LIGHTING,
+    COMPUTE,
 	FINAL
 };
 
@@ -39,6 +40,7 @@ class Shader
 
 		Shader(const std::string & vertex_shader_file, const std::string & fragment_shader_file, SHADER_TYPE t = SHADER_TYPE::BLINN_PHONG);
 		Shader(const std::string & vertex_shader_file, const std::string & geometry_shader_file, const std::string & fragment_shader_file, SHADER_TYPE t = SHADER_TYPE::BLINN_PHONG);
+		Shader(const std::string & compute_shader_file, SHADER_TYPE t = SHADER_TYPE::COMPUTE);
 		~Shader();
 		GLuint getId() const;
 		SHADER_TYPE getType();
@@ -50,11 +52,13 @@ class Shader
 		void setMatrix(const std::string & name, glm::mat4 m) const;
 		void setLighting(std::vector<std::shared_ptr<PointLight>> & pLights, std::vector<std::shared_ptr<DirectionalLight>> & dLights, std::vector<std::shared_ptr<SpotLight>> & sLight);
 		void use() const;
+        void dispatch(int blocks_x, int blocks_y, int blocks_z, GLbitfield barriers);
 
 	private:
 
 		void compile(const char * vertex_shader_code, const char * fragment_shader_code);
 		void compile(const char * vertex_shader_code, const char * geometry_shader_code, const char * fragment_shader_code);
+		void compile(const char * compute_shader_code);
 
 		GLuint id;
 		SHADER_TYPE type;

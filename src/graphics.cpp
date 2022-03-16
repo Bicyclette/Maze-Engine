@@ -105,6 +105,7 @@ Graphics::Graphics(int width, int height) :
 	volumetricLighting("shaders/volumetrics/vertex.glsl", "shaders/volumetrics/fragment.glsl", SHADER_TYPE::VOLUMETRIC_LIGHTING),
 	VLDownSample("shaders/volumetrics/downSample/vertex.glsl", "shaders/volumetrics/downSample/fragment.glsl", SHADER_TYPE::SAMPLING),
 	bilateralBlur("shaders/bilateralBlur/vertex.glsl", "shaders/bilateralBlur/fragment.glsl", SHADER_TYPE::BLUR),
+	computeGaussianBlur("shaders/compute/gaussian_blur.glsl", SHADER_TYPE::COMPUTE),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
 	// Generic Multisample FBO
@@ -432,6 +433,11 @@ Shader & Graphics::getVolumetricDownSamplingShader()
 Shader & Graphics::getBilateralBlurShader()
 {
 	return bilateralBlur;
+}
+
+Shader & Graphics::getComputeGaussianBlurShader()
+{
+	return computeGaussianBlur;
 }
 
 Shader & Graphics::getFinalShader()
