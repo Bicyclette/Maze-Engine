@@ -64,7 +64,6 @@ class Graphics
 		Shader & getVolumetricLightingShader();
         Shader & getVolumetricDownSamplingShader();
         Shader & getBilateralBlurShader();
-		Shader & getComputeGaussianBlurShader();
 		Shader & getFinalShader();
 		std::unique_ptr<Framebuffer> & getMultisampleFBO();
 		std::unique_ptr<Framebuffer> & getNormalFBO(int index);
@@ -127,8 +126,6 @@ class Graphics
         Shader bilateralBlur;
         Shader motionBlur;
 		Shader end;
-
-        Shader computeGaussianBlur;
 
 		std::unique_ptr<Mesh> quad;
 		Material quadMaterial;

@@ -657,11 +657,7 @@ void Game::bloomPass(int width, int height)
 	Shader & upSampling = graphics->getUpSamplingShader();
 	Shader & gaussianBlur = graphics->getGaussianBlurShader();
 	Shader & tentBlur = graphics->getTentBlurShader();
-	Shader & cGaussianBlur = graphics->getComputeGaussianBlurShader();
-    cGaussianBlur.use();
-    cGaussianBlur.setInt("blurSize", graphics->getBloomSize());
-	cGaussianBlur.setFloat("sigma", graphics->getBloomSigma());
-	
+
 	// downsampling and blurring
 	for(int i{0}; i < 6; ++i)
 	{
@@ -706,18 +702,6 @@ void Game::bloomPass(int width, int height)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO(i*2)->getAttachments()[0].id);
 		graphics->getQuadMesh()->draw(gaussianBlur);
-        /*
-        cGaussianBlur.use();
-		cGaussianBlur.setInt("direction", 0);
-        glBindImageTexture(0, graphics->getDownSamplingFBO(i)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
-        glBindImageTexture(1, graphics->getPingPongFBO(i*2)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-        cGaussianBlur.dispatch(width/8, height/8, 1, GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-		cGaussianBlur.setInt("direction", 1);
-        glBindImageTexture(0, graphics->getPingPongFBO(i*2)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
-        glBindImageTexture(1, graphics->getPingPongFBO(i*2+1)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-        cGaussianBlur.dispatch(width/8, height/8, 1, GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        */
     }
 
 	// upsampling
