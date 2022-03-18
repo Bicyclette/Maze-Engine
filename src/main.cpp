@@ -164,6 +164,10 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
         game->getGraphics()->setBloomEffect(true);
     else
         game->getGraphics()->setBloomEffect(false);
+    if(settings.motion_blur == 1)
+        game->getGraphics()->motionBlurFX = true;
+    else
+        game->getGraphics()->motionBlurFX = false;
     if(settings.AO == 1)
     {
         game->getGraphics()->setSSAOEffect(true);

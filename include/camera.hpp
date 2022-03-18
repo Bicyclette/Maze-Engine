@@ -31,6 +31,7 @@ class Camera
 		void updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, glm::vec3 vehicleUp, float steering, float steeringIncrement, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
 		void updateProjectionMatrix(int w, int h);
 		glm::mat4 & getViewMatrix();
+		glm::mat4 & getPreviousViewMatrix();
 		glm::mat4 & getProjectionMatrix();
 		float getNearPlane();
 		float getFarPlane();
@@ -41,6 +42,7 @@ class Camera
 		glm::vec3 getOrientation();
 		void setProjection(glm::ivec2 scrDim, float near, float far);
 		CAM_TYPE getType();
+        void rotateAroundAxis(glm::vec3 axis, float delta);
 
 	private:
 
@@ -69,6 +71,7 @@ class Camera
 		Listener m_listener;
 
 		glm::ivec2 screenDim;
+		glm::mat4 prev_view;
 		glm::mat4 view;
 		glm::mat4 projection;
 		float nearPlane;

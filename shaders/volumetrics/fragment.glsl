@@ -38,10 +38,6 @@ uniform sampler2D depthMap[10];
 uniform samplerCube omniDepthMap[10];
 uniform int pointLightCount;
 
-uniform float tau;
-uniform float phi;
-uniform float fog_gain;
-
 in VS_OUT
 {
 	vec2 texCoords;

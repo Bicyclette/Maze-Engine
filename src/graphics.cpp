@@ -12,6 +12,8 @@ Graphics::Graphics(int width, int height) :
     ssaoSampleCount{32},
     ssaoRadius{1.0f},
 	volumetricsOn{false},
+    motionBlurFX(true),
+    motionBlurStrength(200),
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -88,6 +90,7 @@ Graphics::Graphics(int width, int height) :
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true)
     },
+    motionBlurFBO{std::make_unique<Framebuffer>(true, false, true)},
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
@@ -102,6 +105,7 @@ Graphics::Graphics(int width, int height) :
 	volumetricLighting("shaders/volumetrics/vertex.glsl", "shaders/volumetrics/fragment.glsl", SHADER_TYPE::VOLUMETRIC_LIGHTING),
 	VLDownSample("shaders/volumetrics/downSample/vertex.glsl", "shaders/volumetrics/downSample/fragment.glsl", SHADER_TYPE::SAMPLING),
 	bilateralBlur("shaders/bilateralBlur/vertex.glsl", "shaders/bilateralBlur/fragment.glsl", SHADER_TYPE::BLUR),
+	motionBlur("shaders/motionBlur/vertex.glsl", "shaders/motionBlur/fragment.glsl", SHADER_TYPE::BLUR),
 	computeGaussianBlur("shaders/compute/gaussian_blur.glsl", SHADER_TYPE::COMPUTE),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
@@ -184,6 +188,9 @@ Graphics::Graphics(int width, int height) :
         else
 	        volumetrics[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
     }
+
+    // MOTION BLUR FBO
+    motionBlurFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -521,6 +528,7 @@ void Graphics::resizeScreen(int width, int height)
         std::make_unique<Framebuffer>(true, false, true),
         std::make_unique<Framebuffer>(true, false, true)
     };
+    motionBlurFBO = std::make_unique<Framebuffer>(true, false, true);
 	
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
@@ -565,6 +573,9 @@ void Graphics::resizeScreen(int width, int height)
         else
 	        volumetrics[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
     }
+
+    // MOTION BLUR FBO
+    motionBlurFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()

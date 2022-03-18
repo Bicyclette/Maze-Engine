@@ -74,6 +74,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 ![podracer lightning anim](engine_imgs/podracer_lightning.gif)
 ### Volumetric Lighting
 ![sponza](engine_imgs/volumetric_lighting_9.png)
+### Motion blur
+![motion blur](engine_imgs/motion_blur.png)
 ### 3D audio
 ![audio](engine_imgs/audio_debug.png)
 ![audio](engine_imgs/3D_audio_close_up.png)
@@ -84,7 +86,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Navmesh
 
 **Graphics**
-* Motion blur
 * OIT
 
 **UI**
@@ -92,6 +93,7 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Text rendering
 
 **Others**
+* make graphics class entirely public
 * Write documentation/how-to
 
 ## BUGS

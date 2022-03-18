@@ -108,7 +108,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 */
-
+/*
 	// create sponza scene
 	scenes.push_back(std::make_shared<Scene>("sponza", 0));
 
@@ -130,7 +130,26 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
+*/
+	// create motion blur scene
+	scenes.push_back(std::make_shared<Scene>("motion blur", 0));
 
+	camPos = glm::vec3(8.0f, 9.0f, 0.0f);
+	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[scenes.size()-1]->addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
+	
+	scenes[scenes.size()-1]->setActiveCamera(0);
+
+	scenes[scenes.size()-1]->addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
+
+	scenes[0]->addObject("assets/MB_scene/mb.glb", glm::mat4(1.0f));
+
+	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
+	scenes[scenes.size()-1]->setGridAxis(8);
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -156,6 +175,10 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 	{
 		character->get()->getAnimator()->updateAnimation(delta);
 	}
+
+    // camera rotate
+    float rotate_speed = 50.0f;
+    scenes[activeScene]->getActiveCamera()->rotateAroundAxis(glm::vec3(0.0f, 1.0f, 0.0f), delta * rotate_speed);
 
 	// get shader
 	Shader s = graphics->getPBRShader();
@@ -191,6 +214,10 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		// VOLUMETRICS PASS
 		if(graphics->volumetricLightingOn() && graphics->shadowsOn())
 			volumetricsPass(activeScene, width, height, delta, elapsedTime);
+		
+        // MOTION BLUR PASS
+		if(graphics->motionBlurFX)
+			motionBlurPass(activeScene, width, height);
 
 		// BIND TO DEFAULT FRAMEBUFFER
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -223,6 +250,18 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		{
 			graphics->getFinalShader().setInt("volumetricsOn", 0);
 		}
+        if(graphics->motionBlurFX)
+        {
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, graphics->motionBlurFBO->getAttachments()[0].id);
+			graphics->getFinalShader().setInt("motionBlur", 3);
+			graphics->getFinalShader().setInt("motionBlurOn", 1);
+			graphics->getFinalShader().setInt("motionBlurStrength", graphics->motionBlurStrength);
+        }
+        else
+        {
+			graphics->getFinalShader().setInt("motionBlurOn", 0);
+        }
 		graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
 		graphics->getQuadMesh()->draw(graphics->getFinalShader());
 	}
@@ -642,8 +681,8 @@ void Game::bloomPass(int width, int height)
 		else
 			glBindTexture(GL_TEXTURE_2D, graphics->getPingPongFBO(i*2-1)->getAttachments()[0].id);
 		graphics->getQuadMesh()->draw(downSampling);
-
-		// apply horizontal gaussian blur
+		
+        // apply horizontal gaussian blur
 		gaussianBlur.use();
 		std::unique_ptr<Framebuffer> & ping = graphics->getPingPongFBO(i*2);
 		ping->bind();
@@ -914,4 +953,23 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
 
     // reset clear color
 	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
+}
+
+void Game::motionBlurPass(int index, int width, int height)
+{
+    std::shared_ptr<Camera> & cam{scenes[index]->getActiveCamera()};
+    glm::mat4 view = cam->getViewMatrix();
+    glm::mat4 prev_view = cam->getPreviousViewMatrix();
+    glm::mat4 proj = cam->getProjectionMatrix();
+    Shader & shader = graphics->motionBlur;
+    
+    graphics->motionBlurFBO->bind();
+    glClear(GL_COLOR_BUFFER_BIT);
+    shader.use();
+    shader.setMatrix("curr_MVP", proj * view);
+    shader.setMatrix("prev_MVP", proj * prev_view);
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics->getGBufferFBO()->getAttachments()[3].id); // frag world position
+    shader.setInt("worldPos", 0);
+    graphics->quad->draw(shader);
 }

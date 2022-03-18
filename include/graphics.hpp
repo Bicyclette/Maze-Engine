@@ -81,7 +81,7 @@ class Graphics
 		std::vector<glm::vec3> & getAOKernel();
 		GLuint getAONoiseTexture();
 
-	private:
+	public:
 
 		std::unique_ptr<Framebuffer> multisample; // color + depth + stencil
 		std::array<std::unique_ptr<Framebuffer>, 2> normal; // only color, no multisampling
@@ -93,6 +93,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
         std::array<std::unique_ptr<Framebuffer>, 4> volumetrics; // hdr color, no multisampling
+        std::unique_ptr<Framebuffer> motionBlurFBO;
 
 		TONE_MAPPING tone_mapping;
 		float near;
@@ -105,6 +106,8 @@ class Graphics
         int ssaoSampleCount;
         float ssaoRadius;
 		bool volumetricsOn;
+        bool motionBlurFX;
+        int motionBlurStrength;
 		glm::mat4 omniPerspProjection; // for point lights
 		GLuint aoNoiseTexture;
 		std::vector<glm::vec3> aoKernel;
@@ -122,9 +125,10 @@ class Graphics
 		Shader volumetricLighting;
 		Shader VLDownSample;
         Shader bilateralBlur;
+        Shader motionBlur;
 		Shader end;
 
-        Shader computeGaussianBlur; // compute shader test
+        Shader computeGaussianBlur;
 
 		std::unique_ptr<Mesh> quad;
 		Material quadMaterial;

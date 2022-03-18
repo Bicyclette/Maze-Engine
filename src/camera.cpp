@@ -34,6 +34,7 @@ Camera::Camera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 camPos, glm::vec3 cam
 	upShift = glm::vec3(0.0f);
 	rightShift = glm::vec3(0.0f);
 	view = glm::lookAt(position, target, up);
+    prev_view = view;
 	nearPlane = near;
 	farPlane = far;
 	projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
@@ -57,7 +58,11 @@ void Camera::updateViewMatrix(glm::vec3 vehiclePos, glm::vec3 vehicleDirection, 
 		zoom(mouse, delta);
 	}
 
+    prev_view = view;
 	view = glm::lookAt(position, target, up);
+
+    // update listener data
+	updateListener();
 }
 
 void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirection, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
@@ -74,7 +79,11 @@ void Camera::updateViewMatrix(glm::vec3 characterPos, glm::vec3 characterDirecti
 		zoom(mouse, delta);
 	}
 
+    prev_view = view;
 	view = glm::lookAt(position, target, up);
+	
+    // update listener data
+	updateListener();
 }
 
 void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
@@ -95,6 +104,7 @@ void Camera::updateViewMatrix(const std::bitset<16> & inputs, std::array<int, 3>
 		zoom(mouse, delta);
 	}
 
+    prev_view = view;
 	view = glm::lookAt(position, target, up);
 
 	// update listener data
@@ -184,6 +194,11 @@ glm::mat4 & Camera::getViewMatrix()
 	return view;
 }
 
+glm::mat4 & Camera::getPreviousViewMatrix()
+{
+	return prev_view;
+}
+
 glm::mat4 & Camera::getProjectionMatrix()
 {
 	return projection;
@@ -251,4 +266,13 @@ void Camera::updateListener()
 				up.z
 				});
 	m_listener.set_velocity(position - previousPosition);
+}
+
+void Camera::rotateAroundAxis(glm::vec3 axis, float delta)
+{
+    glm::mat4 rot_mat = glm::rotate(glm::mat4(1.0f), glm::radians(delta), axis);
+    position = glm::vec3(rot_mat * glm::vec4(position, 1.0f));
+    up = glm::vec3(rot_mat * glm::vec4(up, 1.0f));
+    up = glm::normalize(up);
+	right = glm::cross(glm::normalize(target - position), up);
 }

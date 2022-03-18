@@ -61,6 +61,7 @@ class Game
         void ssaoPass(int index, int width, int height, float delta);
 		void colorMultisamplePass(int index, int width, int height, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
 		void volumetricsPass(int index, int width, int height, float delta, double elapsedTime);
+		void motionBlurPass(int index, int width, int height);
 };
 
 #endif
