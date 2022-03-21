@@ -54,7 +54,7 @@ Mesh::~Mesh()
 
 	for(int i{0}; i < material.textures.size(); ++i)
 	{
-		glDeleteTextures(1, &material.textures.at(i).id);
+		glDeleteTextures(1, &material.textures[i].id);
 	}
 }
 

@@ -12,6 +12,7 @@
 #include "graphics.hpp"
 #include "color.hpp"
 #include "character.hpp"
+#include "user_interface.hpp"
 
 class Game
 {
@@ -51,6 +52,13 @@ class Game
 		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
 		std::unique_ptr<Graphics> graphics;
 		std::shared_ptr<Character> character;
+    
+    private:
+
+		void drawUI(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID);
+        
+        std::unique_ptr<Text> textRenderer;
+        std::vector<Button> button;
 
 	private: // render passes
 

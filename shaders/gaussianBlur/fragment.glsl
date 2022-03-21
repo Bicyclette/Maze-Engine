@@ -25,9 +25,8 @@ void main()
 	{
 		vec2 uv = texCoords + texelSize * blurDirection * i;
 		float g = gaussLeft * exp(-(i*i)/twoSigmaSquared);
-		color.rgb += texture(image, uv).rgb * g;
+		color += texture(image, uv) * g;
 		sum += g;
 	}
-	color.rgb /= sum;
-	color.a = 1.0f;
+	color /= sum;
 }

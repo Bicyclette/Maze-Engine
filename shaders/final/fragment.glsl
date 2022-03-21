@@ -8,8 +8,9 @@ uniform int bloomEffect;
 uniform sampler2D volumetrics;
 uniform int volumetricsOn;
 uniform sampler2D motionBlur;
-uniform int motionBlurStrength;
 uniform int motionBlurOn;
+uniform int motionBlurStrength;
+uniform sampler2D userInterface;
 uniform int tone_mapping; // 0 = Reinhard, 1 = ACES
 
 in vec2 texCoords;
@@ -43,7 +44,6 @@ void main()
     vec2 texelSize = 1.0f / textureSize(scene, 0);
 	
     vec3 sceneColor = texture(scene, texCoords).rgb;
-	
     vec3 bloomColor = vec3(0.0f);
     vec3 volumetricColor = vec3(0.0f);
     vec2 motionBlurVec = vec2(0.0f);
@@ -56,7 +56,7 @@ void main()
     {
         volumetricColor = texture(volumetrics, texCoords).rgb;
     }
-	
+
     // gather colors
 	color = sceneColor + bloomColor + volumetricColor;
 
@@ -87,12 +87,12 @@ void main()
 	vignette = vec3(1.0f) - (vignette / (1.0f / dist));
 	color *= vignette;
 
-	// gamma correction
-	fragColor = gammaCorrection(vec4(color, 1.0));
+    // user interface
+    vec4 ui_color = texture(userInterface, texCoords);
+    float src_alpha = ui_color.a;
+    float dest_alpha = 1.0f - src_alpha;
+    vec3 blend = ui_color.rgb * src_alpha + color.rgb * dest_alpha;
 
-	// show scene data (if one GBufferFBO's attachment was sent on scene uniform) or AO data
-	//fragColor = texture(volumetrics, texCoords);
-	//fragColor = vec4(vec3(texture(scene, texCoords).r), 1.0f);
-	//fragColor = texture(bloom, texCoords);
-    //fragColor = texture(motionBlur, texCoords);
+	// gamma correction
+	fragColor = gammaCorrection(vec4(blend, 1.0));
 }

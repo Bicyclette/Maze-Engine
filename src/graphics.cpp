@@ -13,7 +13,7 @@ Graphics::Graphics(int width, int height) :
     ssaoRadius{1.0f},
 	volumetricsOn{false},
     motionBlurFX(true),
-    motionBlurStrength(200),
+    motionBlurStrength(100),
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -91,6 +91,7 @@ Graphics::Graphics(int width, int height) :
         std::make_unique<Framebuffer>(true, false, true)
     },
     motionBlurFBO{std::make_unique<Framebuffer>(true, false, true)},
+    userInterfaceFBO{std::make_unique<Framebuffer>(true, false, true)},
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
@@ -190,6 +191,9 @@ Graphics::Graphics(int width, int height) :
 
     // MOTION BLUR FBO
     motionBlurFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+    // UI FBO
+    userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+    userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -523,7 +527,8 @@ void Graphics::resizeScreen(int width, int height)
         std::make_unique<Framebuffer>(true, false, true)
     };
     motionBlurFBO = std::make_unique<Framebuffer>(true, false, true);
-	
+    userInterfaceFBO = std::make_unique<Framebuffer>(true, false, true);
+
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
@@ -570,6 +575,10 @@ void Graphics::resizeScreen(int width, int height)
 
     // MOTION BLUR FBO
     motionBlurFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+
+    // UI FBO
+    userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+    userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()

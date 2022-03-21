@@ -3,8 +3,13 @@
 Game::Game(int clientWidth, int clientHeight) :
 	activeScene(0),
 	activeVehicle(-1),
-	graphics(std::make_unique<Graphics>(clientWidth, clientHeight))
+	graphics(std::make_unique<Graphics>(clientWidth, clientHeight)),
+    textRenderer(std::make_unique<Text>(clientWidth, clientHeight))
 {
+    // load some fonts and set an active font
+    textRenderer->load_police("assets/fonts/FreeMonoBold.ttf", 42);
+    textRenderer->use_police(0);
+
 	// instance models
 	std::vector<glm::mat4> pillarInstance;
 	pillarInstance.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-10.402f, 4.0f, -5.6927f)));
@@ -131,6 +136,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(20);
 */
+
 	// create motion blur scene
 	scenes.push_back(std::make_shared<Scene>("motion blur", 0));
 
@@ -150,6 +156,8 @@ Game::Game(int clientWidth, int clientHeight) :
 
 	scenes[scenes.size()-1]->setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[scenes.size()-1]->setGridAxis(8);
+
+    button.emplace_back(glm::vec2(600.0f, 700.0f), glm::vec2(344.0f, 444.0f), 1.0f, "assets/logo/blender.png", clientWidth, clientHeight);
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -207,7 +215,7 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 		// COLOR PASS : multisampling
 		colorMultisamplePass(activeScene, width, height, delta, mode, debug);
 
-		// BLOOM PASS
+        // BLOOM PASS
 		if(graphics->bloomOn())
 			bloomPass(width, height);
 
@@ -218,6 +226,9 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
         // MOTION BLUR PASS
 		if(graphics->motionBlurFX)
 			motionBlurPass(activeScene, width, height);
+
+        // DRAW USER INTERFACE
+        drawUI(delta, elapsedTime, width, height, mode);
 
 		// BIND TO DEFAULT FRAMEBUFFER
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -262,6 +273,9 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
         {
 			graphics->getFinalShader().setInt("motionBlurOn", 0);
         }
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, graphics->userInterfaceFBO->getAttachments()[0].id);
+		graphics->getFinalShader().setInt("userInterface", 4);
 		graphics->getFinalShader().setInt("tone_mapping", static_cast<int>(graphics->get_tone_mapping()));
 		graphics->getQuadMesh()->draw(graphics->getFinalShader());
 	}
@@ -269,6 +283,17 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 	{
 		std::cerr << "Error: wrong scene index supplied for draw command.\n";
 	}
+}
+
+void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode)
+{
+    graphics->userInterfaceFBO->bind();
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    textRenderer->print("MAZE ENGINE", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    for(Button & b : button)
+        b.draw();
 }
 
 void Game::resizeScreen(int clientWidth, int clientHeight)
@@ -280,6 +305,9 @@ void Game::resizeScreen(int clientWidth, int clientHeight)
 	}
 
 	graphics->resizeScreen(clientWidth, clientHeight);
+    textRenderer->resize_screen(clientWidth, clientHeight);
+    for(Button & b : button)
+        b.resize_screen(clientWidth, clientHeight);
 }
 
 void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)

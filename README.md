@@ -13,6 +13,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * lightning
 * Ordered transparency (xml data)
 * volumetric lighting
+* motion blur
 * vignette
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
@@ -22,6 +23,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * audio management with the OPENAL library
 * DDS textures for fast scene loading and efficient VRAM usage (tested with fbx files : approximately 7 to 8 times faster than glb files which have png/jpg textures)
 * custom collision shapes for rigid bodies
+* text rendering
 
 **CMAKE build system**
 
@@ -85,16 +87,8 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Pathfinding
 * Navmesh
 
-**Graphics**
-* OIT
-
 **UI**
 * OpenGL based user interface (buttons, menus, layout).
-* Text rendering
-
-**Others**
-* make graphics class entirely public
-* Write documentation/how-to
 
 ## BUGS
 * if/else statement not working (volumetric shader: switch between light types)

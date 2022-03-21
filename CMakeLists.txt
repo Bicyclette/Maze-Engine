@@ -16,6 +16,7 @@ include_directories(include
 	${BULLET_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${LIBSNDFILE_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIR}
 	)
 
 link_directories(${SDL2_LIB_DIR}
@@ -24,6 +25,7 @@ link_directories(${SDL2_LIB_DIR}
 	${BULLET_LIB_DIR}
 	${OPENAL_LIB_DIR}
 	${LIBSNDFILE_LIB_DIR}
+    ${FREETYPE_LIB_DIR}
 	)
 
 set(SRCS
@@ -49,6 +51,7 @@ set(SRCS
 	src/audio.cpp
 	src/vehicle.cpp
     src/renderTexture.cpp
+    src/user_interface.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -80,6 +83,7 @@ set(HEADERS
 	include/audio.hpp
 	include/vehicle.hpp
     include/renderTexture.hpp
+    include/user_interface.hpp
     include/editorUI.hpp
 	include/rapidxml.hpp
 	include/lightning.hpp
@@ -117,6 +121,7 @@ target_link_libraries(${PROJECT_NAME}
 	${BULLET_LIBS}
 	${OPENAL_LIBS}
 	${LIBSNDFILE_LIBS}
+    ${FREETYPE_LIBS}
 	)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -15,7 +15,9 @@ void main()
         color = texture(low_res, texCoords);
     else
     {
-	    vec3 merge = texture(low_res, texCoords).rgb + texture(high_res, texCoords).rgb;
-	    color = vec4(merge, 1.0f);
+        vec4 colorA = texture(low_res, texCoords);
+        vec4 colorB = texture(high_res, texCoords);
+	    color = colorA + colorB;
+        color.a = 1.0f;
     }
 }

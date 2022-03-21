@@ -31,6 +31,8 @@ enum class SHADER_TYPE
 	SAMPLING,
 	VOLUMETRIC_LIGHTING,
     COMPUTE,
+    UI,
+    TEXT,
 	FINAL
 };
 

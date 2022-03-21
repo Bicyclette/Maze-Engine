@@ -93,6 +93,7 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
         std::array<std::unique_ptr<Framebuffer>, 4> volumetrics; // hdr color, no multisampling
         std::unique_ptr<Framebuffer> motionBlurFBO;
+        std::unique_ptr<Framebuffer> userInterfaceFBO;
 
 		TONE_MAPPING tone_mapping;
 		float near;
