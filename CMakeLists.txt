@@ -17,6 +17,7 @@ include_directories(include
 	${OPENAL_INCLUDE_DIR}
 	${LIBSNDFILE_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIR}
+    ${ENET_INCLUDE_DIR}
 	)
 
 link_directories(${SDL2_LIB_DIR}
@@ -26,6 +27,7 @@ link_directories(${SDL2_LIB_DIR}
 	${OPENAL_LIB_DIR}
 	${LIBSNDFILE_LIB_DIR}
     ${FREETYPE_LIB_DIR}
+    ${ENET_LIB_DIR}
 	)
 
 set(SRCS
@@ -122,6 +124,7 @@ target_link_libraries(${PROJECT_NAME}
 	${OPENAL_LIBS}
 	${LIBSNDFILE_LIBS}
     ${FREETYPE_LIBS}
+    ${ENET_LIBS}
 	)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

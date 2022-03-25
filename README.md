@@ -47,6 +47,12 @@ The following variables must be defined :
 * ${LIBSNDFILE\_INCLUDE\_DIR}
 * ${LIBSNDFILE\_LIB\_DIR}
 * ${LIBSNDFILE\_LIBS}
+* ${FREETYPE\_INCLUDE\_DIR}
+* ${FREETYPE\_LIB\_DIR}
+* ${FREETYPE\_LIBS}
+* ${ENET\_INCLUDE\_DIR}
+* ${ENET\_LIB\_DIR}
+* ${ENET\_LIBS}
 
 On Windows, a good way to acquire those libraries is to use vcpkg with git bash,\
 and store them in a short path location like "C:\dev".
