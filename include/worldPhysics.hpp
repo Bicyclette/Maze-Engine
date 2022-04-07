@@ -99,9 +99,9 @@ class WorldPhysics
         float getDistance(btVector3 from, btVector3 to);
 
 	private:
-		btCollisionShape * createConvexHullShape(std::shared_ptr<Object> & object);
-		btCollisionShape * createCompoundShape(std::shared_ptr<Object> & object);
-		btCollisionShape * createTriangleShape(std::shared_ptr<Object> & object);
+		btCollisionShape * createConvexHullShape(std::shared_ptr<Object>& object);
+		btCollisionShape * createCompoundShape(std::shared_ptr<Object>& object);
+		btCollisionShape * createTriangleShape(std::shared_ptr<Object>& object);
 		void stepSimulationAux();
 
 		btDebugDraw debugDrawer;

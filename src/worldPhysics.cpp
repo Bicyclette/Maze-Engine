@@ -51,7 +51,7 @@ WorldPhysics::~WorldPhysics()
 	delete(softBodyWorldInfo);
 }
 
-btCollisionShape * WorldPhysics::createConvexHullShape(std::shared_ptr<Object> & object)
+btCollisionShape * WorldPhysics::createConvexHullShape(std::shared_ptr<Object>& object)
 {
 	btConvexHullShape * shape = new btConvexHullShape();
 
@@ -77,7 +77,7 @@ btCollisionShape * WorldPhysics::createConvexHullShape(std::shared_ptr<Object> &
 	return shape;
 }
 
-btCollisionShape * WorldPhysics::createCompoundShape(std::shared_ptr<Object> & object)
+btCollisionShape * WorldPhysics::createCompoundShape(std::shared_ptr<Object>& object)
 {
 	btCompoundShape * shape = new btCompoundShape();
 	std::vector<std::shared_ptr<Mesh>> meshes = (object->getCollisionShape()) ?
@@ -147,7 +147,7 @@ btCollisionShape * WorldPhysics::createCompoundShape(std::shared_ptr<Object> & o
 	return shape;
 }
 
-btCollisionShape * WorldPhysics::createTriangleShape(std::shared_ptr<Object> & object)
+btCollisionShape * WorldPhysics::createTriangleShape(std::shared_ptr<Object>& object)
 {
 	btTriangleMesh * triangleMesh = new btTriangleMesh();
 

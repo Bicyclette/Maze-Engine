@@ -157,33 +157,33 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
 
     // change engine states
     if(settings.shadows == 1)
-        game->getGraphics()->setShadows(true);
+        game->getGraphics().setShadows(true);
     else
-        game->getGraphics()->setShadows(false);
+        game->getGraphics().setShadows(false);
     if(settings.bloom == 1)
-        game->getGraphics()->setBloomEffect(true);
+        game->getGraphics().setBloomEffect(true);
     else
-        game->getGraphics()->setBloomEffect(false);
+        game->getGraphics().setBloomEffect(false);
     if(settings.motion_blur == 1)
-        game->getGraphics()->motionBlurFX = true;
+        game->getGraphics().motionBlurFX = true;
     else
-        game->getGraphics()->motionBlurFX = false;
+        game->getGraphics().motionBlurFX = false;
     if(settings.AO == 1)
     {
-        game->getGraphics()->setSSAOEffect(true);
-        game->getGraphics()->setAORadius(settings.AORadius);
-        game->getGraphics()->setAOSampleCount(settings.AOSamples);
+        game->getGraphics().setSSAOEffect(true);
+        game->getGraphics().setAORadius(settings.AORadius);
+        game->getGraphics().setAOSampleCount(settings.AOSamples);
     }
     else
-        game->getGraphics()->setSSAOEffect(false);
+        game->getGraphics().setSSAOEffect(false);
     if(settings.tone_mapping == 0)
-        game->getGraphics()->set_tone_mapping(TONE_MAPPING::REINHARD);
+        game->getGraphics().set_tone_mapping(TONE_MAPPING::REINHARD);
     else
-        game->getGraphics()->set_tone_mapping(TONE_MAPPING::ACES);
+        game->getGraphics().set_tone_mapping(TONE_MAPPING::ACES);
     if(settings.volumetrics == 0)
-        game->getGraphics()->setVolumetricLighting(false);
+        game->getGraphics().setVolumetricLighting(false);
     else
-        game->getGraphics()->setVolumetricLighting(true);
+        game->getGraphics().setVolumetricLighting(true);
 
     if(settings.show_physics == 1)
         debugPhysics = true;
@@ -204,8 +204,8 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 	//game->setActiveVehicle(0);
 
 	// >>>>>>>>>>>>>>>>>>>> create collection of characters
-	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-	//game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+	game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
 	// <<<<<<<<<<<<<<<<<<<< create collection of characters
 
 	// delta

@@ -22,8 +22,8 @@ class Game
 		void draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false, bool debugPhysics = false);
 		void resizeScreen(int clientWidth, int clientHeight);
 		void updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta);
-		std::unique_ptr<Graphics> & getGraphics();
-		std::vector<std::shared_ptr<Scene>> & getScenes();
+		Graphics& getGraphics();
+		std::vector<Scene> & getScenes();
 		int getActiveScene();
 		void setActiveScene(int index);
 		int getActiveVehicle();
@@ -47,10 +47,10 @@ class Game
 
 		int activeScene;
 		int activeVehicle;
-		std::vector<std::shared_ptr<Scene>> scenes;
-		std::vector<std::unique_ptr<WorldPhysics>> worldPhysics;
+		std::vector<Scene> scenes;
+		std::vector<WorldPhysics> worldPhysics;
 		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
-		std::unique_ptr<Graphics> graphics;
+		Graphics graphics;
 		std::shared_ptr<Character> character;
     
     private:

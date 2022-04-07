@@ -313,14 +313,8 @@ void Mesh::updateVBO(std::vector<Vertex> aVertices, std::vector<int> aIndices)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-	void * vbo_ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-	void * ebo_ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-	memcpy(vbo_ptr, vertices.data(), vertices.size() * sizeof(Vertex));
-	memcpy(ebo_ptr, indices.data(), indices.size() * sizeof(int));
-
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(int), indices.data());
 }
 
 bool Mesh::getVertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 lastPos, Vertex & out)

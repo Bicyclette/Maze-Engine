@@ -2,7 +2,8 @@
 
 Scene::Scene(std::string pName, int aId) :
 	name(pName),
-	ID(aId)
+	ID(aId),
+	activeCamera(-1)
 {}
 
 int Scene::getId()
@@ -14,11 +15,11 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, std::string collis
 {
 	std::shared_ptr<Object> obj{std::make_shared<Object>(filePath, aModel)};
 
-	if(instanceModel.size() > 0)
+	if (instanceModel.size() > 0)
 	{
 		obj->setInstancing(instanceModel);
 	}
-	if(!collisionFilePath.empty())
+	if (!collisionFilePath.empty())
 	{
 		obj->setCollisionShape(collisionFilePath, aModel);
 	}
@@ -29,15 +30,10 @@ void Scene::addObject(std::string filePath, glm::mat4 aModel, std::string collis
     for(auto mesh : meshes)
     {
         if(mesh->getMaterial().opaque == 1)
-            opaqueMesh.push_back(std::make_pair(mesh, obj));
+            opaqueMesh.push_back(std::make_pair(mesh, objects.size()-1));
         else
-            transparentMesh.push_back(std::make_pair(mesh, obj));
+            transparentMesh.push_back(std::make_pair(mesh, objects.size()-1));
     }
-}
-
-void Scene::addObject(std::shared_ptr<Object> obj)
-{
-	objects.push_back(obj);
 }
 
 void Scene::setCharacter(std::shared_ptr<Character> aCharacter)
@@ -52,7 +48,7 @@ void Scene::removeCharacter()
 
 void Scene::addCamera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 pos, glm::vec3 target, glm::vec3 up, float fov, float near, float far)
 {
-	cameras.push_back(std::make_shared<Camera>(type, scrDim, pos, target, up, fov, near, far));
+	cameras.emplace_back(type, scrDim, pos, target, up, fov, near, far);
 }
 
 void Scene::addPointLight(SHADOW_QUALITY quality, glm::vec3 pos, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float aKc, float aKl, float aKq)
@@ -110,26 +106,26 @@ void Scene::setGridAxis(int gridDim)
 
 void Scene::setActiveCamera(int index)
 {
-	activeCamera = cameras[index];
+	activeCamera = index;
 }
 
 void Scene::updateCameraPerspective(glm::ivec2 scrDim)
 {
 	for(int i{0}; i < cameras.size(); ++i)
 	{
-		std::shared_ptr<Camera> cam = cameras[i];
-		cameras[i]->setProjection(scrDim, cam->getNearPlane(), cam->getFarPlane());
+		Camera& cam = cameras[i];
+		cam.setProjection(scrDim, cam.getNearPlane(), cam.getFarPlane());
 	}
 }
 
-std::vector<std::shared_ptr<Camera>> & Scene::getCameras()
+std::vector<Camera>& Scene::getCameras()
 {
 	return cameras;
 }
 
-std::shared_ptr<Camera> & Scene::getActiveCamera()
+Camera& Scene::getActiveCamera()
 {
-	return activeCamera;
+	return cameras[activeCamera];
 }
 
 std::string & Scene::getName()
@@ -137,38 +133,40 @@ std::string & Scene::getName()
 	return name;
 }
 
-void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode, bool debug)
+void Scene::draw(Shader & shader, Graphics& graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode, bool debug)
 {
+	Camera& cam = cameras[activeCamera];
+
 	if(debug)
 	{
 		if(gridAxis)
 		{
-			gridAxis->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+			gridAxis->draw(cam.getViewMatrix(), cam.getProjectionMatrix());
 		}
 
 		for(int i{0}; i < pLights.size(); ++i)
 		{
-			pLights[i]->setViewMatrix(activeCamera->getViewMatrix());
-			pLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			pLights[i]->setViewMatrix(cam.getViewMatrix());
+			pLights[i]->setProjMatrix(cam.getProjectionMatrix());
 			pLights[i]->draw();
 		}
 		for(int i{0}; i < dLights.size(); ++i)
 		{
-			dLights[i]->setViewMatrix(activeCamera->getViewMatrix());
-			dLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			dLights[i]->setViewMatrix(cam.getViewMatrix());
+			dLights[i]->setProjMatrix(cam.getProjectionMatrix());
 			dLights[i]->drawDebug();
 		}
 		for(int i{0}; i < sLights.size(); ++i)
 		{
-			sLights[i]->setViewMatrix(activeCamera->getViewMatrix());
-			sLights[i]->setProjMatrix(activeCamera->getProjectionMatrix());
+			sLights[i]->setViewMatrix(cam.getViewMatrix());
+			sLights[i]->setProjMatrix(cam.getProjectionMatrix());
 			sLights[i]->draw();
 		}
 
 		for(int i{0}; i < sound_source.size(); ++i)
 		{
-			sound_source[i].setViewMatrix(activeCamera->getViewMatrix());
-			sound_source[i].setProjMatrix(activeCamera->getProjectionMatrix());
+			sound_source[i].setViewMatrix(cam.getViewMatrix());
+			sound_source[i].setProjMatrix(cam.getProjectionMatrix());
 			sound_source[i].draw();
 		}
 	}
@@ -179,7 +177,7 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYP
 		shader.use();
 		shader.setInt("IBL", 1);
 		iblData = ibl->get_IBL_data();
-		ibl->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+		ibl->draw(cam.getViewMatrix(), cam.getProjectionMatrix());
 	}
 	else if(!ibl && shader.getType() == SHADER_TYPE::PBR)
 	{
@@ -204,12 +202,13 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYP
         shader.setInt("animated", 0);
         for(auto mesh : opaqueMesh)
         {
-            shader.setMatrix("model", mesh.second->getModel());
+			std::shared_ptr<Object>& obj = objects[mesh.second];
+            shader.setMatrix("model", obj->getModel());
             if(shader.getType() == SHADER_TYPE::SHADOWS && mesh.first->getMaterial().color_emissive != glm::vec3(0.0f))
             {
                 continue;
             }
-            mesh.first->draw(shader, &iblData, mesh.second->getInstancing(), mesh.second->getInstanceModel().size(), mode);
+            mesh.first->draw(shader, &iblData, obj->getInstancing(), obj->getInstanceModel().size(), mode);
         }
     }
     else
@@ -217,16 +216,17 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYP
         shader.use();
         shader.setInt("animated", 0);
         
-        Scene::sortCamPos = activeCamera->getPosition();
+        Scene::sortCamPos = cam.getPosition();
         qsort(transparentMesh.data(), transparentMesh.size(), sizeof(std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>), sortTransparentMesh);
         for(auto mesh : transparentMesh)
         {
-            shader.setMatrix("model", mesh.second->getModel());
+			std::shared_ptr<Object>& obj = objects[mesh.second];
+            shader.setMatrix("model", obj->getModel());
             if(shader.getType() == SHADER_TYPE::SHADOWS && mesh.first->getMaterial().color_emissive != glm::vec3(0.0f))
             {
                 continue;
             }
-            mesh.first->draw(shader, &iblData, mesh.second->getInstancing(), mesh.second->getInstanceModel().size(), mode);
+            mesh.first->draw(shader, &iblData, obj->getInstancing(), obj->getInstanceModel().size(), mode);
         }
     }
 	
@@ -240,20 +240,20 @@ void Scene::draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYP
 
 	for(int i{0}; i < particlesEmitter.size(); ++i)
 	{
-		particlesEmitter[i]->emit(activeCamera->getPosition(), delta);
+		particlesEmitter[i]->emit(cam.getPosition(), delta);
 		if(debug)
-			particlesEmitter[i]->drawEmitter(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
-		particlesEmitter[i]->drawParticles(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), activeCamera->getRight(), activeCamera->getUp());
+			particlesEmitter[i]->drawEmitter(cam.getViewMatrix(), cam.getProjectionMatrix());
+		particlesEmitter[i]->drawParticles(cam.getViewMatrix(), cam.getProjectionMatrix(), cam.getRight(), cam.getUp());
 	}
 
 	for(int i{0}; i < lightning.size(); ++i)
 	{
-		lightning[i]->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix(), delta);
+		lightning[i]->draw(cam.getViewMatrix(), cam.getProjectionMatrix(), delta);
 	}
 
 	if(sky)
 	{
-		sky->draw(activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+		sky->draw(cam.getViewMatrix(), cam.getProjectionMatrix());
 	}
 }
 
@@ -272,7 +272,7 @@ std::vector<std::shared_ptr<SpotLight>> & Scene::getSLights()
 	return sLights;
 }
 
-std::vector<std::shared_ptr<Object>> Scene::getObjects()
+std::vector<std::shared_ptr<Object>>& Scene::getObjects()
 {
 	return objects;
 }

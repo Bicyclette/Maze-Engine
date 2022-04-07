@@ -409,24 +409,17 @@ void Framebuffer::updateColorTextureAttachment(int index, int width, int height,
 
 void Framebuffer::updateDepthTextureAttachment(int width, int height, int insertPos)
 {
+	glBindTexture(GL_TEXTURE_2D, attachment[insertPos].id);
 	if(multiSample)
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, 0, 0);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT32F, width, height, GL_TRUE);
 	else
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
-	glDeleteTextures(1, &attachment.at(insertPos).id);
-
-	attachment.erase(attachment.begin() + insertPos);
-
-	if(insertPos == attachment.size())
-		addDepthTextureAttachment(width, height, -1);
-	else
-		addDepthTextureAttachment(width, height, insertPos);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 }
 
 void Framebuffer::updateColorTextureCubemapAttachment(int width, int height, int insertPos)
 {
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
-	glDeleteTextures(1, &attachment.at(insertPos).id);
+	glDeleteTextures(1, &attachment[insertPos].id);
 
 	attachment.erase(attachment.begin() + insertPos);
 
@@ -438,15 +431,9 @@ void Framebuffer::updateColorTextureCubemapAttachment(int width, int height, int
 
 void Framebuffer::updateDepthTextureCubemapAttachment(int width, int height, int insertPos)
 {
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
-	glDeleteTextures(1, &attachment.at(insertPos).id);
-
-	attachment.erase(attachment.begin() + insertPos);
-
-	if(insertPos == attachment.size())
-		addDepthTextureCubemapAttachment(width, height, -1);
-	else
-		addDepthTextureCubemapAttachment(width, height, insertPos);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, attachment[insertPos].id);
+	for (int i{ 0 }; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 }
 
 void Framebuffer::updateColorRenderbufferAttachment(int width, int height, int insertPos)
@@ -465,7 +452,7 @@ void Framebuffer::updateColorRenderbufferAttachment(int width, int height, int i
 void Framebuffer::updateDepthRenderbufferAttachment(int width, int height, int insertPos)
 {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-	glDeleteRenderbuffers(1, &attachment.at(insertPos).id);
+	glDeleteRenderbuffers(1, &attachment[insertPos].id);
 
 	attachment.erase(attachment.begin() + insertPos);
 
@@ -478,7 +465,7 @@ void Framebuffer::updateDepthRenderbufferAttachment(int width, int height, int i
 void Framebuffer::updateDepthStencilRenderbufferAttachment(int width, int height, int insertPos)
 {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-	glDeleteRenderbuffers(1, &attachment.at(insertPos).id);
+	glDeleteRenderbuffers(1, &attachment[insertPos].id);
 
 	attachment.erase(attachment.begin() + insertPos);
 
@@ -494,7 +481,7 @@ void Framebuffer::updateAttachment(ATTACHMENT_TYPE type, ATTACHMENT_TARGET targe
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	for(int i{0}; i < attachment.size(); ++i)
 	{
-		if(attachment.at(i).type == type && attachment.at(i).target == target)
+		if(attachment[i].type == type && attachment[i].target == target)
 		{
 			if(type == ATTACHMENT_TYPE::TEXTURE)
 			{

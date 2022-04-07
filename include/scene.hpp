@@ -33,7 +33,6 @@ class Scene
 		Scene(std::string pName, int aId);
 		int getId();
 		void addObject(std::string filePath, glm::mat4 aModel = glm::mat4(1.0f), std::string collisionFilePath = "", const std::vector<glm::mat4> & instanceModel = std::vector<glm::mat4>());
-		void addObject(std::shared_ptr<Object> obj);
 		void setCharacter(std::shared_ptr<Character> aCharacter);
 		void removeCharacter();
 		void addCamera(CAM_TYPE type, glm::ivec2 scrDim, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 target = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float fov = 45.0f, float near = 0.1f, float far = 100.0f);
@@ -49,14 +48,14 @@ class Scene
 		void setGridAxis(int gridDim);
 		void setActiveCamera(int index);
 		void updateCameraPerspective(glm::ivec2 scrDim);
-		std::vector<std::shared_ptr<Camera>> & getCameras();
-		std::shared_ptr<Camera> & getActiveCamera();
+		std::vector<Camera>& getCameras();
+		Camera& getActiveCamera();
 		std::string & getName();
-		void draw(Shader & shader, std::unique_ptr<Graphics> & graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
+		void draw(Shader & shader, Graphics& graphics, DRAW_TYPE drawType, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
 		std::vector<std::shared_ptr<PointLight>> & getPLights();
 		std::vector<std::shared_ptr<DirectionalLight>> & getDLights();
 		std::vector<std::shared_ptr<SpotLight>> & getSLights();
-		std::vector<std::shared_ptr<Object>> getObjects();
+		std::vector<std::shared_ptr<Object>>& getObjects();
 		std::shared_ptr<Character> getCharacter();
 		std::vector<std::shared_ptr<Vehicle>> & getVehicles();
 
@@ -76,12 +75,12 @@ class Scene
 		int ID;
 		std::string name;
 
-		std::shared_ptr<Camera> activeCamera;
-		std::vector<std::shared_ptr<Camera>> cameras;
+		int activeCamera;
+		std::vector<Camera> cameras;
 
 		std::vector<std::shared_ptr<Object>> objects;
-		std::vector<std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>> opaqueMesh;
-		std::vector<std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>> transparentMesh;
+		std::vector<std::pair<std::shared_ptr<Mesh>, int>> opaqueMesh;
+		std::vector<std::pair<std::shared_ptr<Mesh>, int>> transparentMesh;
 		std::shared_ptr<Character> character;
 		std::vector<std::shared_ptr<Vehicle>> vehicles;
 		Audio audio; // collection of audio files
