@@ -242,7 +242,6 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 		SDL_GL_SwapWindow(client->getWindowPtr());
 		lastFrame = currentFrame;
 	}
-
 }
 
 int main(int argc, char* argv[])

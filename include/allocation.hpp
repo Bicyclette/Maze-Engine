@@ -44,12 +44,16 @@ class SharedPtr
 		}
 		~SharedPtr()
 		{
-			for (auto& mem : SharedPtr<S>::control)
+			for (int i{ 0 }; i < SharedPtr<S>::control.size(); ++i)
 			{
+				auto& mem = SharedPtr<S>::control[i];
 				if (mem.first == m_ptr)
 				{
 					if (mem.second == 1)
+					{
+						SharedPtr<S>::control.erase(SharedPtr<S>::control.begin() + i);
 						delete m_ptr;
+					}
 					else
 						mem.second--;
 				}
@@ -68,12 +72,16 @@ class SharedPtr
 		{
 			if (&ptr == this)
 				return *this;
-			for (auto& mem : SharedPtr<S>::control)
+			for (int i{ 0 }; i < SharedPtr<S>::control.size(); ++i)
 			{
+				auto& mem = SharedPtr<S>::control[i];
 				if (mem.first == m_ptr)
 				{
 					if (mem.second == 1)
+					{
+						SharedPtr<S>::control.erase(SharedPtr<S>::control.begin() + i);
 						delete m_ptr;
+					}
 					else
 						mem.second--;
 				}
