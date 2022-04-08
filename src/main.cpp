@@ -11,6 +11,7 @@
 #include "game.hpp"
 #include "framebuffer.hpp"
 #include "editorUI.hpp"
+#include "allocation.hpp"
 
 void characterMovements(std::unique_ptr<WindowManager> & client, std::unique_ptr<Game> & game, float delta)
 {

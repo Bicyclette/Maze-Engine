@@ -90,6 +90,7 @@ set(HEADERS
 	include/rapidxml.hpp
 	include/lightning.hpp
 	include/helpers.hpp
+	include/allocation.hpp
 	include/imgui.h
 	include/imconfig.h
 	include/imgui_internal.h
