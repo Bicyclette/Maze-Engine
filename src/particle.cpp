@@ -132,12 +132,8 @@ void ParticleEmitter::drawParticles(glm::mat4 view, glm::mat4 proj, glm::vec3 ca
 	particles_shader.setInt("particle", 0);
 
 	glBindVertexArray(particles_vao);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDrawArrays(GL_POINTS, 0, particles.size());
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_BLEND);
+
 	glBindVertexArray(0);
 }
 

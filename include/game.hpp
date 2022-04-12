@@ -56,20 +56,22 @@ class Game
     private:
 
 		void drawUI(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID);
-        
         std::unique_ptr<Text> textRenderer;
-        std::vector<Button> button;
+        std::vector<std::shared_ptr<Sprite>> sprite;
 
 	private: // render passes
 
 		void directionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
 		void omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID);
-		void bloomPass(int width, int height);
+		void bloomPass(int width, int height, std::unique_ptr<Framebuffer> & in, int attachmentIndex, GLuint out);
 		void GBufferPass(int index, int width, int height, float delta);
         void ssaoPass(int index, int width, int height, float delta);
 		void colorMultisamplePass(int index, int width, int height, float delta, DRAWING_MODE mode = DRAWING_MODE::SOLID, bool debug = false);
 		void volumetricsPass(int index, int width, int height, float delta, double elapsedTime);
 		void motionBlurPass(int index, int width, int height);
+		void compositingPass();
+		inline void sceneCompositing();
+		inline void uiCompositing();
 };
 
 #endif

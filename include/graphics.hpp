@@ -18,7 +18,8 @@
 enum class TONE_MAPPING
 {
 	REINHARD = 0,
-	ACES = 1
+	ACES = 1,
+	OFF = 2
 };
 
 class Graphics
@@ -44,8 +45,10 @@ class Graphics
         void setAORadius(float radius);
 		void setVolumetricLighting(bool v);
 		bool volumetricLightingOn();
-		void set_tone_mapping(TONE_MAPPING tone);
-		TONE_MAPPING get_tone_mapping();
+		void set_scene_tone_mapping(TONE_MAPPING tone);
+		void set_ui_tone_mapping(TONE_MAPPING tone);
+		TONE_MAPPING get_scene_tone_mapping();
+		TONE_MAPPING get_ui_tone_mapping();
 		void setStdShadowQuality(SHADOW_QUALITY quality, int index);
 		void setOmniShadowQuality(SHADOW_QUALITY quality, int index);
 		glm::mat4 getOrthoProjection(float orthoDimension);
@@ -79,6 +82,7 @@ class Graphics
 		void resizeScreen(int width, int height);
 		std::vector<glm::vec3> & getAOKernel();
 		GLuint getAONoiseTexture();
+		GLuint getBloomTexture(int index);
 
 	public:
 
@@ -91,11 +95,14 @@ class Graphics
 		std::array<std::unique_ptr<Framebuffer>, 6> downSampling; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> ping_pong; // only color, no multisampling
 		std::array<std::unique_ptr<Framebuffer>, 12> upSampling; // only color, no multisampling
+		std::array<GLuint, 2> bloomTexture;
         std::array<std::unique_ptr<Framebuffer>, 4> volumetrics; // hdr color, no multisampling
         std::unique_ptr<Framebuffer> motionBlurFBO;
         std::unique_ptr<Framebuffer> userInterfaceFBO;
+		std::array<std::unique_ptr<Framebuffer>, 2> compositeFBO;
 
-		TONE_MAPPING tone_mapping;
+		TONE_MAPPING scene_tone_mapping;
+		TONE_MAPPING ui_tone_mapping;
 		float near;
 		float far;
 		bool shadows;
@@ -126,6 +133,8 @@ class Graphics
 		Shader VLDownSample;
         Shader bilateralBlur;
         Shader motionBlur;
+		Shader sceneCompositing;
+		Shader uiCompositing;
 		Shader end;
 
 		std::unique_ptr<Mesh> quad;

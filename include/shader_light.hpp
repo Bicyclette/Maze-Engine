@@ -33,6 +33,7 @@ enum class SHADER_TYPE
     COMPUTE,
     UI,
     TEXT,
+	COMPOSITING,
 	FINAL
 };
 
@@ -48,6 +49,7 @@ class Shader
 		SHADER_TYPE getType();
 		void setInt(const std::string & name, int v) const;
 		void setFloat(const std::string & name, float v) const;
+		void setBool(const std::string & name, bool v) const;
 		void setVec2f(const std::string & name, glm::vec2 v) const;
 		void setVec3f(const std::string & name, glm::vec3 v) const;
 		void setVec4f(const std::string & name, glm::vec4 v) const;
@@ -81,7 +83,7 @@ struct Texture
 	TEXTURE_TYPE type;
 	std::string path;
 
-	Texture(){}
+	Texture() : id(-1) {}
 
 	Texture(GLuint aId, TEXTURE_TYPE aType, std::string aPath)
 	{

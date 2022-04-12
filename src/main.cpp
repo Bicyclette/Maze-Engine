@@ -108,29 +108,38 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(300, 0));
-    ImGui::Begin("tone mapping");
-    ImGui::SetWindowSize(ImVec2(150, 80));
-    ImGui::RadioButton("Reinhard", &settings.tone_mapping, 0);
-    ImGui::RadioButton("ACES", &settings.tone_mapping, 1);
+    ImGui::Begin("scene tone mapping");
+    ImGui::SetWindowSize(ImVec2(150, 100));
+    ImGui::RadioButton("Reinhard", &settings.scene_tone_mapping, 0);
+    ImGui::RadioButton("ACES", &settings.scene_tone_mapping, 1);
+    ImGui::RadioButton("OFF", &settings.scene_tone_mapping, 2);
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(450, 0));
+    ImGui::Begin("UI tone mapping");
+    ImGui::SetWindowSize(ImVec2(150, 100));
+    ImGui::RadioButton("Reinhard", &settings.ui_tone_mapping, 0);
+    ImGui::RadioButton("ACES", &settings.ui_tone_mapping, 1);
+    ImGui::RadioButton("OFF", &settings.ui_tone_mapping, 2);
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(450, 0));
+    ImGui::SetNextWindowPos(ImVec2(600, 0));
     ImGui::Begin("volumetrics");
-    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::SetWindowSize(ImVec2(110, 80));
     ImGui::RadioButton("ON", &settings.volumetrics, 1);
     ImGui::RadioButton("OFF", &settings.volumetrics, 0);
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(600, 0));
+    ImGui::SetNextWindowPos(ImVec2(710, 0));
     ImGui::Begin("motion blur");
-    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::SetWindowSize(ImVec2(110, 80));
     ImGui::RadioButton("ON", &settings.motion_blur, 1);
     ImGui::RadioButton("OFF", &settings.motion_blur, 0);
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(750, 0));
+    ImGui::SetNextWindowPos(ImVec2(820, 0));
     ImGui::Begin("show physics");
-    ImGui::SetWindowSize(ImVec2(150, 80));
+    ImGui::SetWindowSize(ImVec2(130, 80));
     ImGui::RadioButton("ON", &settings.show_physics, 1);
     ImGui::RadioButton("OFF", &settings.show_physics, 0);
     ImGui::End(); 
@@ -177,10 +186,18 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     }
     else
         game->getGraphics().setSSAOEffect(false);
-    if(settings.tone_mapping == 0)
-        game->getGraphics().set_tone_mapping(TONE_MAPPING::REINHARD);
+    if(settings.scene_tone_mapping == 0)
+        game->getGraphics().set_scene_tone_mapping(TONE_MAPPING::REINHARD);
+    else if(settings.scene_tone_mapping == 1)
+        game->getGraphics().set_scene_tone_mapping(TONE_MAPPING::ACES);
     else
-        game->getGraphics().set_tone_mapping(TONE_MAPPING::ACES);
+        game->getGraphics().set_scene_tone_mapping(TONE_MAPPING::OFF);
+    if (settings.ui_tone_mapping == 0)
+        game->getGraphics().set_ui_tone_mapping(TONE_MAPPING::REINHARD);
+    else if (settings.ui_tone_mapping == 1)
+        game->getGraphics().set_ui_tone_mapping(TONE_MAPPING::ACES);
+    else
+        game->getGraphics().set_ui_tone_mapping(TONE_MAPPING::OFF);
     if(settings.volumetrics == 0)
         game->getGraphics().setVolumetricLighting(false);
     else

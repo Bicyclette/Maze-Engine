@@ -8,9 +8,10 @@ struct EDITOR_UI_SETTINGS
     int AO{1};
     int AOSamples{32};
     float AORadius{1.0f};
-    int tone_mapping{1};
+    int scene_tone_mapping{ 1 };
+    int ui_tone_mapping{ 1 };
     int volumetrics{0};
-    int motion_blur{1};
+    int motion_blur{0};
     int show_physics{0};
 };
 

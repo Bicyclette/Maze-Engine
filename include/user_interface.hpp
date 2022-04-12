@@ -45,11 +45,14 @@ class Text
         glm::mat4 projection;
 };
 
-class Button
+class Sprite
 {
     public:
-        Button(glm::vec2 pos, glm::vec2 size, float zIndex, std::string img, int screenW, int screenH);
-        ~Button();
+        Sprite(glm::vec2 pos, glm::vec2 size, float zIndex, int screenW, int screenH);
+        ~Sprite();
+        void set_background_img(std::string img);
+        void set_background_color(glm::vec4 color);
+        void set_bloom_strength(float strength);
         void resize_screen(int width, int height);
         void draw();
 
@@ -60,6 +63,9 @@ class Button
         GLuint m_vao;
         GLuint m_vbo;
         struct Texture m_img;
+        glm::vec4 m_color;
+        bool m_use_bkg_img;
+        float m_bloom_strength;
         Shader shader;
         glm::mat4 projection;
 };

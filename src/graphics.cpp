@@ -1,7 +1,8 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
-	tone_mapping(TONE_MAPPING::ACES),
+	scene_tone_mapping(TONE_MAPPING::ACES),
+	ui_tone_mapping(TONE_MAPPING::ACES),
 	near(0.1f),
 	far(100.0f),
 	shadows(true),
@@ -12,7 +13,7 @@ Graphics::Graphics(int width, int height) :
     ssaoSampleCount{32},
     ssaoRadius{1.0f},
 	volumetricsOn{false},
-    motionBlurFX(true),
+    motionBlurFX(false),
     motionBlurStrength(100),
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
@@ -92,6 +93,10 @@ Graphics::Graphics(int width, int height) :
     },
     motionBlurFBO{std::make_unique<Framebuffer>(true, false, true)},
     userInterfaceFBO{std::make_unique<Framebuffer>(true, false, true)},
+	compositeFBO{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+	},
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
@@ -107,6 +112,8 @@ Graphics::Graphics(int width, int height) :
 	VLDownSample("shaders/volumetrics/downSample/vertex.glsl", "shaders/volumetrics/downSample/fragment.glsl", SHADER_TYPE::SAMPLING),
 	bilateralBlur("shaders/bilateralBlur/vertex.glsl", "shaders/bilateralBlur/fragment.glsl", SHADER_TYPE::BLUR),
 	motionBlur("shaders/motionBlur/vertex.glsl", "shaders/motionBlur/fragment.glsl", SHADER_TYPE::BLUR),
+	sceneCompositing("shaders/compositing/scene/vertex.glsl", "shaders/compositing/scene/fragment.glsl", SHADER_TYPE::COMPOSITING),
+	uiCompositing("shaders/compositing/ui/vertex.glsl", "shaders/compositing/ui/fragment.glsl", SHADER_TYPE::COMPOSITING),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
 	// Generic Multisample FBO
@@ -163,7 +170,7 @@ Graphics::Graphics(int width, int height) :
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	// BLOOM FBOs
+	// BLOOM FBOs and Textures
 	for(int i{1}; i <= 6; ++i)
 	{
 		int factor = std::pow(2, i);
@@ -180,6 +187,18 @@ Graphics::Graphics(int width, int height) :
 		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 	}
 
+	for (int i{ 0 }; i < 2; ++i)
+	{
+		glGenTextures(1, &bloomTexture[i]);
+		glBindTexture(GL_TEXTURE_2D, bloomTexture[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	// VOLUMETRICS FBO
     for(int i{0}; i < 4; ++i)
     {
@@ -191,9 +210,15 @@ Graphics::Graphics(int width, int height) :
 
     // MOTION BLUR FBO
     motionBlurFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
-    // UI FBO
+    
+	// UI FBO
     userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
     userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+
+	// COMPOSITING
+	compositeFBO[0]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -305,14 +330,24 @@ bool Graphics::volumetricLightingOn()
 	return volumetricsOn;
 }
 
-void Graphics::set_tone_mapping(TONE_MAPPING tone)
+void Graphics::set_scene_tone_mapping(TONE_MAPPING tone)
 {
-	tone_mapping = tone;
+	scene_tone_mapping = tone;
 }
 
-TONE_MAPPING Graphics::get_tone_mapping()
+void Graphics::set_ui_tone_mapping(TONE_MAPPING tone)
 {
-	return tone_mapping;
+	ui_tone_mapping = tone;
+}
+
+TONE_MAPPING Graphics::get_scene_tone_mapping()
+{
+	return scene_tone_mapping;
+}
+
+TONE_MAPPING Graphics::get_ui_tone_mapping()
+{
+	return ui_tone_mapping;
 }
 
 void Graphics::setStdShadowQuality(SHADOW_QUALITY quality, int index)
@@ -528,6 +563,10 @@ void Graphics::resizeScreen(int width, int height)
     };
     motionBlurFBO = std::make_unique<Framebuffer>(true, false, true);
     userInterfaceFBO = std::make_unique<Framebuffer>(true, false, true);
+	compositeFBO = std::array<std::unique_ptr<Framebuffer>, 2>{
+		std::make_unique<Framebuffer>(true, false, true),
+		std::make_unique<Framebuffer>(true, false, true)
+	};
 
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
@@ -547,7 +586,7 @@ void Graphics::resizeScreen(int width, int height)
 	for(int i{0}; i < 2; ++i)
 		AOBuffer[i]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 
-	// bloom ping pong FBOs
+	// bloom ping pong FBOs and textures
 	for(int i{1}; i <= 6; ++i)
 	{
 		int factor = std::pow(2, i);
@@ -562,6 +601,19 @@ void Graphics::resizeScreen(int width, int height)
 		ping_pong[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, w, h);
 		upSampling[(i-1)*2]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
 		upSampling[(i-1)*2+1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width/up, height/up);
+	}
+
+	for (int i{ 0 }; i < 2; ++i)
+	{
+		glDeleteTextures(1, &bloomTexture[i]);
+		glGenTextures(1, &bloomTexture[i]);
+		glBindTexture(GL_TEXTURE_2D, bloomTexture[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// VOLUMETRICS FBO
@@ -579,6 +631,10 @@ void Graphics::resizeScreen(int width, int height)
     // UI FBO
     userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
     userInterfaceFBO->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+
+	// COMPOSITING
+	compositeFBO[0]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()
@@ -589,4 +645,9 @@ std::vector<glm::vec3> & Graphics::getAOKernel()
 GLuint Graphics::getAONoiseTexture()
 {
 	return aoNoiseTexture;
+}
+
+GLuint Graphics::getBloomTexture(int index)
+{
+	return bloomTexture[index];
 }

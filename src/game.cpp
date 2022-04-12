@@ -7,7 +7,7 @@ Game::Game(int clientWidth, int clientHeight) :
     textRenderer(std::make_unique<Text>(clientWidth, clientHeight))
 {
     // load some fonts and set an active font
-    textRenderer->load_police("assets/fonts/FreeMonoBold.ttf", 42);
+    textRenderer->load_police("assets/fonts/FreeMonoBold.ttf", 24);
     textRenderer->use_police(0);
 
 	// instance models
@@ -157,7 +157,196 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[0].setGridAxis(8);
 
-    button.emplace_back(glm::vec2(600.0f, 700.0f), glm::vec2(344.0f, 444.0f), 1.0f, "assets/logo/blender.png", clientWidth, clientHeight);
+	float ar{ static_cast<float>(clientWidth) / clientHeight };
+	std::shared_ptr<Sprite> blender(new Sprite(glm::vec2(0.4f, 0.7f), glm::vec2(0.2f, 0.2f*ar*1.35f), 1.0f, clientWidth, clientHeight));
+	blender->set_background_img("assets/logo/blender.png");
+	blender->set_bloom_strength(3.0f);
+	sprite.push_back(blender);
+	*/
+/*
+	// create frutibandas scene
+	scenes.emplace_back("frutibandas", 0);
+
+	camPos = glm::vec3(0.0f, 25.0f, 0.0f);
+	camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 0.0f, -1.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
+
+	scenes[0].setActiveCamera(0);
+	scenes[0].addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 1.00f), 10.0f);
+	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
+
+	// panels
+	std::shared_ptr<Sprite> bkg(new Sprite(glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), -0.25f, clientWidth, clientHeight));
+	bkg->set_background_color(glm::vec4(0.21f, 0.30f, 0.025f, 1.0f));
+	std::shared_ptr<Sprite> leftPanel(new Sprite(glm::vec2(0.0f, 1.0f), glm::vec2(0.22f, 1.0f), 0.5f, clientWidth, clientHeight));
+	leftPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
+	std::shared_ptr<Sprite> rightPanel(new Sprite(glm::vec2(0.78f, 1.0f), glm::vec2(0.22f, 1.0f), 0.5f, clientWidth, clientHeight));
+	rightPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
+	std::shared_ptr<Sprite> bottomPanel(new Sprite(glm::vec2(0.23, 0.23f), glm::vec2(0.54f, 0.22f), 0.5f, clientWidth, clientHeight));
+	bottomPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
+
+	// screen aspect ratio
+	float screenAR = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
+
+	// avatar
+	glm::vec2 avatar_size(0.12f, 0.12f*screenAR);
+	glm::vec2 left_avatar_pos(0.02f, 0.97f);
+	glm::vec2 right_avatar_pos(0.98f - avatar_size.x, 0.97f);
+	std::shared_ptr<Sprite> left_avatar(new Sprite(left_avatar_pos, avatar_size, 0.55f, clientWidth, clientHeight));
+	std::shared_ptr<Sprite> right_avatar(new Sprite(right_avatar_pos, avatar_size, 0.55f, clientWidth, clientHeight));
+
+	// cards
+	glm::vec2 slot_size(0.08f, 0.16f);
+	glm::vec4 slot_color(0.67f, 0.69f, 0.25f, 1.0f);
+	float start_slot = 0.73f;
+	float marginV = 0.01f;
+	float marginH = (0.22f - slot_size.x * 2.0f) / 3.0f;
+	
+	std::shared_ptr<Sprite> left_slot_00(new Sprite(glm::vec2(marginH, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_00->set_background_img("assets/frutibandas/pomme_verso.tga");
+	std::shared_ptr<Sprite> left_slot_01(new Sprite(glm::vec2(slot_size.x + 2*marginH, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_01->set_background_img("assets/frutibandas/pomme_verso.tga");
+	std::shared_ptr<Sprite> left_slot_10(new Sprite(glm::vec2(marginH, start_slot - slot_size.y - marginV), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_10->set_background_img("assets/frutibandas/pomme_verso.tga");
+	std::shared_ptr<Sprite> left_slot_11(new Sprite(glm::vec2(slot_size.x + 2*marginH, start_slot - slot_size.y - marginV), slot_size, 0.5f, clientWidth, clientHeight));
+	left_slot_11->set_background_color(slot_color);
+	std::shared_ptr<Sprite> left_slot_20(new Sprite(glm::vec2(marginH, start_slot - slot_size.y*2 - marginV*2), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_20->set_background_color(slot_color);
+	std::shared_ptr<Sprite> left_slot_21(new Sprite(glm::vec2(slot_size.x + 2 * marginH, start_slot - slot_size.y*2 - marginV*2), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_21->set_background_color(slot_color);
+	std::shared_ptr<Sprite> left_slot_30(new Sprite(glm::vec2(marginH, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_30->set_background_color(slot_color);
+	std::shared_ptr<Sprite> left_slot_31(new Sprite(glm::vec2(slot_size.x + 2 * marginH, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
+	left_slot_31->set_background_color(slot_color);
+
+	float shiftWidth = 0.78f;
+	std::shared_ptr<Sprite> right_slot_00(new Sprite(glm::vec2(marginH + shiftWidth, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_00->set_background_img("assets/frutibandas/carte_piege.tga");
+	std::shared_ptr<Sprite> right_slot_01(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_01->set_background_img("assets/frutibandas/charge.tga");
+	std::shared_ptr<Sprite> right_slot_10(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y - marginV), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_10->set_background_img("assets/frutibandas/charge.tga");
+	std::shared_ptr<Sprite> right_slot_11(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y - marginV), slot_size, 0.5f, clientWidth, clientHeight));
+	right_slot_11->set_background_color(slot_color);
+	std::shared_ptr<Sprite> right_slot_20(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y * 2 - marginV * 2), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_20->set_background_color(slot_color);
+	std::shared_ptr<Sprite> right_slot_21(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y * 2 - marginV * 2), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_21->set_background_color(slot_color);
+	std::shared_ptr<Sprite> right_slot_30(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_30->set_background_color(slot_color);
+	std::shared_ptr<Sprite> right_slot_31(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
+	right_slot_31->set_background_color(slot_color);
+
+	sprite.push_back(bkg);
+	sprite.push_back(leftPanel);
+	sprite.push_back(rightPanel);
+
+
+	sprite.push_back(bottomPanel);
+	
+	sprite.push_back(left_avatar);
+	sprite.push_back(right_avatar);
+
+	sprite.push_back(left_slot_00);
+	sprite.push_back(left_slot_01);
+	sprite.push_back(left_slot_10);
+	sprite.push_back(left_slot_11);
+	sprite.push_back(left_slot_20);
+	sprite.push_back(left_slot_21);
+	sprite.push_back(left_slot_30);
+	sprite.push_back(left_slot_31);
+
+	sprite.push_back(right_slot_00);
+	sprite.push_back(right_slot_01);
+	sprite.push_back(right_slot_10);
+	sprite.push_back(right_slot_11);
+	sprite.push_back(right_slot_20);
+	sprite.push_back(right_slot_21);
+	sprite.push_back(right_slot_30);
+	sprite.push_back(right_slot_31);
+
+	// board
+	float tileDim = (0.56f/12.0f);
+	glm::vec2 top_left_start(0.22f + 2 * tileDim, 1.0f - 2 * tileDim * screenAR);
+	for (int i{ 0 }; i < 8; ++i)
+	{
+		for (int j{ 0 }; j < 8; ++j)
+		{
+			std::shared_ptr<Sprite> tile(new Sprite(top_left_start+glm::vec2(j*tileDim,-i*tileDim*screenAR), glm::vec2(tileDim, tileDim*screenAR), 0.55f, clientWidth, clientHeight));
+			if (i == 7)
+				tile->set_background_img("assets/frutibandas/board_bottom.tga");
+			else
+				tile->set_background_img("assets/frutibandas/board.tga");
+			sprite.push_back(tile);
+		}
+	}
+
+	// patates et bananes
+	std::vector<glm::vec2> posPatate;
+	std::vector<glm::vec2> posBanane;
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(0, 7);
+	for (int i{ 0 }; i < 32; ++i)
+	{
+		glm::vec2 pos;
+		do
+		{
+			pos = glm::vec2(distrib(gen), -distrib(gen));
+		} while (std::count(posPatate.begin(), posPatate.end(), pos) > 0);
+		posPatate.push_back(pos);
+	}
+	for (int i{ 0 }; i < 8; ++i)
+	{
+		for (int j{ 0 }; j < 8; ++j)
+		{
+			glm::vec2 pos(j, -i);
+			if (!std::count(posPatate.begin(), posPatate.end(), pos))
+				posBanane.push_back(pos);
+		}
+	}
+
+	glm::vec2 patate_start(0.22f + 2 * tileDim, 1.0f - 2 * tileDim * screenAR);
+	glm::vec2 banane_start(0.22f + 2 * tileDim, 1.0f - (1.5 * tileDim * screenAR));
+
+	for (int i{ 0 }; i < 32; ++i)
+	{
+		std::shared_ptr<Sprite> patate(new Sprite(patate_start + posPatate[i] * glm::vec2(tileDim, tileDim*screenAR), glm::vec2(tileDim, tileDim * screenAR), 0.6f, clientWidth, clientHeight));
+		patate->set_background_img("assets/frutibandas/patate.tga");
+		sprite.push_back(patate);
+	}
+	for (int i{ 0 }; i < 32; ++i)
+	{
+		std::shared_ptr<Sprite> banane(new Sprite(banane_start + posBanane[i] * glm::vec2(tileDim, tileDim * screenAR), glm::vec2(tileDim, tileDim * screenAR * 1.5f), 0.65f, clientWidth, clientHeight));
+		banane->set_background_img("assets/frutibandas/banana.tga");
+		sprite.push_back(banane);
+	}
+
+	// arrows
+	std::shared_ptr<Sprite> left(new Sprite(glm::vec2(0.225f, 0.65f), glm::vec2(0.08f, 0.08f*screenAR), 0.75f, clientWidth, clientHeight));
+	left->set_background_img("assets/frutibandas/arrow_left.tga");
+	sprite.push_back(left);
+	std::shared_ptr<Sprite> right(new Sprite(glm::vec2(0.695f, 0.65f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
+	right->set_background_img("assets/frutibandas/arrow_right.tga");
+	sprite.push_back(right);
+	std::shared_ptr<Sprite> up(new Sprite(glm::vec2(0.46f, 0.985f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
+	up->set_background_img("assets/frutibandas/arrow_up.tga");
+	sprite.push_back(up);
+	std::shared_ptr<Sprite> down(new Sprite(glm::vec2(0.46f, 0.335f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
+	down->set_background_img("assets/frutibandas/arrow_down.tga");
+	sprite.push_back(down);
+
+	// remaining
+	std::shared_ptr<Sprite> rPatate(new Sprite(glm::vec2(0.15f, 0.97f), glm::vec2(0.03f, 0.03f*screenAR), 0.8f, clientWidth, clientHeight));
+	rPatate->set_background_img("assets/frutibandas/patate.tga");
+	sprite.push_back(rPatate);
+	std::shared_ptr<Sprite> rBanane(new Sprite(glm::vec2(0.79f, 0.97f + 0.03f*screenAR*0.5f), glm::vec2(0.03f, 0.03f * screenAR*1.5f), 0.8f, clientWidth, clientHeight));
+	rBanane->set_background_img("assets/frutibandas/banana.tga");
+	sprite.push_back(rBanane);
 */
 }
 
@@ -218,7 +407,7 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 
         // BLOOM PASS
 		if(graphics.bloomOn())
-			bloomPass(width, height);
+			bloomPass(width, height, graphics.getNormalFBO(1), 0, graphics.getBloomTexture(0));
 
 		// VOLUMETRICS PASS
 		if(graphics.volumetricLightingOn() && graphics.shadowsOn())
@@ -231,54 +420,8 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
         // DRAW USER INTERFACE
         drawUI(delta, elapsedTime, width, height, mode);
 
-		// BIND TO DEFAULT FRAMEBUFFER
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// DRAW FINAL IMAGE QUAD
-		graphics.getFinalShader().use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, graphics.getNormalFBO(0)->getAttachments()[0].id);
-		graphics.getFinalShader().setInt("scene", 0);
-		if(graphics.bloomOn())
-		{
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, graphics.getUpSamplingFBO(11)->getAttachments()[0].id);
-			graphics.getFinalShader().setInt("bloom", 1);
-			graphics.getFinalShader().setInt("bloomEffect", 1);
-		}
-		else
-		{
-			graphics.getFinalShader().setInt("bloomEffect", 0);
-		}
-		if(graphics.volumetricLightingOn())
-		{
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, graphics.getVolumetricsFBO(3)->getAttachments()[0].id);
-			graphics.getFinalShader().setInt("volumetrics", 2);
-			graphics.getFinalShader().setInt("volumetricsOn", 1);
-		}
-		else
-		{
-			graphics.getFinalShader().setInt("volumetricsOn", 0);
-		}
-        if(graphics.motionBlurFX)
-        {
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, graphics.motionBlurFBO->getAttachments()[0].id);
-			graphics.getFinalShader().setInt("motionBlur", 3);
-			graphics.getFinalShader().setInt("motionBlurOn", 1);
-			graphics.getFinalShader().setInt("motionBlurStrength", graphics.motionBlurStrength);
-        }
-        else
-        {
-			graphics.getFinalShader().setInt("motionBlurOn", 0);
-        }
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, graphics.userInterfaceFBO->getAttachments()[0].id);
-		graphics.getFinalShader().setInt("userInterface", 4);
-		graphics.getFinalShader().setInt("tone_mapping", static_cast<int>(graphics.get_tone_mapping()));
-		graphics.getQuadMesh()->draw(graphics.getFinalShader());
+		// COMPOSITING
+		compositingPass();
 	}
 	else
 	{
@@ -292,9 +435,15 @@ void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAW
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    textRenderer->print("MAZE ENGINE", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-    for(Button & b : button)
-        b.draw();
+	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.5f);
+	for (auto& s : sprite)
+	{
+		s->draw();
+	}
+	//textRenderer->print("32", 190.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+	//textRenderer->print("32", 855.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	bloomPass(width, height, graphics.userInterfaceFBO, 1, graphics.getBloomTexture(1));
 }
 
 void Game::resizeScreen(int clientWidth, int clientHeight)
@@ -307,8 +456,8 @@ void Game::resizeScreen(int clientWidth, int clientHeight)
 
 	graphics.resizeScreen(clientWidth, clientHeight);
     textRenderer->resize_screen(clientWidth, clientHeight);
-    for(Button & b : button)
-        b.resize_screen(clientWidth, clientHeight);
+    for(auto& s : sprite)
+        s->resize_screen(clientWidth, clientHeight);
 }
 
 void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)
@@ -679,7 +828,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	graphics.getMultisampleFBO()->blitFramebuffer(graphics.getNormalFBO(1), width, height);
 }
 
-void Game::bloomPass(int width, int height)
+void Game::bloomPass(int width, int height, std::unique_ptr<Framebuffer>& in, int attachmentIndex, GLuint out)
 {
 	bool firstIteration{true};
 	Shader & downSampling = graphics.getDownSamplingShader();
@@ -701,7 +850,7 @@ void Game::bloomPass(int width, int height)
 		if(firstIteration)
 		{
 			firstIteration = false;
-			glBindTexture(GL_TEXTURE_2D, graphics.getNormalFBO(1)->getAttachments()[0].id);
+			glBindTexture(GL_TEXTURE_2D, in->getAttachments()[attachmentIndex].id);
 		}
 		else
 			glBindTexture(GL_TEXTURE_2D, graphics.getPingPongFBO(i*2-1)->getAttachments()[0].id);
@@ -756,7 +905,7 @@ void Game::bloomPass(int width, int height)
 			glBindTexture(GL_TEXTURE_2D, graphics.getUpSamplingFBO((i-1)*2+1)->getAttachments()[0].id);
 		glActiveTexture(GL_TEXTURE1);
 		if(4-i == -1)
-			glBindTexture(GL_TEXTURE_2D, graphics.getNormalFBO(1)->getAttachments()[0].id);
+			glBindTexture(GL_TEXTURE_2D, in->getAttachments()[attachmentIndex].id);
 		else
 			glBindTexture(GL_TEXTURE_2D, graphics.getPingPongFBO((4-i)*2+1)->getAttachments()[0].id);
 		graphics.getQuadMesh()->draw(upSampling);
@@ -771,6 +920,7 @@ void Game::bloomPass(int width, int height)
 		glBindTexture(GL_TEXTURE_2D, graphics.getUpSamplingFBO(i*2)->getAttachments()[0].id);
 		graphics.getQuadMesh()->draw(tentBlur);
 	}
+	glCopyImageSubData(graphics.getUpSamplingFBO(11)->getAttachments()[0].id, GL_TEXTURE_2D, 0, 0, 0, 0, out, GL_TEXTURE_2D, 0, 0, 0, 0, width, height, 1);
 }
 
 void Game::GBufferPass(int index, int width, int height, float delta)
@@ -985,4 +1135,96 @@ void Game::motionBlurPass(int index, int width, int height)
 	glBindTexture(GL_TEXTURE_2D, graphics.getGBufferFBO()->getAttachments()[3].id); // frag world position
     shader.setInt("worldPos", 0);
     graphics.quad->draw(shader);
+}
+
+void Game::compositingPass()
+{
+	{ sceneCompositing(); uiCompositing(); }
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Shader& s{graphics.end};
+	s.use();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics.compositeFBO[0]->getAttachments()[0].id);
+	s.setInt("scene", 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, graphics.compositeFBO[1]->getAttachments()[0].id);
+	s.setInt("ui", 1);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, graphics.compositeFBO[1]->getAttachments()[1].id);
+	s.setInt("ui_mask", 2);
+
+	graphics.getQuadMesh()->draw(s);
+}
+
+void Game::sceneCompositing()
+{
+	graphics.compositeFBO[0]->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Shader& s{graphics.sceneCompositing};
+	s.use();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics.getNormalFBO(0)->getAttachments()[0].id);
+	s.setInt("scene", 0);
+	if (graphics.bloomOn())
+	{
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, graphics.getBloomTexture(0));
+		s.setInt("bloom", 1);
+		s.setInt("bloomEffect", 1);
+	}
+	else
+	{
+		s.setInt("bloomEffect", 0);
+	}
+	if (graphics.volumetricLightingOn())
+	{
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, graphics.getVolumetricsFBO(3)->getAttachments()[0].id);
+		s.setInt("volumetrics", 2);
+		s.setInt("volumetricsOn", 1);
+	}
+	else
+	{
+		s.setInt("volumetricsOn", 0);
+	}
+	if (graphics.motionBlurFX)
+	{
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, graphics.motionBlurFBO->getAttachments()[0].id);
+		s.setInt("motionBlur", 3);
+		s.setInt("motionBlurOn", 1);
+		s.setInt("motionBlurStrength", graphics.motionBlurStrength);
+	}
+	else
+	{
+		s.setInt("motionBlurOn", 0);
+	}
+
+	s.setInt("tone_mapping", static_cast<int>(graphics.get_scene_tone_mapping()));
+	graphics.getQuadMesh()->draw(s);
+}
+
+void Game::uiCompositing()
+{
+	graphics.compositeFBO[1]->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Shader& s{ graphics.uiCompositing };
+	s.use();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, graphics.userInterfaceFBO->getAttachments()[0].id);
+	s.setInt("ui", 0);
+	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, graphics.getBloomTexture(1));
+	s.setInt("uiBloom", 1);
+	
+	s.setInt("tone_mapping", static_cast<int>(graphics.get_ui_tone_mapping()));
+	graphics.getQuadMesh()->draw(s);
 }

@@ -96,7 +96,7 @@ void Text::use_police(int index)
 
 void Text::print(std::string txt, float x, float y, float zIndex, float scale, glm::vec3 color)
 {
-    if(activePoliceIndex == -1)
+    if (activePoliceIndex == -1)
         return;
     Alphabet alphabet = police[activePoliceIndex].second;
 
@@ -108,7 +108,7 @@ void Text::print(std::string txt, float x, float y, float zIndex, float scale, g
 
     // iterate through all characters
     std::string::const_iterator c;
-    for(c = txt.begin(); c != txt.end(); ++c)
+    for (c = txt.begin(); c != txt.end(); ++c)
     {
         Glyph glyph = alphabet[*c];
         float xpos = x + glyph.bearing.x * scale;
@@ -133,7 +133,7 @@ void Text::print(std::string txt, float x, float y, float zIndex, float scale, g
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, glyph.textureID);
         shader.setInt("text", 0);
-        
+
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -145,10 +145,13 @@ void Text::print(std::string txt, float x, float y, float zIndex, float scale, g
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Button::Button(glm::vec2 pos, glm::vec2 size, float zIndex, std::string img, int screenW, int screenH) :
+Sprite::Sprite(glm::vec2 pos, glm::vec2 size, float zIndex, int screenW, int screenH) :
     m_pos(pos),
     m_size(size),
     m_zIndex(zIndex),
+    m_color(0.0f, 0.0f, 0.0f, 1.0f),
+    m_use_bkg_img(false),
+    m_bloom_strength(0.0f),
     shader("shaders/UI/vertex.glsl", "shaders/UI/fragment.glsl", SHADER_TYPE::UI),
     projection(glm::ortho(0.0f, static_cast<float>(screenW), 0.0f, static_cast<float>(screenH)))
 {
@@ -158,48 +161,88 @@ Button::Button(glm::vec2 pos, glm::vec2 size, float zIndex, std::string img, int
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
+    glm::vec2 posPx(m_pos.x*screenW, m_pos.y*screenH);
+    glm::vec2 sizePx(m_size.x*screenW, m_size.y*screenH);
     float data[30] = {
-        m_pos.x, m_pos.y, zIndex, 0.0f, 1.0f,
-        m_pos.x, m_pos.y - size.y, zIndex, 0.0f, 0.0f,
-        m_pos.x + size.x, m_pos.y - size.y, zIndex, 1.0f, 0.0f,
-        m_pos.x, m_pos.y, zIndex, 0.0f, 1.0f,
-        m_pos.x + size.x, m_pos.y - size.y, zIndex, 1.0f, 0.0f,
-        m_pos.x + size.x, m_pos.y, zIndex, 1.0f, 1.0f
+        posPx.x, posPx.y, zIndex, 0.0f, 1.0f,
+        posPx.x, posPx.y - sizePx.y, zIndex, 0.0f, 0.0f,
+        posPx.x + sizePx.x, posPx.y - sizePx.y, zIndex, 1.0f, 0.0f,
+        posPx.x, posPx.y, zIndex, 0.0f, 1.0f,
+        posPx.x + sizePx.x, posPx.y - sizePx.y, zIndex, 1.0f, 0.0f,
+        posPx.x + sizePx.x, posPx.y, zIndex, 1.0f, 1.0f
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
-
-    m_img = createTexture(img, TEXTURE_TYPE::DIFFUSE, true);
 }
 
-Button::~Button()
+Sprite::~Sprite()
 {
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &m_vbo);
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &m_vao);
-    glDeleteTextures(1, &m_img.id);
+    if(m_img.id != -1)
+        glDeleteTextures(1, &m_img.id);
 }
 
-void Button::resize_screen(int width, int height)
+void Sprite::set_background_img(std::string img)
+{
+    m_img = createTexture(img, TEXTURE_TYPE::DIFFUSE, true);
+    m_use_bkg_img = true;
+}
+
+void Sprite::set_background_color(glm::vec4 color)
+{
+    m_color = color;
+}
+
+void Sprite::set_bloom_strength(float strength)
+{
+    m_bloom_strength = strength;
+}
+
+void Sprite::resize_screen(int width, int height)
 {
     projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+    
+    glm::vec2 posPx(m_pos.x * width, m_pos.y * height);
+    glm::vec2 sizePx(m_size.x * width, m_size.y * height);
+    float data[30] = {
+        posPx.x, posPx.y, m_zIndex, 0.0f, 1.0f,
+        posPx.x, posPx.y - sizePx.y, m_zIndex, 0.0f, 0.0f,
+        posPx.x + sizePx.x, posPx.y - sizePx.y, m_zIndex, 1.0f, 0.0f,
+        posPx.x, posPx.y, m_zIndex, 0.0f, 1.0f,
+        posPx.x + sizePx.x, posPx.y - sizePx.y, m_zIndex, 1.0f, 0.0f,
+        posPx.x + sizePx.x, posPx.y, m_zIndex, 1.0f, 1.0f
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 30 * sizeof(float), data);
 }
 
-void Button::draw()
+void Sprite::draw()
 {
     glBindVertexArray(m_vao);
     shader.use();
     shader.setMatrix("proj", projection);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_img.id);
-    shader.setInt("image", 0);
+    if (m_use_bkg_img)
+    {
+        shader.setBool("use_bkg_img", true);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_img.id);
+        shader.setInt("image", 0);
+    }
+    else
+    {
+        shader.setBool("use_bkg_img", false);
+        shader.setVec4f("bkg_color", m_color);
+    }
+    shader.setFloat("bloom_strength", m_bloom_strength);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
