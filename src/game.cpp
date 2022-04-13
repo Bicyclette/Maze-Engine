@@ -32,7 +32,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-
+/*
 	// create test scene
 	scenes.emplace_back("test scene", 0);
 
@@ -87,7 +87,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-
+*/
 	/*
 	// create audio scene
 	scenes.emplace_back("audio", 0);
@@ -136,7 +136,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 	scenes[0].setGridAxis(20);
 */
-/*
+
 	// create motion blur scene
 	scenes.emplace_back("motion blur", 0);
 
@@ -158,11 +158,9 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[0].setGridAxis(8);
 
 	float ar{ static_cast<float>(clientWidth) / clientHeight };
-	std::shared_ptr<Sprite> blender(new Sprite(glm::vec2(0.4f, 0.7f), glm::vec2(0.2f, 0.2f*ar*1.35f), 1.0f, clientWidth, clientHeight));
-	blender->set_background_img("assets/logo/blender.png");
-	blender->set_bloom_strength(3.0f);
-	sprite.push_back(blender);
-	*/
+	std::shared_ptr<Sprite> rect(new Sprite(glm::vec2(0.0f, 0.16f*ar*0.28f), glm::vec2(0.16f, 0.16f*ar*0.28f), 1.0f, clientWidth, clientHeight));
+	sprite.push_back(rect);
+
 /*
 	// create frutibandas scene
 	scenes.emplace_back("frutibandas", 0);
@@ -176,8 +174,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
 
 	scenes[0].setActiveCamera(0);
-	scenes[0].addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 1.00f), 10.0f);
-	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
 
 	// panels
 	std::shared_ptr<Sprite> bkg(new Sprite(glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), -0.25f, clientWidth, clientHeight));
@@ -375,8 +371,8 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 	}
 
     // camera rotate
-    //float rotate_speed = 50.0f;
-    //scenes[activeScene].getActiveCamera()->rotateAroundAxis(glm::vec3(0.0f, 1.0f, 0.0f), delta * rotate_speed);
+    float rotate_speed = 50.0f;
+    scenes[activeScene].getActiveCamera().rotateAroundAxis(glm::vec3(0.0f, 1.0f, 0.0f), delta * rotate_speed);
 
 	// get shader
 	Shader s = graphics.getPBRShader();
@@ -435,11 +431,11 @@ void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAW
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.5f);
 	for (auto& s : sprite)
 	{
 		s->draw();
 	}
+	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.35f);
 	//textRenderer->print("32", 190.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 	//textRenderer->print("32", 855.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 

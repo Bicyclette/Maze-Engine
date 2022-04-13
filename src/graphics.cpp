@@ -635,6 +635,7 @@ void Graphics::resizeScreen(int width, int height)
 	// COMPOSITING
 	compositeFBO[0]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()
