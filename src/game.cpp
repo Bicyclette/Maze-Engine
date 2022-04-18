@@ -32,7 +32,7 @@ Game::Game(int clientWidth, int clientHeight) :
 	glm::vec3 camDir;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
-/*
+
 	// create test scene
 	scenes.emplace_back("test scene", 0);
 
@@ -87,263 +87,6 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
-*/
-	/*
-	// create audio scene
-	scenes.emplace_back("audio", 0);
-
-	camPos = glm::vec3(0.0f, 5.0f, 5.0f);
-	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
-	
-	scenes[0].setActiveCamera(0);
-
-	//scenes[0].addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 5.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*4.5f, glm::vec3(1.0f), 1.0f, 0.07f, 0.014f);
-	scenes[0].addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f), glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.25f), 10.0f);
-
-	scenes[0].addObject("assets/radio/radio.glb", glm::mat4(1.0f));
-	scenes[0].addAudioFile("assets/radio/cantina.wav");
-	scenes[0].addSoundSource(glm::vec3(-0.2f, 2.4f, 0.5f), glm::vec3(-0.25f, 0.0f, 1.0f), 90.0f, 360.0f, 10.0f, false);
-	scenes[0].playSound(0, 0);
-
-	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
-	scenes[0].setGridAxis(20);
-	*/
-/*
-	// create sponza scene
-	scenes.emplace_back("sponza", 0);
-
-	camPos = glm::vec3(5.0f, 5.0f, 0.0f);
-	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
-	
-	scenes[0].setActiveCamera(0);
-
-	scenes[0].addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(-5.0f, 20.0f, -7.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*8.0f, glm::vec3(1.0f), glm::vec3(1.0f, -1.0f, 0.0f), 20.0f);
-    scenes[0].getDLights()[0]->setVolumetric(true);
-    scenes[0].getDLights()[0]->setFog(true);
-
-	scenes[0].addObject("/home/bicyclette/CGI/sponza-atrium-3/untitled.gltf", glm::mat4(1.0f));
-
-	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
-	scenes[0].setGridAxis(20);
-*/
-
-	// create motion blur scene
-	scenes.emplace_back("motion blur", 0);
-
-	camPos = glm::vec3(8.0f, 9.0f, 0.0f);
-	camTarget = glm::vec3(0.0f, 1.5f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
-	
-	scenes[0].setActiveCamera(0);
-
-	scenes[0].addPointLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.25f), glm::vec3(1.75f, 1.5f, 0.9f)*10.0f, glm::vec3(1.0f), 1.0f, 0.14f, 0.07f);
-
-	scenes[0].addObject("assets/MB_scene/mb.glb", glm::mat4(1.0f));
-
-	scenes[0].setIBL("assets/HDRIs/bridge.hdr", true, clientWidth, clientHeight);
-	scenes[0].setGridAxis(8);
-
-	float ar{ static_cast<float>(clientWidth) / clientHeight };
-	std::shared_ptr<Sprite> rect(new Sprite(glm::vec2(0.0f, 0.16f*ar*0.28f), glm::vec2(0.16f, 0.16f*ar*0.28f), 1.0f, clientWidth, clientHeight));
-	sprite.push_back(rect);
-
-/*
-	// create frutibandas scene
-	scenes.emplace_back("frutibandas", 0);
-
-	camPos = glm::vec3(0.0f, 25.0f, 0.0f);
-	camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	camDir = glm::normalize(camTarget - camPos);
-	camUp = glm::vec3(0.0f, 0.0f, -1.0f);
-	camRight = glm::normalize(glm::cross(camDir, camUp));
-	camUp = glm::normalize(glm::cross(camRight, camDir));
-	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 50.0f, 0.1f, 100.0f);
-
-	scenes[0].setActiveCamera(0);
-
-	// panels
-	std::shared_ptr<Sprite> bkg(new Sprite(glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), -0.25f, clientWidth, clientHeight));
-	bkg->set_background_color(glm::vec4(0.21f, 0.30f, 0.025f, 1.0f));
-	std::shared_ptr<Sprite> leftPanel(new Sprite(glm::vec2(0.0f, 1.0f), glm::vec2(0.22f, 1.0f), 0.5f, clientWidth, clientHeight));
-	leftPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
-	std::shared_ptr<Sprite> rightPanel(new Sprite(glm::vec2(0.78f, 1.0f), glm::vec2(0.22f, 1.0f), 0.5f, clientWidth, clientHeight));
-	rightPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
-	std::shared_ptr<Sprite> bottomPanel(new Sprite(glm::vec2(0.23, 0.23f), glm::vec2(0.54f, 0.22f), 0.5f, clientWidth, clientHeight));
-	bottomPanel->set_background_color(glm::vec4(0.737f, 0.806f, 0.396f, 1.0f));
-
-	// screen aspect ratio
-	float screenAR = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
-
-	// avatar
-	glm::vec2 avatar_size(0.12f, 0.12f*screenAR);
-	glm::vec2 left_avatar_pos(0.02f, 0.97f);
-	glm::vec2 right_avatar_pos(0.98f - avatar_size.x, 0.97f);
-	std::shared_ptr<Sprite> left_avatar(new Sprite(left_avatar_pos, avatar_size, 0.55f, clientWidth, clientHeight));
-	std::shared_ptr<Sprite> right_avatar(new Sprite(right_avatar_pos, avatar_size, 0.55f, clientWidth, clientHeight));
-
-	// cards
-	glm::vec2 slot_size(0.08f, 0.16f);
-	glm::vec4 slot_color(0.67f, 0.69f, 0.25f, 1.0f);
-	float start_slot = 0.73f;
-	float marginV = 0.01f;
-	float marginH = (0.22f - slot_size.x * 2.0f) / 3.0f;
-	
-	std::shared_ptr<Sprite> left_slot_00(new Sprite(glm::vec2(marginH, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_00->set_background_img("assets/frutibandas/pomme_verso.tga");
-	std::shared_ptr<Sprite> left_slot_01(new Sprite(glm::vec2(slot_size.x + 2*marginH, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_01->set_background_img("assets/frutibandas/pomme_verso.tga");
-	std::shared_ptr<Sprite> left_slot_10(new Sprite(glm::vec2(marginH, start_slot - slot_size.y - marginV), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_10->set_background_img("assets/frutibandas/pomme_verso.tga");
-	std::shared_ptr<Sprite> left_slot_11(new Sprite(glm::vec2(slot_size.x + 2*marginH, start_slot - slot_size.y - marginV), slot_size, 0.5f, clientWidth, clientHeight));
-	left_slot_11->set_background_color(slot_color);
-	std::shared_ptr<Sprite> left_slot_20(new Sprite(glm::vec2(marginH, start_slot - slot_size.y*2 - marginV*2), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_20->set_background_color(slot_color);
-	std::shared_ptr<Sprite> left_slot_21(new Sprite(glm::vec2(slot_size.x + 2 * marginH, start_slot - slot_size.y*2 - marginV*2), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_21->set_background_color(slot_color);
-	std::shared_ptr<Sprite> left_slot_30(new Sprite(glm::vec2(marginH, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_30->set_background_color(slot_color);
-	std::shared_ptr<Sprite> left_slot_31(new Sprite(glm::vec2(slot_size.x + 2 * marginH, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
-	left_slot_31->set_background_color(slot_color);
-
-	float shiftWidth = 0.78f;
-	std::shared_ptr<Sprite> right_slot_00(new Sprite(glm::vec2(marginH + shiftWidth, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_00->set_background_img("assets/frutibandas/carte_piege.tga");
-	std::shared_ptr<Sprite> right_slot_01(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_01->set_background_img("assets/frutibandas/charge.tga");
-	std::shared_ptr<Sprite> right_slot_10(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y - marginV), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_10->set_background_img("assets/frutibandas/charge.tga");
-	std::shared_ptr<Sprite> right_slot_11(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y - marginV), slot_size, 0.5f, clientWidth, clientHeight));
-	right_slot_11->set_background_color(slot_color);
-	std::shared_ptr<Sprite> right_slot_20(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y * 2 - marginV * 2), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_20->set_background_color(slot_color);
-	std::shared_ptr<Sprite> right_slot_21(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y * 2 - marginV * 2), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_21->set_background_color(slot_color);
-	std::shared_ptr<Sprite> right_slot_30(new Sprite(glm::vec2(marginH + shiftWidth, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_30->set_background_color(slot_color);
-	std::shared_ptr<Sprite> right_slot_31(new Sprite(glm::vec2(slot_size.x + 2 * marginH + shiftWidth, start_slot - slot_size.y * 3 - marginV * 3), slot_size, 0.55f, clientWidth, clientHeight));
-	right_slot_31->set_background_color(slot_color);
-
-	sprite.push_back(bkg);
-	sprite.push_back(leftPanel);
-	sprite.push_back(rightPanel);
-
-
-	sprite.push_back(bottomPanel);
-	
-	sprite.push_back(left_avatar);
-	sprite.push_back(right_avatar);
-
-	sprite.push_back(left_slot_00);
-	sprite.push_back(left_slot_01);
-	sprite.push_back(left_slot_10);
-	sprite.push_back(left_slot_11);
-	sprite.push_back(left_slot_20);
-	sprite.push_back(left_slot_21);
-	sprite.push_back(left_slot_30);
-	sprite.push_back(left_slot_31);
-
-	sprite.push_back(right_slot_00);
-	sprite.push_back(right_slot_01);
-	sprite.push_back(right_slot_10);
-	sprite.push_back(right_slot_11);
-	sprite.push_back(right_slot_20);
-	sprite.push_back(right_slot_21);
-	sprite.push_back(right_slot_30);
-	sprite.push_back(right_slot_31);
-
-	// board
-	float tileDim = (0.56f/12.0f);
-	glm::vec2 top_left_start(0.22f + 2 * tileDim, 1.0f - 2 * tileDim * screenAR);
-	for (int i{ 0 }; i < 8; ++i)
-	{
-		for (int j{ 0 }; j < 8; ++j)
-		{
-			std::shared_ptr<Sprite> tile(new Sprite(top_left_start+glm::vec2(j*tileDim,-i*tileDim*screenAR), glm::vec2(tileDim, tileDim*screenAR), 0.55f, clientWidth, clientHeight));
-			if (i == 7)
-				tile->set_background_img("assets/frutibandas/board_bottom.tga");
-			else
-				tile->set_background_img("assets/frutibandas/board.tga");
-			sprite.push_back(tile);
-		}
-	}
-
-	// patates et bananes
-	std::vector<glm::vec2> posPatate;
-	std::vector<glm::vec2> posBanane;
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> distrib(0, 7);
-	for (int i{ 0 }; i < 32; ++i)
-	{
-		glm::vec2 pos;
-		do
-		{
-			pos = glm::vec2(distrib(gen), -distrib(gen));
-		} while (std::count(posPatate.begin(), posPatate.end(), pos) > 0);
-		posPatate.push_back(pos);
-	}
-	for (int i{ 0 }; i < 8; ++i)
-	{
-		for (int j{ 0 }; j < 8; ++j)
-		{
-			glm::vec2 pos(j, -i);
-			if (!std::count(posPatate.begin(), posPatate.end(), pos))
-				posBanane.push_back(pos);
-		}
-	}
-
-	glm::vec2 patate_start(0.22f + 2 * tileDim, 1.0f - 2 * tileDim * screenAR);
-	glm::vec2 banane_start(0.22f + 2 * tileDim, 1.0f - (1.5 * tileDim * screenAR));
-
-	for (int i{ 0 }; i < 32; ++i)
-	{
-		std::shared_ptr<Sprite> patate(new Sprite(patate_start + posPatate[i] * glm::vec2(tileDim, tileDim*screenAR), glm::vec2(tileDim, tileDim * screenAR), 0.6f, clientWidth, clientHeight));
-		patate->set_background_img("assets/frutibandas/patate.tga");
-		sprite.push_back(patate);
-	}
-	for (int i{ 0 }; i < 32; ++i)
-	{
-		std::shared_ptr<Sprite> banane(new Sprite(banane_start + posBanane[i] * glm::vec2(tileDim, tileDim * screenAR), glm::vec2(tileDim, tileDim * screenAR * 1.5f), 0.65f, clientWidth, clientHeight));
-		banane->set_background_img("assets/frutibandas/banana.tga");
-		sprite.push_back(banane);
-	}
-
-	// arrows
-	std::shared_ptr<Sprite> left(new Sprite(glm::vec2(0.225f, 0.65f), glm::vec2(0.08f, 0.08f*screenAR), 0.75f, clientWidth, clientHeight));
-	left->set_background_img("assets/frutibandas/arrow_left.tga");
-	sprite.push_back(left);
-	std::shared_ptr<Sprite> right(new Sprite(glm::vec2(0.695f, 0.65f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
-	right->set_background_img("assets/frutibandas/arrow_right.tga");
-	sprite.push_back(right);
-	std::shared_ptr<Sprite> up(new Sprite(glm::vec2(0.46f, 0.985f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
-	up->set_background_img("assets/frutibandas/arrow_up.tga");
-	sprite.push_back(up);
-	std::shared_ptr<Sprite> down(new Sprite(glm::vec2(0.46f, 0.335f), glm::vec2(0.08f, 0.08f * screenAR), 0.75f, clientWidth, clientHeight));
-	down->set_background_img("assets/frutibandas/arrow_down.tga");
-	sprite.push_back(down);
-
-	// remaining
-	std::shared_ptr<Sprite> rPatate(new Sprite(glm::vec2(0.15f, 0.97f), glm::vec2(0.03f, 0.03f*screenAR), 0.8f, clientWidth, clientHeight));
-	rPatate->set_background_img("assets/frutibandas/patate.tga");
-	sprite.push_back(rPatate);
-	std::shared_ptr<Sprite> rBanane(new Sprite(glm::vec2(0.79f, 0.97f + 0.03f*screenAR*0.5f), glm::vec2(0.03f, 0.03f * screenAR*1.5f), 0.8f, clientWidth, clientHeight));
-	rBanane->set_background_img("assets/frutibandas/banana.tga");
-	sprite.push_back(rBanane);
-*/
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)
@@ -369,10 +112,6 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 	{
 		character->get()->getAnimator()->updateAnimation(delta);
 	}
-
-    // camera rotate
-    float rotate_speed = 50.0f;
-    scenes[activeScene].getActiveCamera().rotateAroundAxis(glm::vec3(0.0f, 1.0f, 0.0f), delta * rotate_speed);
 
 	// get shader
 	Shader s = graphics.getPBRShader();
@@ -431,16 +170,16 @@ void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAW
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-	for (auto& s : sprite)
+	for (SpriteGroup & sg : sprite_group)
 	{
-		s->draw();
+		for(auto& s : sg.m_sprite)
+			s->draw();
 	}
 	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.35f);
-	//textRenderer->print("32", 190.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-	//textRenderer->print("32", 855.0f, 670.0f, 1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	bloomPass(width, height, graphics.userInterfaceFBO, 1, graphics.getBloomTexture(1));
 }
+
 
 void Game::resizeScreen(int clientWidth, int clientHeight)
 {
@@ -452,8 +191,13 @@ void Game::resizeScreen(int clientWidth, int clientHeight)
 
 	graphics.resizeScreen(clientWidth, clientHeight);
     textRenderer->resize_screen(clientWidth, clientHeight);
-    for(auto& s : sprite)
-        s->resize_screen(clientWidth, clientHeight);
+	for (SpriteGroup& sg : sprite_group)
+	{
+		for (auto& s : sg.m_sprite)
+		{
+			s->resize_screen(clientWidth, clientHeight);
+		}
+	}
 }
 
 void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)

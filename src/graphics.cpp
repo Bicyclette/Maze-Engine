@@ -2,7 +2,7 @@
 
 Graphics::Graphics(int width, int height) :
 	scene_tone_mapping(TONE_MAPPING::ACES),
-	ui_tone_mapping(TONE_MAPPING::ACES),
+	ui_tone_mapping(TONE_MAPPING::OFF),
 	near(0.1f),
 	far(100.0f),
 	shadows(true),

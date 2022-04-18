@@ -57,7 +57,7 @@ class Game
 
 		void drawUI(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID);
         std::unique_ptr<Text> textRenderer;
-        std::vector<std::shared_ptr<Sprite>> sprite;
+        std::vector<SpriteGroup> sprite_group;
 
 	private: // render passes
 

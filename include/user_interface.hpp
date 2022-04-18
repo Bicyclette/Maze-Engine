@@ -10,6 +10,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
+#include <vector>
 #include "shader_light.hpp"
 
 
@@ -68,6 +69,13 @@ class Sprite
         float m_bloom_strength;
         Shader shader;
         glm::mat4 projection;
+};
+
+struct SpriteGroup
+{
+    SpriteGroup(int id) : m_id(id) {}
+    int m_id;
+    std::vector<std::unique_ptr<Sprite>> m_sprite;
 };
 
 #endif

@@ -93,9 +93,6 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Pathfinding
 * Navmesh
 
-**UI**
-* OpenGL based user interface (buttons, menus, layout).
-
 ## BUGS
 * if/else statement not working (volumetric shader: switch between light types)
 * Wheels of vehicle controller rotate in wrong direction

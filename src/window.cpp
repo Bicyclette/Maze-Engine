@@ -18,8 +18,6 @@ WindowManager::WindowManager(const std::string& title)
 		std::exit(-1);
 	}
 
-	//width = 693*1.5f;
-	//height = 478*1.5f;
 	width = ceil(r.w / 1.25f);
 	height = ceil(r.h / 1.25f);
 

@@ -222,8 +222,8 @@ void render(std::unique_ptr<WindowManager> client, std::unique_ptr<Game> game)
 	//game->setActiveVehicle(0);
 
 	// >>>>>>>>>>>>>>>>>>>> create collection of characters
-	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
-	//game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+	game->setCharacter("assets/character/matahy.glb", model, "Matahy", game->getActiveScene(), glm::ivec2(client->getWidth(), client->getHeight()));
 	// <<<<<<<<<<<<<<<<<<<< create collection of characters
 
 	// delta
