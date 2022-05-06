@@ -24,6 +24,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * DDS textures for fast scene loading and efficient VRAM usage (tested with fbx files : approximately 7 to 8 times faster than glb files which have png/jpg textures)
 * custom collision shapes for rigid bodies
 * text rendering
+* networking
 
 **CMAKE build system**
 
