@@ -15,6 +15,7 @@
 #include "user_interface.hpp"
 #include "mouse.hpp"
 #include "network_client.hpp"
+#include "network_server.hpp"
 
 class Game
 {
@@ -55,6 +56,7 @@ class Game
 		Graphics graphics;
 		std::shared_ptr<Character> character;
 		std::unique_ptr<NetworkClient> m_client;
+		std::unique_ptr<NetworkServer> m_server;
     
     private:
 

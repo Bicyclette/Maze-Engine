@@ -56,6 +56,7 @@ set(SRCS
     src/user_interface.cpp
 	src/mouse.cpp
 	src/network_client.cpp
+	src/network_server.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -95,6 +96,7 @@ set(HEADERS
 	include/allocation.hpp
 	include/mouse.hpp
 	include/network_client.hpp
+	include/network_server.hpp
 	include/imgui.h
 	include/imconfig.h
 	include/imgui_internal.h
