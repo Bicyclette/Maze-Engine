@@ -93,6 +93,5 @@ for ${BULLET\_LIBS} : BulletSoftBody, BulletDynamics, BulletCollision, LinearMat
 * Pathfinding
 * Navmesh
 
-## BUGS
-* if/else statement not working (volumetric shader: switch between light types)
+## BUGS/ISSUES
 * Wheels of vehicle controller rotate in wrong direction
