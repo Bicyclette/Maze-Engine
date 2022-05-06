@@ -185,7 +185,7 @@ void Scene::draw(Shader & shader, Graphics& graphics, DRAW_TYPE drawType, float 
 		shader.setInt("IBL", 0);
 	}
 
-    if(drawType == DRAW_TYPE::BOTH)
+    if(drawType == DRAW_TYPE::DRAW_BOTH)
     {
 	    for(int i{0}; i < objects.size(); ++i)
 	    {
@@ -196,7 +196,7 @@ void Scene::draw(Shader & shader, Graphics& graphics, DRAW_TYPE drawType, float 
 	    }
     }
 
-    else if(drawType == DRAW_TYPE::OPAQUE)
+    else if(drawType == DRAW_TYPE::DRAW_OPAQUE)
     {
         shader.use();
         shader.setInt("animated", 0);

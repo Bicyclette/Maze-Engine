@@ -14,6 +14,7 @@
 #include "character.hpp"
 #include "user_interface.hpp"
 #include "mouse.hpp"
+#include "network_client.hpp"
 
 class Game
 {
@@ -53,6 +54,7 @@ class Game
 		std::map<std::string, std::shared_ptr<Object>> loadedAssets;
 		Graphics graphics;
 		std::shared_ptr<Character> character;
+		std::unique_ptr<NetworkClient> m_client;
     
     private:
 

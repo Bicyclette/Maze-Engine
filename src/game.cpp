@@ -402,7 +402,7 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		graphics.getShadowMappingShader().setMatrix("proj", graphics.getOrthoProjection(scenes[index].getDLights()[i]->getOrthoDimension()));
 
 		// draw scene
-		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
+		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::DRAW_BOTH, delta, mode);
 	}
 
 	for(int i{0}; i < scenes[index].getSLights().size(); ++i)
@@ -431,7 +431,7 @@ void Game::directionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		graphics.getShadowMappingShader().setMatrix("view", lightView);
 
 		// draw scene
-		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
+		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::DRAW_BOTH, delta, mode);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -470,7 +470,7 @@ void Game::omnidirectionalShadowPass(int index, float delta, DRAWING_MODE mode)
 		omnilightViews.clear();
 
 		// draw scene
-		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::BOTH, delta, mode);
+		scenes[index].draw(graphics.getShadowMappingShader(), graphics, DRAW_TYPE::DRAW_BOTH, delta, mode);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -560,8 +560,8 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	    }
     }
 
-	scenes[index].draw(s, graphics, DRAW_TYPE::OPAQUE, delta, mode, debug);
-	scenes[index].draw(s, graphics, DRAW_TYPE::TRANSPARENT, delta, mode, debug);
+	scenes[index].draw(s, graphics, DRAW_TYPE::DRAW_OPAQUE, delta, mode, debug);
+	scenes[index].draw(s, graphics, DRAW_TYPE::DRAW_TRANSPARENT, delta, mode, debug);
 
     // blit to normal framebuffer (resolve multisampling)
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -676,7 +676,7 @@ void Game::GBufferPass(int index, int width, int height, float delta)
 	graphics.getGBufferShader().use();
 	graphics.getGBufferShader().setMatrix("view", scenes[index].getActiveCamera().getViewMatrix());
 	graphics.getGBufferShader().setMatrix("proj", scenes[index].getActiveCamera().getProjectionMatrix());
-	scenes[index].draw(graphics.getGBufferShader(), graphics, DRAW_TYPE::BOTH, delta);
+	scenes[index].draw(graphics.getGBufferShader(), graphics, DRAW_TYPE::DRAW_BOTH, delta);
 }
 
 void Game::ssaoPass(int index, int width, int height, float delta)

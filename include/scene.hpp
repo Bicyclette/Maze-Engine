@@ -21,9 +21,9 @@
 
 enum class DRAW_TYPE
 {
-    OPAQUE,
-    TRANSPARENT,
-    BOTH
+    DRAW_OPAQUE,
+    DRAW_TRANSPARENT,
+    DRAW_BOTH
 };
 
 class Scene
