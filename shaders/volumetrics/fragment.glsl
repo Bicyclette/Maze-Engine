@@ -110,10 +110,13 @@ float getFragVisibility(vec3 worldPos, int id)
 {
     Light l = light[id];
     vec4 lightPos = l.lightSpaceMatrix * vec4(worldPos, 1.0f);
-    //if(l.type != 0)
-        return 1.0f - fetchShadow(lightPos, l.direction, id);
-    //else
-        //return 1.0f - fetchOmniShadow(lightPos.xyz, l.position, id);
+	float shadow = 0.0f;
+    if(l.type != 0){
+		shadow = fetchShadow(lightPos, l.direction, id);
+	} else {
+        shadow = fetchOmniShadow(lightPos.xyz, l.position, id);
+	}
+	return 1.0f - shadow;
 }
 
 float dither_pattern[16] = float[16] (
@@ -191,7 +194,9 @@ void main()
         {
             float dither_value = dither_pattern[ (int(gl_FragCoord.x) % 4)* 4 + (int(gl_FragCoord.y) % 4) ];
             vec3 current_position_world = fragWorldPos.xyz + dither_value * (raymarching_dir * step * j);
-            float visibility = getFragVisibility(current_position_world, i);
+			// >>>>> get visibility
+			float visibility = getFragVisibility(current_position_world, i);
+			// <<<<< get visibility
             ratio += visibility;
             float d = length(current_position_world - light[i].position);
             float d_rcp = 1.0f/d;

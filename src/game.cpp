@@ -77,6 +77,11 @@ Game::Game(int clientWidth, int clientHeight) :
 	worldPhysics[0].attachVertexSoftBody(0, 6, 60);
 	worldPhysics[0].attachVertexSoftBody(0, 6, 62);
 
+	// >>>>>>>>>>>>>>>>>>>> create character
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, 0.0f));
+	setCharacter("assets/character/matahy.glb", model, "Personnage", getActiveScene(), glm::ivec2(clientWidth, clientHeight));
+	// <<<<<<<<<<<<<<<<<<<< create character
+
 	// update loadedAssets
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/ground.glb", scene_objects[0]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/campfire.glb", scene_objects[1]));
@@ -172,7 +177,6 @@ void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAW
 
 	if(m_ui.get_active_page() >= 0)
 		m_ui.get_page(m_ui.get_active_page()).draw();
-	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.35f);
 	
 	// mouse
 	if (m_mouse && m_mouse->is_active())
