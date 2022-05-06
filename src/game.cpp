@@ -170,12 +170,16 @@ void Game::drawUI(float& delta, double& elapsedTime, int width, int height, DRAW
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-	for (SpriteGroup & sg : sprite_group)
+	if(m_ui.get_active_page() >= 0)
+		m_ui.get_page(m_ui.get_active_page()).draw();
+	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.35f);
+	
+	// mouse
+	if (m_mouse && m_mouse->is_active())
 	{
-		for(auto& s : sg.m_sprite)
-			s->draw();
+		m_mouse->update_position();
+		m_mouse->draw();
 	}
-	textRenderer->print("Maze engine", 20.0f, 20.0f, 1.0f, 1.0f, glm::vec3(0.5f, 0.85f, 1.0f)*1.35f);
 
 	bloomPass(width, height, graphics.userInterfaceFBO, 1, graphics.getBloomTexture(1));
 }
@@ -191,13 +195,7 @@ void Game::resizeScreen(int clientWidth, int clientHeight)
 
 	graphics.resizeScreen(clientWidth, clientHeight);
     textRenderer->resize_screen(clientWidth, clientHeight);
-	for (SpriteGroup& sg : sprite_group)
-	{
-		for (auto& s : sg.m_sprite)
-		{
-			s->resize_screen(clientWidth, clientHeight);
-		}
-	}
+	m_ui.resize_screen(clientWidth, clientHeight);
 }
 
 void Game::updateSceneActiveCameraView(int index, const std::bitset<16> & inputs, std::array<int, 3> & mouse, float delta)

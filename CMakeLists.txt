@@ -54,6 +54,7 @@ set(SRCS
 	src/vehicle.cpp
     src/renderTexture.cpp
     src/user_interface.cpp
+	src/mouse.cpp
 	src/helpers.cpp
 	src/imgui.cpp
 	src/imgui_draw.cpp
@@ -91,6 +92,7 @@ set(HEADERS
 	include/lightning.hpp
 	include/helpers.hpp
 	include/allocation.hpp
+	include/mouse.hpp
 	include/imgui.h
 	include/imconfig.h
 	include/imgui_internal.h

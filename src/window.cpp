@@ -178,36 +178,36 @@ void WindowManager::checkEvents()
 		std::cout << "right mouse button\n";
 	}
 
-	if(event.keyboardState[SDL_SCANCODE_LSHIFT])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_LSHIFT)])
 	{
 		userInputs.set(4);
 	}
 
-	if(event.keyboardState[SDL_SCANCODE_UP])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_UP)])
 	{
 		userInputs.set(6);
 	}
 
-	if(event.keyboardState[SDL_SCANCODE_DOWN])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_DOWN)])
 	{
 		userInputs.set(7);
 	}
 
-	if(event.keyboardState[SDL_SCANCODE_RIGHT])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_RIGHT)])
 	{
 		userInputs.set(8);
 	}
 	
-	if(event.keyboardState[SDL_SCANCODE_LEFT])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_LEFT)])
 	{
 		userInputs.set(9);
 	}
 
-	if(event.keyboardState[SDL_SCANCODE_SPACE])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_SPACE)])
 	{
 		userInputs.set(10);
 	}
-	if(event.keyboardState[SDL_SCANCODE_R])
+	if(event.keyboardState[SDL_GetScancodeFromKey(SDLK_r)])
 	{
 		userInputs.set(11);
 	}

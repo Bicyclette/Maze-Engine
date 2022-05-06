@@ -34,6 +34,7 @@ enum class SHADER_TYPE
     UI,
     TEXT,
 	COMPOSITING,
+	MOUSE,
 	FINAL
 };
 

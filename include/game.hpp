@@ -13,6 +13,7 @@
 #include "color.hpp"
 #include "character.hpp"
 #include "user_interface.hpp"
+#include "mouse.hpp"
 
 class Game
 {
@@ -57,7 +58,8 @@ class Game
 
 		void drawUI(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode = DRAWING_MODE::SOLID);
         std::unique_ptr<Text> textRenderer;
-        std::vector<SpriteGroup> sprite_group;
+		std::unique_ptr<Mouse> m_mouse;
+		UI m_ui;
 
 	private: // render passes
 
