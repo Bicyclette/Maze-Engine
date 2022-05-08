@@ -2,7 +2,7 @@
 A simple, rudimentary and low level 3D game engine, written in C++17.
 
 **Features**
-* scene explorer camera and third person camera
+* camera
 * blinn phong and PBR materials (PBR is only supported with glTF/glb format at the moment)
 * image based lighting
 * point, spot and directional light sources (max 10 light sources per scene)
@@ -14,7 +14,6 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 * Ordered transparency (xml data)
 * volumetric lighting
 * motion blur
-* vignette
 * anti-aliasing
 * 3D animated model loading with the ASSIMP library
 * physics with the BULLET engine : rigid bodies, soft bodies, kinematic character controller and vehicle controller
