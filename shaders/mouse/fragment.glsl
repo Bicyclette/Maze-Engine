@@ -20,6 +20,6 @@ void main()
     }
     else
     {
-        brightColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        brightColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     }
 }
