@@ -6,7 +6,7 @@ NetworkClient::NetworkClient() :
 {
 	if (enet_initialize() != 0)
 	{
-		throw std::exception("An error occured while initializing ENet !");
+		throw std::runtime_error("An error occured while initializing ENet !");
 	}
 	atexit(enet_deinitialize);
 
@@ -15,7 +15,7 @@ NetworkClient::NetworkClient() :
 	if (m_client == nullptr)
 	{
 		enet_deinitialize();
-		throw std::exception("Error while trying to create the network client !");
+		throw std::runtime_error("Error while trying to create the network client !");
 	}
 }
 
@@ -34,7 +34,7 @@ bool NetworkClient::connect(std::string server_ip, int port)
 	{
 		enet_host_destroy(m_client);
 		enet_deinitialize();
-		throw std::exception("Error occured while creating the server peer connection !");
+		throw std::runtime_error("Error occured while creating the server peer connection !");
 	}
 
 	// check if the server has contacted us back

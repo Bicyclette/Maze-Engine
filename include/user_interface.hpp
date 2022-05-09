@@ -119,7 +119,9 @@ struct Layer
     Layer(int id) : m_sg(id), m_id(id), m_visible(true)
     {
         if (m_id < 0)
-            throw std::exception("Error creating layer : supplied ID is negative (must be positive or null)");
+		{
+            throw std::runtime_error("Error creating layer : supplied ID is negative (must be positive or null)");
+		}
     }
 
     void set_id(int id) { m_id = id; m_sg.m_id = id; }
@@ -139,7 +141,7 @@ struct Layer
             if (m_sg.m_sprite[i]->get_id() == id)
                 return m_sg.m_sprite[i];
         }
-        throw std::exception("Error while fetching sprite : wrong ID");
+        throw std::runtime_error("Error while fetching sprite : wrong ID");
     }
 
     void draw()
@@ -168,7 +170,7 @@ struct Page
                 return layer;
             }
         }
-        throw std::exception("Error while fetching layer : wrong ID");
+        throw std::runtime_error("Error while fetching layer : wrong ID");
     }
     void draw()
     {

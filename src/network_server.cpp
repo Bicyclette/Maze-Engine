@@ -7,7 +7,7 @@ NetworkServer::NetworkServer() :
 {
 	if (enet_initialize() != 0)
 	{
-		throw std::exception("An error occured while initializing ENet !");
+		throw std::runtime_error("An error occured while initializing ENet !");
 	}
 	atexit(enet_deinitialize);
 
@@ -18,7 +18,7 @@ NetworkServer::NetworkServer() :
 	if (m_server == nullptr)
 	{
 		enet_deinitialize();
-		throw std::exception("Error while trying to create the network server !");
+		throw std::runtime_error("Error while trying to create the network server !");
 	}
 
 	// pool of threads
