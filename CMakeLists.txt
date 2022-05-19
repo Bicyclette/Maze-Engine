@@ -9,26 +9,14 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules ${CMAKE_MODULE_PATH})
 set(CMAKE_RUNTIME_OUTPUT ${CMAKE_BINARY_DIR})
 cmake_policy(SET CMP0072 NEW)
 
-include_directories(include
-	${SDL2_INCLUDE_DIR}
-	${GLEW_INCLUDE_DIR}
-	${ASSIMP_INCLUDE_DIR}
-	${BULLET_INCLUDE_DIR}
-	${OPENAL_INCLUDE_DIR}
-	${LIBSNDFILE_INCLUDE_DIR}
-    ${FREETYPE_INCLUDE_DIR}
-    ${ENET_INCLUDE_DIR}
-	)
+if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+	include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+	conan_basic_setup()
+else()
+	message(WARNING "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
+endif()
 
-link_directories(${SDL2_LIB_DIR}
-	${GLEW_LIB_DIR}
-	${ASSIMP_LIB_DIR}
-	${BULLET_LIB_DIR}
-	${OPENAL_LIB_DIR}
-	${LIBSNDFILE_LIB_DIR}
-    ${FREETYPE_LIB_DIR}
-    ${ENET_LIB_DIR}
-	)
+include_directories(include)
 
 set(SRCS
 	src/stb_image.cpp
@@ -123,16 +111,10 @@ else()
 	message(FATAL_ERROR "OpenGL not found.")
 endif()
 
-target_link_libraries(${PROJECT_NAME}
-	${SDL2_LIBS}
-	${GLEW_LIBS}
-	${ASSIMP_LIBS}
-	${BULLET_LIBS}
-	${OPENAL_LIBS}
-	${LIBSNDFILE_LIBS}
-    ${FREETYPE_LIBS}
-    ${ENET_LIBS}
-	)
+target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin)

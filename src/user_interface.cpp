@@ -144,6 +144,38 @@ void Text::print(std::string txt, float x, float y, float scale, glm::vec3 color
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+glm::vec3 Text::get_cursor_shape(std::string txt, float x, float y, float scale, int cursor_pos) // x,y => pos, z => height
+{
+    if (activePoliceIndex == -1)
+        throw std::runtime_error("TEXT ERROR : WRONG POLICE INDEX SUPPLIED ! (-1)");
+    Alphabet alphabet = police[activePoliceIndex].second;
+
+    // get max glyph vertical size
+    float height = 0.0f;
+    // get vertical shift
+    float yshift = 0.0f;
+    for (unsigned char c{ 0 }; c < 128; ++c)
+    {
+        Glyph glyph = alphabet[c];
+        if (glyph.size.y > height) {
+            height = glyph.size.y;
+        }
+        if ((glyph.bearing.y - glyph.size.y) < yshift) {
+            yshift = (glyph.bearing.y - glyph.size.y);
+        }
+    }
+
+    // iterate through "cursor_pos" characters
+    std::string::const_iterator c;
+    for (c = txt.begin(); c < txt.begin() + cursor_pos; ++c)
+    {
+        Glyph glyph = alphabet[*c];
+        // advance cursors for next glyph
+        x += (glyph.advance >> 6) * scale;
+    }
+    return glm::vec3(x, y + yshift, height);
+}
+
 Sprite::Sprite(int id, glm::vec2 pos, glm::vec2 size, int screenW, int screenH) :
     m_id(id),
     m_layer_id(-1),

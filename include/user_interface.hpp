@@ -37,6 +37,7 @@ public:
     void load_police(std::string ttf_file, int font_size);
     void use_police(int index);
     void print(std::string txt, float x, float y, float scale, glm::vec3 color);
+    glm::vec3 get_cursor_shape(std::string txt, float x, float y, float scale, int cursor_pos); // x,y => pos, z => height
 
 private:
     FT_Library ft;
@@ -119,9 +120,7 @@ struct Layer
     Layer(int id) : m_sg(id), m_id(id), m_visible(true)
     {
         if (m_id < 0)
-		{
             throw std::runtime_error("Error creating layer : supplied ID is negative (must be positive or null)");
-		}
     }
 
     void set_id(int id) { m_id = id; m_sg.m_id = id; }

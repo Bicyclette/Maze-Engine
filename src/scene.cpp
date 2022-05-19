@@ -307,6 +307,11 @@ void Scene::stopSound(int source_index, int audio_index)
 	sound_source[source_index].stop_sound();
 }
 
+Source& Scene::getSoundSource(int index)
+{
+	return sound_source[index];
+}
+
 int Scene::sortTransparentMesh(const void * a, const void * b)
 {
     std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>> meshA{*static_cast<const std::pair<std::shared_ptr<Mesh>, std::shared_ptr<Object>>*>(a)};
