@@ -28,10 +28,12 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 
 ### Dependencies
 - [Conan](https://conan.io/)
+- [Cmake](https://cmake.org)
 
-## Build (CMake)
+## Build
 ```
 conan install . -s build_type=Release --build missing --install-folder=build
+cmake -B build -S .
 ```
 
 
