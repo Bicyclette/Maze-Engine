@@ -90,6 +90,10 @@ class Mesh
 		Material material;
 
 		void shaderProcessing(Shader & s, struct IBL_DATA * iblData); // set proper uniforms according to shader type
+		void processBlinnPhong(Shader& s);
+		void processPBR(Shader & s, struct IBL_DATA * iblData);
+		void processToon(Shader & s);
+		void processShadows(Shader & s);
 };
 
 #endif

@@ -100,95 +100,111 @@ void Mesh::bindVAO() const
 
 void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 {
-	if(s.getType() == SHADER_TYPE::BLINN_PHONG)
+	if (s.getType() == SHADER_TYPE::BLINN_PHONG)
 	{
-		s.setVec3f("material.color_diffuse", material.color_diffuse);
-		s.setVec3f("material.emissiveColor", material.color_emissive);
-		s.setFloat("material.emissionIntensity", material.emission_intensity);
-		s.setVec3f("material.color_specular", material.color_specular);
-		s.setVec3f("material.color_ambient", material.color_ambient);
-		s.setFloat("material.shininess", material.shininess);
-		s.setFloat("material.opacity", material.opacity);
-		s.setInt("material.hasNormal", 0);
-		s.setInt("material.hasDiffuse", 0);
-		s.setInt("material.hasSpecular", 0);
-		s.setInt("material.hasEmission", 0);
-		s.setInt("material.nbTextures", material.textures.size());
+		processBlinnPhong(s);
 	}
-	else if(s.getType() == SHADER_TYPE::PBR)
+	else if (s.getType() == SHADER_TYPE::PBR)
 	{
-		s.setVec3f("material.albedo", material.color_diffuse);
-		s.setVec3f("material.emissiveColor", material.color_emissive);
-		s.setFloat("material.emissionIntensity", material.emission_intensity);
-		s.setFloat("material.metallic", material.metallic);
-		s.setFloat("material.roughness", material.roughness);
-		s.setFloat("material.ao", 1.0f);
-		s.setFloat("material.opacity", material.opacity);
-		s.setInt("material.hasNormal", 0);
-		s.setInt("material.hasAlbedo", 0);
-		s.setInt("material.hasMetallicRough", 0);
-		s.setInt("material.hasEmission", 0);
-		s.setInt("material.nbTextures", material.textures.size());
+		processPBR(s, iblData);
 	}
-	else if(s.getType() == SHADER_TYPE::SHADOWS)
+	else if (s.getType() == SHADER_TYPE::TOON)
 	{
-		s.setInt("hasDiffuse", 0);
+		processToon(s);
 	}
+	else if (s.getType() == SHADER_TYPE::SHADOWS)
+	{
+		processShadows(s);
+	}
+}
 
-	int diffuse_IBL_index{0};
-	for(int i{0}; i < material.textures.size(); ++i, ++diffuse_IBL_index)
+void Mesh::processBlinnPhong(Shader& s)
+{
+	s.setVec3f("material.color_diffuse", material.color_diffuse);
+	s.setVec3f("material.emissiveColor", material.color_emissive);
+	s.setFloat("material.emissionIntensity", material.emission_intensity);
+	s.setVec3f("material.color_specular", material.color_specular);
+	s.setVec3f("material.color_ambient", material.color_ambient);
+	s.setFloat("material.shininess", material.shininess);
+	s.setFloat("material.opacity", material.opacity);
+	s.setInt("material.hasNormal", 0);
+	s.setInt("material.hasDiffuse", 0);
+	s.setInt("material.hasSpecular", 0);
+	s.setInt("material.hasEmission", 0);
+	s.setInt("material.nbTextures", material.textures.size());
+
+	for (int i{ 0 }; i < material.textures.size(); ++i)
 	{
-		if(material.textures[i].type == TEXTURE_TYPE::DIFFUSE)
+		if (material.textures[i].type == TEXTURE_TYPE::DIFFUSE)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
-			if(s.getType() == SHADER_TYPE::BLINN_PHONG)
-			{
-				s.setInt("material.diffuse", i);
-				s.setInt("material.hasDiffuse", 1);
-			}
-			else if(s.getType() == SHADER_TYPE::PBR)
-			{
-				s.setInt("material.albedoMap", i);
-				s.setInt("material.hasAlbedo", 1);
-			}
-			else if(s.getType() == SHADER_TYPE::SHADOWS)
-			{
-				s.setInt("diffuse", i);
-				s.setInt("hasDiffuse", 1);
-			}
+			s.setInt("material.diffuse", i);
+			s.setInt("material.hasDiffuse", 1);
 		}
-		else if(material.textures[i].type == TEXTURE_TYPE::SPECULAR)
+		else if (material.textures[i].type == TEXTURE_TYPE::SPECULAR)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
-			if(s.getType() == SHADER_TYPE::BLINN_PHONG)
-			{
-				s.setInt("material.specular", i);
-				s.setInt("material.hasSpecular", 1);
-			}
+			s.setInt("material.specular", i);
+			s.setInt("material.hasSpecular", 1);
 		}
-		else if(material.textures[i].type == TEXTURE_TYPE::NORMAL)
+		else if (material.textures[i].type == TEXTURE_TYPE::NORMAL)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
-			if(s.getType() == SHADER_TYPE::BLINN_PHONG)
-				s.setInt("material.normal", i);
-			else if(s.getType() == SHADER_TYPE::PBR)
-				s.setInt("material.normalMap", i);
+			s.setInt("material.normal", i);
 			s.setInt("material.hasNormal", 1);
 		}
-		else if(material.textures[i].type == TEXTURE_TYPE::METALLIC_ROUGHNESS)
+		else if (material.textures[i].type == TEXTURE_TYPE::EMISSIVE)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
-			if(s.getType() == SHADER_TYPE::PBR)
-			{
-				s.setInt("material.metallicRoughMap", i);
-				s.setInt("material.hasMetallicRough", 1);
-			}
+			s.setInt("material.emissionMap", i);
+			s.setInt("material.hasEmission", 1);
 		}
-		else if(material.textures[i].type == TEXTURE_TYPE::EMISSIVE)
+	}
+}
+
+void Mesh::processPBR(Shader& s, struct IBL_DATA* iblData)
+{
+	s.setVec3f("material.albedo", material.color_diffuse);
+	s.setVec3f("material.emissiveColor", material.color_emissive);
+	s.setFloat("material.emissionIntensity", material.emission_intensity);
+	s.setFloat("material.metallic", material.metallic);
+	s.setFloat("material.roughness", material.roughness);
+	s.setFloat("material.ao", 1.0f);
+	s.setFloat("material.opacity", material.opacity);
+	s.setInt("material.hasNormal", 0);
+	s.setInt("material.hasAlbedo", 0);
+	s.setInt("material.hasMetallicRough", 0);
+	s.setInt("material.hasEmission", 0);
+	s.setInt("material.nbTextures", material.textures.size());
+
+	for (int i{ 0 }; i < material.textures.size(); ++i)
+	{
+		if (material.textures[i].type == TEXTURE_TYPE::DIFFUSE)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.albedoMap", i);
+			s.setInt("material.hasAlbedo", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::NORMAL)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.normalMap", i);
+			s.setInt("material.hasNormal", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::METALLIC_ROUGHNESS)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.metallicRoughMap", i);
+			s.setInt("material.hasMetallicRough", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::EMISSIVE)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
@@ -197,7 +213,7 @@ void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 		}
 	}
 
-	if(s.getType() == SHADER_TYPE::PBR && iblData)
+	if (iblData)
 	{
 		glActiveTexture(GL_TEXTURE0 + 15);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, iblData->irradiance);
@@ -210,6 +226,69 @@ void Mesh::shaderProcessing(Shader & s, struct IBL_DATA * iblData)
 		glActiveTexture(GL_TEXTURE0 + 17);
 		glBindTexture(GL_TEXTURE_2D, iblData->brdf);
 		s.setInt("brdfLUT", 17);
+	}
+}
+
+void Mesh::processToon(Shader& s)
+{
+	s.setVec3f("material.color_diffuse", material.color_diffuse);
+	s.setVec3f("material.emissiveColor", material.color_emissive);
+	s.setFloat("material.emissionIntensity", material.emission_intensity);
+	s.setVec3f("material.color_specular", material.color_specular);
+	s.setVec3f("material.color_ambient", material.color_ambient);
+	s.setFloat("material.shininess", material.shininess);
+	s.setFloat("material.opacity", material.opacity);
+	s.setInt("material.hasNormal", 0);
+	s.setInt("material.hasDiffuse", 0);
+	s.setInt("material.hasSpecular", 0);
+	s.setInt("material.hasEmission", 0);
+	s.setInt("material.nbTextures", material.textures.size());
+
+	for (int i{ 0 }; i < material.textures.size(); ++i)
+	{
+		if (material.textures[i].type == TEXTURE_TYPE::DIFFUSE)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.diffuse", i);
+			s.setInt("material.hasDiffuse", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::SPECULAR)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.specular", i);
+			s.setInt("material.hasSpecular", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::NORMAL)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.normal", i);
+			s.setInt("material.hasNormal", 1);
+		}
+		else if (material.textures[i].type == TEXTURE_TYPE::EMISSIVE)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("material.emissionMap", i);
+			s.setInt("material.hasEmission", 1);
+		}
+	}
+}
+
+void Mesh::processShadows(Shader& s)
+{
+	s.setInt("hasDiffuse", 0);
+	for (int i{ 0 }; i < material.textures.size(); ++i)
+	{
+		if (material.textures[i].type == TEXTURE_TYPE::DIFFUSE)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
+			s.setInt("diffuse", i);
+			s.setInt("hasDiffuse", 1);
+		}
 	}
 }
 

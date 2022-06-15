@@ -24,6 +24,7 @@ enum class SHADER_TYPE
 {
 	BLINN_PHONG,
 	PBR,
+	TOON,
 	SHADOWS,
 	GBUFFER,
 	AO,

@@ -4,6 +4,7 @@ A simple, rudimentary and low level 3D game engine, written in C++17.
 **Features**
 * camera
 * blinn phong and PBR materials (PBR is only supported with glTF/glb format at the moment)
+* toon shader (Work In Progress)
 * image based lighting
 * point, spot and directional light sources (max 10 light sources per scene)
 * skybox
@@ -63,6 +64,8 @@ cmake -B build -S .
 ### 3D audio
 ![audio](engine_imgs/audio_debug.png)
 ![audio](engine_imgs/3D_audio_close_up.png)
+### Toon shader (Work In Progress)
+![toon](engine_imgs/toon_WIP.png)
 
 ## TO DO
 **AI**

@@ -27,6 +27,22 @@ class Graphics
 	public:
 
 		Graphics(int width, int height);
+		void setColorShader(SHADER_TYPE type)
+		{
+			m_colorShaderType = type;
+		}
+		Shader& getColorShader()
+		{
+			if (m_colorShaderType == SHADER_TYPE::BLINN_PHONG) {
+				return blinnPhong;
+			}
+			else if (m_colorShaderType == SHADER_TYPE::PBR) {
+				return pbr;
+			}
+			else if (m_colorShaderType == SHADER_TYPE::TOON) {
+				return toon;
+			}
+		}
 		void setNearPlane(float nearPlane);
 		void setFarPlane(float farPlane);
 		void setShadows(bool s);
@@ -100,9 +116,11 @@ class Graphics
         std::unique_ptr<Framebuffer> motionBlurFBO;
         std::unique_ptr<Framebuffer> userInterfaceFBO;
 		std::array<std::unique_ptr<Framebuffer>, 2> compositeFBO;
+		std::array<RenderTexture, 2> toonOutlineRT;
 
 		TONE_MAPPING scene_tone_mapping;
 		TONE_MAPPING ui_tone_mapping;
+		SHADER_TYPE m_colorShaderType;
 		float near;
 		float far;
 		bool shadows;
@@ -118,9 +136,18 @@ class Graphics
 		glm::mat4 omniPerspProjection; // for point lights
 		GLuint aoNoiseTexture;
 		std::vector<glm::vec3> aoKernel;
+		glm::vec3 outlineColor;
 
+		Shader cs_gaussianBlur;
+		Shader cs_sobel;
+		Shader cs_nms; // non maximum suppression
+		Shader cs_double_thresholding;
+		Shader cs_hysteresis;
+		Shader cs_dilate;
+		Shader cs_outline;
 		Shader blinnPhong;
 		Shader pbr;
+		Shader toon;
 		Shader shadowMapping;
 		Shader gBuffer;
 		Shader ao;

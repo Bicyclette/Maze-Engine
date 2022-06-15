@@ -144,13 +144,21 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
     ImGui::RadioButton("OFF", &settings.show_physics, 0);
     ImGui::End(); 
 
-    ImGui::SetNextWindowPos(ImVec2(0, 80));
+    ImGui::SetNextWindowPos(ImVec2(0, 100));
     ImGui::Begin("AO");
     ImGui::SetWindowSize(ImVec2(210, 160));
     ImGui::RadioButton("ON", &settings.AO, 1);
     ImGui::RadioButton("OFF", &settings.AO, 0);
     ImGui::InputFloat("radius", &settings.AORadius, 0.05f);
     ImGui::InputInt("samples", &settings.AOSamples, 1);
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(210, 100));
+    ImGui::Begin("Shader type");
+    ImGui::SetWindowSize(ImVec2(150, 120));
+    ImGui::RadioButton("Blinn-Phong", &settings.shader_type, 0);
+    ImGui::RadioButton("PBR", &settings.shader_type, 1);
+    ImGui::RadioButton("Toon", &settings.shader_type, 2);
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(client->getWidth()-50, 0));
@@ -202,6 +210,12 @@ void editorUI(EDITOR_UI_SETTINGS & settings, std::unique_ptr<WindowManager> & cl
         game->getGraphics().setVolumetricLighting(false);
     else
         game->getGraphics().setVolumetricLighting(true);
+    if (settings.shader_type == 0)
+        game->getGraphics().setColorShader(SHADER_TYPE::BLINN_PHONG);
+    else if(settings.shader_type == 1)
+        game->getGraphics().setColorShader(SHADER_TYPE::PBR);
+    else if (settings.shader_type == 2)
+        game->getGraphics().setColorShader(SHADER_TYPE::TOON);
 
     if(settings.show_physics == 1)
         debugPhysics = true;
