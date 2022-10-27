@@ -9,8 +9,10 @@
 #include <enet/enet.h>
 #include <string>
 #include <vector>
+#include <array>
 #include <random>
 #include <thread>
+#include <sstream>
 #include <mutex>
 #include <queue>
 
@@ -43,10 +45,6 @@ struct ClientMessage
 	std::string m_message;
 };
 
-inline std::queue<ClientMessage> g_message_queue;
-inline std::mutex g_message_mutex;
-void message_processing(int tid, bool& server_on); // user defined
-
 class NetworkServer
 {
 public:
@@ -55,16 +53,20 @@ public:
 	~NetworkServer();
 	void run();
 	void shutdown();
+	void send_data(ENetPeer* peer, std::string data);
 
 private:
 
 	bool m_active;
-	const unsigned int m_num_threads;
-	std::vector<std::thread> m_thread_pool;
 	ENetAddress m_address;
 	ENetHost* m_server;
 	ENetEvent m_event;
 	std::vector<std::shared_ptr<Player>> m_player;
 };
+
+inline std::queue<ClientMessage> g_message_queue;
+inline std::mutex g_message_mutex;
+inline std::mutex g_server_mutex;
+void message_processing(int tid, bool& server_on, NetworkServer& server); // user defined
 
 #endif

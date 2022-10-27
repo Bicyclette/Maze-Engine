@@ -15,6 +15,8 @@ public:
 	bool disconnect();
 	bool has_received_data();
 	void print_data();
+	void send_data(std::string data);
+	int service();
 
 private:
 	ENetHost* m_client;

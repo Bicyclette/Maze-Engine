@@ -119,7 +119,7 @@ void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWIN
 	}
 
 	// get shader
-	Shader s = graphics.getPBRShader();
+	Shader s = graphics.getColorShader();
 
 	if(activeScene < scenes.size())
 	{
@@ -482,7 +482,7 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	graphics.getMultisampleFBO()->bind();
 
 	// get shader
-	Shader s = graphics.getPBRShader();
+	Shader s = graphics.getColorShader();
 
 	// draw scene
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -568,6 +568,89 @@ void Game::colorMultisamplePass(int index, int width, int height, float delta, D
 	graphics.getMultisampleFBO()->blitFramebuffer(graphics.getNormalFBO(0), width, height);
 	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	graphics.getMultisampleFBO()->blitFramebuffer(graphics.getNormalFBO(1), width, height);
+
+	// draw outline if shader type is TOON
+	if (s.getType() == SHADER_TYPE::TOON)
+	{
+		toonOutline(width, height);
+	}
+}
+
+void Game::toonOutline(int width, int height)
+{
+	Shader& cs_gaussianBlur = graphics.cs_gaussianBlur;
+	Shader& cs_sobel = graphics.cs_sobel;
+	Shader& cs_nms = graphics.cs_nms;
+	Shader& cs_double_thresholding = graphics.cs_double_thresholding;
+	Shader& cs_hysteresis = graphics.cs_hysteresis;
+	Shader& cs_dilate = graphics.cs_dilate;
+	Shader& cs_outline = graphics.cs_outline;
+
+	// horizontal blur
+	cs_gaussianBlur.use();
+	cs_gaussianBlur.setInt("blurSize", 5);
+	cs_gaussianBlur.setFloat("sigma", 1.0f);
+	cs_gaussianBlur.setInt("direction", 0);
+	glBindImageTexture(0, graphics.getNormalFBO(0)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_gaussianBlur.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// vertical blur
+	cs_gaussianBlur.setInt("direction", 1);
+	glBindImageTexture(0, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_gaussianBlur.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// edge detection
+	cs_sobel.use();
+	glBindImageTexture(0, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_sobel.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// NMS
+	cs_nms.use();
+	glBindImageTexture(0, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_nms.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// double thresholding
+	cs_double_thresholding.use();
+	cs_double_thresholding.setFloat("low_thr", 0.1f);
+	cs_double_thresholding.setFloat("high_thr", 0.25f);
+	glBindImageTexture(0, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_double_thresholding.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// hysteresis
+	cs_hysteresis.use();
+	cs_hysteresis.setFloat("weak", 0.5f);
+	cs_hysteresis.setFloat("strong", 1.0f);
+	glBindImageTexture(0, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_hysteresis.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// dilation
+	cs_dilate.use();
+	glBindImageTexture(0, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_dilate.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	cs_dilate.use();
+	glBindImageTexture(0, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_dilate.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	cs_dilate.use();
+	// horizontal blur
+	cs_gaussianBlur.use();
+	cs_gaussianBlur.setInt("direction", 0);
+	glBindImageTexture(0, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_gaussianBlur.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// vertical blur
+	cs_gaussianBlur.setInt("direction", 1);
+	glBindImageTexture(0, graphics.toonOutlineRT[0].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_gaussianBlur.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
+	// outline
+	cs_outline.use();
+	cs_outline.setVec3f("outline_color", graphics.outlineColor);
+	glBindImageTexture(0, graphics.toonOutlineRT[1].getId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, graphics.getNormalFBO(0)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	glBindImageTexture(2, graphics.getNormalFBO(0)->getAttachments()[0].id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	cs_outline.dispatch(width / 8, height / 8, 1, GL_ALL_BARRIER_BITS);
 }
 
 void Game::bloomPass(int width, int height, std::unique_ptr<Framebuffer>& in, int attachmentIndex, GLuint out)
@@ -720,7 +803,7 @@ void Game::ssaoPass(int index, int width, int height, float delta)
 	graphics.getQuadMesh()->draw(graphics.getAOBlurShader());
 
 	// reset clear color
-	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Game::volumetricsPass(int index, int width, int height, float delta, double elapsedTime)
@@ -857,7 +940,7 @@ void Game::volumetricsPass(int index, int width, int height, float delta, double
     graphics.getQuadMesh()->draw(VLUpSample);
 
     // reset clear color
-	glClearColor(LIGHT_GREY[0], LIGHT_GREY[1], LIGHT_GREY[2], LIGHT_GREY[3]);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Game::motionBlurPass(int index, int width, int height)

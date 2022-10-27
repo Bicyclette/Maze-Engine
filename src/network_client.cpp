@@ -81,3 +81,14 @@ void NetworkClient::print_data()
 	std::string data = reinterpret_cast<char*>(m_event.packet->data);
 	std::cout << data << std::endl;
 }
+
+void NetworkClient::send_data(std::string data)
+{
+	ENetPacket* packet = enet_packet_create(data.c_str(), data.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(m_peer, 0, packet);
+}
+
+int NetworkClient::service()
+{
+	return enet_host_service(m_client, &m_event, 0);
+}

@@ -2,7 +2,6 @@
 
 NetworkServer::NetworkServer() :
 	m_active(true),
-	m_num_threads(std::thread::hardware_concurrency()),
 	m_server(nullptr)
 {
 	if (enet_initialize() != 0)
@@ -19,12 +18,6 @@ NetworkServer::NetworkServer() :
 	{
 		enet_deinitialize();
 		throw std::runtime_error("Error while trying to create the network server !");
-	}
-
-	// pool of threads
-	for (unsigned int i{ 0 }; i < m_num_threads; ++i)
-	{
-		m_thread_pool.emplace_back(message_processing, i + 1, std::ref(m_active));
 	}
 }
 
@@ -82,29 +75,10 @@ void NetworkServer::run()
 void NetworkServer::shutdown()
 {
 	m_active = false;
-	for (auto& thr : m_thread_pool)
-		thr.join();
 }
 
-void message_processing(int tid, bool& server_on)
+void NetworkServer::send_data(ENetPeer* peer, std::string data)
 {
-	while (server_on)
-	{
-		ClientMessage client_message;
-		g_message_mutex.lock();
-		if (!g_message_queue.empty())
-		{
-			client_message = g_message_queue.front();
-			g_message_queue.pop();
-		}
-		else
-		{
-			g_message_mutex.unlock();
-			continue;
-		}
-		g_message_mutex.unlock();
-
-		auto& player{ client_message.m_player };
-		std::string& data{ client_message.m_message };
-	}
+	ENetPacket* packet = enet_packet_create(data.c_str(), data.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(peer, 0, packet);
 }

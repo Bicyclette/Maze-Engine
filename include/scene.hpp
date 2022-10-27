@@ -64,6 +64,7 @@ class Scene
 		void addSoundSource(glm::vec3 position, glm::vec3 direction = glm::vec3(0.0f), float inner_angle = 0.0f, float outer_angle = 0.0f, float volume = 1.0f, bool loop = false);
 		void playSound(int source_index, int audio_index);
 		void stopSound(int source_index, int audio_index);
+		Source& getSoundSource(int index);
 
     public:
         static inline glm::vec3 sortCamPos;

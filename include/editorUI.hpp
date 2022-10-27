@@ -13,6 +13,7 @@ struct EDITOR_UI_SETTINGS
     int volumetrics{0};
     int motion_blur{0};
     int show_physics{0};
+    int shader_type{ 1 }; // 0 = blinn, 1 = pbr, 2 = toon
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "graphics.hpp"
 
 Graphics::Graphics(int width, int height) :
+	m_colorShaderType(SHADER_TYPE::TOON),
 	scene_tone_mapping(TONE_MAPPING::ACES),
 	ui_tone_mapping(TONE_MAPPING::OFF),
 	near(0.1f),
@@ -15,6 +16,7 @@ Graphics::Graphics(int width, int height) :
 	volumetricsOn{false},
     motionBlurFX(false),
     motionBlurStrength(100),
+	outlineColor(0.0f, 0.0f, 0.0f),
 	multisample{std::make_unique<Framebuffer>(true, true, true)},
 	normal{
 		std::make_unique<Framebuffer>(true, false, true),
@@ -97,9 +99,21 @@ Graphics::Graphics(int width, int height) :
 		std::make_unique<Framebuffer>(true, false, true),
 		std::make_unique<Framebuffer>(true, false, true)
 	},
+	toonOutlineRT{
+		RenderTexture(width, height, 1, GL_RGBA16F, GL_RGBA, GL_FLOAT),
+		RenderTexture(width, height, 1, GL_RGBA16F, GL_RGBA, GL_FLOAT)
+	},
 	omniPerspProjection(glm::perspective(glm::radians(90.0f), 1.0f, near, far)),
+	cs_gaussianBlur("shaders/compute/gaussian_blur.glsl", SHADER_TYPE::COMPUTE),
+	cs_sobel("shaders/compute/sobel.glsl", SHADER_TYPE::COMPUTE),
+	cs_nms("shaders/compute/nms.glsl", SHADER_TYPE::COMPUTE),
+	cs_double_thresholding("shaders/compute/double_thresholding.glsl", SHADER_TYPE::COMPUTE),
+	cs_hysteresis("shaders/compute/hysteresis.glsl", SHADER_TYPE::COMPUTE),
+	cs_dilate("shaders/compute/dilate.glsl", SHADER_TYPE::COMPUTE),
+	cs_outline("shaders/compute/outline.glsl", SHADER_TYPE::COMPUTE),
 	blinnPhong("shaders/blinn_phong/vertex.glsl", "shaders/blinn_phong/fragment.glsl", SHADER_TYPE::BLINN_PHONG),
 	pbr("shaders/PBR/vertex.glsl", "shaders/PBR/fragment.glsl", SHADER_TYPE::PBR),
+	toon("shaders/toon/vertex.glsl", "shaders/toon/fragment.glsl", SHADER_TYPE::TOON),
 	shadowMapping("shaders/shadowMapping/vertex.glsl", "shaders/shadowMapping/geometry.glsl", "shaders/shadowMapping/fragment.glsl", SHADER_TYPE::SHADOWS),
 	gBuffer("shaders/GBuffer/vertex.glsl", "shaders/GBuffer/fragment.glsl", SHADER_TYPE::GBUFFER),
 	ao("shaders/AO/vertex.glsl", "shaders/AO/fragment.glsl", SHADER_TYPE::AO),
@@ -116,7 +130,7 @@ Graphics::Graphics(int width, int height) :
 	uiCompositing("shaders/compositing/ui/vertex.glsl", "shaders/compositing/ui/fragment.glsl", SHADER_TYPE::COMPOSITING),
 	end("shaders/final/vertex.glsl", "shaders/final/fragment.glsl", SHADER_TYPE::FINAL)
 {
-	// Generic Multisample FBO
+	// Multisample FBO
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
@@ -219,6 +233,13 @@ Graphics::Graphics(int width, int height) :
 	compositeFBO[0]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+
+	// TOON RenderTextures
+	for (int i = 0; i < 2; ++i)
+	{
+		toonOutlineRT[i].set_wrap_method(GL_CLAMP_TO_EDGE);
+		toonOutlineRT[i].set_min_mag_filter(GL_LINEAR, GL_LINEAR);
+	}
 
 	// quad mesh for rendering final image
 	glm::vec3 normal(0.0f, 0.0f, 1.0f);
@@ -568,6 +589,11 @@ void Graphics::resizeScreen(int width, int height)
 		std::make_unique<Framebuffer>(true, false, true)
 	};
 
+	toonOutlineRT = {
+		RenderTexture(width, height, 1, GL_RGBA16F, GL_RGBA, GL_FLOAT),
+		RenderTexture(width, height, 1, GL_RGBA16F, GL_RGBA, GL_FLOAT)
+	};
+
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	multisample->addAttachment(ATTACHMENT_TYPE::RENDER_BUFFER, ATTACHMENT_TARGET::DEPTH_STENCIL, width, height);
@@ -636,6 +662,13 @@ void Graphics::resizeScreen(int width, int height)
 	compositeFBO[0]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
 	compositeFBO[1]->addAttachment(ATTACHMENT_TYPE::TEXTURE, ATTACHMENT_TARGET::COLOR, width, height);
+
+	// TOON RenderTextures
+	for (int i = 0; i < 2; ++i)
+	{
+		toonOutlineRT[i].set_wrap_method(GL_CLAMP_TO_EDGE);
+		toonOutlineRT[i].set_min_mag_filter(GL_LINEAR, GL_LINEAR);
+	}
 }
 
 std::vector<glm::vec3> & Graphics::getAOKernel()
