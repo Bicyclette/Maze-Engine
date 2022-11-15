@@ -92,6 +92,24 @@ Game::Game(int clientWidth, int clientHeight) :
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/pillar.glb", scene_objects[6]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag.glb", scene_objects[7]));
 	loadedAssets.insert(std::pair<std::string, std::shared_ptr<Object>>("assets/character/flag_bearer.glb", scene_objects[8]));
+	/*
+	// create toon scene
+	scenes.emplace_back("toon scene", 0);
+
+	camPos = glm::vec3(-3.792668f, 10.760394f, 13.220017f);
+	camTarget = glm::vec3(0.0f, 4.5f, 0.0f);
+	camDir = glm::normalize(camTarget - camPos);
+	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	camRight = glm::normalize(glm::cross(camDir, camUp));
+	camUp = glm::normalize(glm::cross(camRight, camDir));
+	scenes[0].addCamera(CAM_TYPE::REGULAR, glm::ivec2(clientWidth, clientHeight), camPos, camTarget, camUp, 45.0f, 0.1f, 100.0f);
+
+	scenes[0].setActiveCamera(0);
+
+	scenes[0].addDirectionalLight(SHADOW_QUALITY::HIGH, glm::vec3(0.0f, 30.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f, 0.9f, 0.6f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, -0.25f), 30.0f);
+
+	scenes[0].addObject("assets/toon_scene/toon.glb", glm::mat4(1.0f));
+	*/
 }
 
 void Game::draw(float& delta, double& elapsedTime, int width, int height, DRAWING_MODE mode, bool debug, bool debugPhysics)

@@ -21,7 +21,7 @@ struct Glyph
     GLuint textureID; // handle of the glyph texture
     glm::ivec2 size; // size of glyph
     glm::ivec2 bearing; // offset from baseline to left/top of glyph
-    int advance; // offset to advance to next glyph
+    FT_Pos advance; // offset to advance to next glyph
 };
 
 class Text
