@@ -74,3 +74,4 @@ cmake -B build -S .
 
 ## BUGS/ISSUES
 * Wheels of vehicle controller rotate in wrong direction
+* if statement not working in volumetric lighting shader
